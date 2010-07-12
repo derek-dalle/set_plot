@@ -28,9 +28,9 @@ h = gca;
 %% Create all the labels
 % No title for AIAA papers, this is taken care of in LaTex
 
-axes = get(h);
-hxlabel = axes.XLabel;
-hylabel = axes.YLabel;
+haxes = get(h);
+hxlabel = haxes.XLabel;
+hylabel = haxes.YLabel;
 hlegend = legend(h);
 
 set([hxlabel, hylabel]          , ...
@@ -59,5 +59,16 @@ set(h, ...
   'LineWidth'   , 1         );
 
 % set the sizes of everything
+l_shift = 1.4;
+b_shift = 1.2;
+width = 8.2;
+height = 6.0;
+border = 0.7;
+set(f, 'Units', 'centimeters', 'PaperUnits', 'centimeters', ...
+   'PaperPosition', [0, 0, width+l_shift+border, height+b_shift+border], ...
+   'PaperSize', [width+l_shift+border, height+b_shift+border], ...
+   'Position', [5, 5, width+l_shift+border, height+b_shift+border], ...
+   'ActivePositionProperty', 'outerposition');
+set(h, 'Units', 'centimeters', 'Position', [l_shift b_shift width height]);
 
 end
