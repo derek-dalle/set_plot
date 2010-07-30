@@ -1,15 +1,16 @@
-function [h_1,h_2]=hash_line(x,y,varargin)
+function [h_1,h_2,h_3]=hash_line(x,y,varargin)
 %
 % hash_line(x,y, ... )
-% [h_1,h_2] = hash_line(x,y, ... )
+% [h_1,h_2,h_3] = hash_line(x,y, ... )
 %
 % INPUTS:
 %         x   : list of x-coordinates in linear path
 %         y   : list of y-coordinates in linear path
 %
 % OUTPUTS:
-%         h_1 : handle for the hash line figure
-%         h_2 : handle for background polygon
+%         h_1 : handle for the main line
+%         h_2 : handle for the hash line figure
+%         h_3 : vector of handles for background polygons
 %
 % This function takes as input a series of line segments and an offset
 % distance and returns a polygon.  The purpose is to essentially to draw a
@@ -39,10 +40,10 @@ L_scale  = norm([x_max-x_min; y_max-y_min]);
 
 % Default option values
 theta_hash     = 51*pi/180;
-hash_width     = 0.05*L_scale;
+hash_width     = 0.03*L_scale;
 hash_sep       = 0.02*L_scale;
-hash_thickness = NaN;
-line_thickness = NaN;
+hash_thickness = 1;
+line_thickness = 3;
 
 % Find the thickness of the hash region normal to the input.
 for i=1:2:numel(varargin)
@@ -55,6 +56,8 @@ for i=1:2:numel(varargin)
 			hash_thickness = varargin{i+1};
 		case 'HashSeparation'
 			hash_sep = varargin{i+1};
+		case 'LineWidth'
+			line_thickness = varargin{i+1};
 	end
 end
 
@@ -74,14 +77,23 @@ n_edge = 0;
 % Initialize the paths.
 X = cell(n_path, 1);
 Y = cell(n_path, 1);
+h_3 = zeros(n_path, 1);
 
 % Loop through the segments.
 for k = 1:n_path
 	% Indices of current segment
 	j_1 = i_1(k);
 	j_2 = i_2(k);
+	% Get the width of the hash region normal to the input path.
+	if numel(hash_width) == n_path
+		h_w = hash_width(k);
+	else
+		h_w = hash_width;
+	end
 	% First draw the offset path.
-	[X{k}, Y{k}] = offset_path(x(j_1:j_2), y(j_1:j_2), hash_width);
+	[X{k}, Y{k}] = offset_path(x(j_1:j_2), y(j_1:j_2), h_w);
+	% Draw the first polygon.
+	h_3(k) = fill(X{k}, Y{k}, 'w', 'EdgeAlpha', 0);
 	% Count up number of edges.
 	n_edge = n_edge + numel(X{k});
 	% Check for a bigger box.
@@ -168,6 +180,12 @@ end
 x_hash = x_hash(1:j-1);
 y_hash = y_hash(1:j-1);
 
-keyboard
+% Overlay the new graphics.
+hold on
 
+% Draw the main line.
+h_1 = plot(x, y, 'LineWidth', line_thickness, 'Color', 'k');
+
+% Draw the hashes.
+h_2 = plot(x_hash, y_hash, 'LineWidth', hash_thickness, 'Color', 'k');
 
