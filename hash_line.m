@@ -164,6 +164,10 @@ for n = n_min:hash_sep:n_max
 	
 end
 
+% Trim the remaining NaNs out of the hash line.
+x_hash = x_hash(1:j-1);
+y_hash = y_hash(1:j-1);
+
 keyboard
 
 
