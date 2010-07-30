@@ -76,4 +76,3 @@ h_1 = plot(x, y, 'LineWidth', line_thickness, 'Color', 'k');
 
 % Draw the hashes.
 h_2 = plot(x_hash, y_hash, 'LineWidth', hash_thickness, 'Color', 'k');
-
