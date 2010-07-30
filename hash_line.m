@@ -19,18 +19,21 @@ function [h_1,h_2,h_3]=hash_line(x,y,varargin)
 %         HashLineWidth: [ scalar {1} ]
 %             LineWidth: [ scalar {3} ]
 %
-% This function takes as input a series of line segments and an offset
-% distance and returns a polygon.  The purpose is to essentially to draw a
-% version of the line with thickness h.  The output is a polygon that
-% starts with the original path and then contains an offset path in reverse
-% order.
+% This function takes as input a path or set of paths and draws a hashed
+% line to one side of that path.  It returns handles to the graphics it
+% generates so that the user may change properties later.  The properties
+% that are not part of Matlab's usual set must be set using the function
+% set_hash or here.
+%
+% To specify a set of paths, separate the paths in x and y with at least
+% one NaN.  This is consistent with the behavior of Matlab's functions such
+% as plot.
 %
 
 % Versions:
 %  07/29/10 @Derek Dalle     : First version
 %
 % GNU Library General Public License
-%
 
 % Ensure column.
 x = x(:);
@@ -59,14 +62,14 @@ n_path = numel(X);
 % Initialize the handles.
 h_3 = zeros(n_path, 1);
 
+% Overlay the new graphics.
+hold on
+
 % Loop through the segments.
 for k = 1:n_path
 	% Draw the first polygon.
 	h_3(k) = fill(X{k}, Y{k}, 'w', 'EdgeAlpha', 0);
 end
-
-% Overlay the new graphics.
-hold on
 
 % Draw the main line.
 h_1 = plot(x, y, 'LineWidth', line_thickness, 'Color', 'k');
