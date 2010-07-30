@@ -68,6 +68,8 @@ i_2   = find(~i_nan(2:end-1) &  i_nan(3:end  ));
 
 % Number of disjoint paths
 n_path = numel(i_1);
+% Total number of edges
+n_edge = 0;
 
 % Initialize the paths.
 X = cell(n_path, 1);
@@ -80,6 +82,8 @@ for k = 1:n_path
 	j_2 = i_2(k);
 	% First draw the offset path.
 	[X{k}, Y{k}] = offset_path(x(j_1:j_2), y(j_1:j_2), hash_width);
+	% Count up number of edges.
+	n_edge = n_edge + numel(X{k});
 	% Check for a bigger box.
 	x_min = min(x_min, min(X{k}));
 	x_max = max(x_max, max(X{k}));
@@ -101,6 +105,64 @@ n_max = max(r(2,:));
 
 % Maximum number of hashes
 n_hash = floor((n_max-n_min)/hash_sep);
+
+% Initialize hash output.
+x_hash = nan(2 * n_hash * n_edge, 1);
+y_hash = nan(2 * n_hash * n_edge, 1);
+
+% Index of next point
+j = 0;
+
+% Loop through all of the hash lines in the box.
+for n = n_min:hash_sep:n_max
+	% Find endpoits of hash.
+	z_1 = A'*[s_min; n];
+	z_2 = A'*[s_max; n];
+	
+	% Initialize line-path intersections.
+	x_int = zeros(1, 2*n_edge);
+	y_int = zeros(1, 2*n_edge);
+	n_int = 0;
+	% Loop through brush-width polygons.
+	for k = 1:n_path
+		% Find intersection points.
+		[intr_Q, x_k, y_k] = path_int_line(X{k}, Y{k}, ...
+			[z_1(1); z_2(1)], [z_1(2); z_2(2)]);
+		% If there are intersections, add them.
+		if intr_Q
+			% Number of intersections
+			n_k = numel(x_k);
+			% Add the points.
+			x_int(n_int + (1:n_k)) = x_k;
+			y_int(n_int + (1:n_k)) = y_k;
+			% Increase the number of intersections.
+			n_int = n_int + n_k;
+		end
+	end
+	% Contract the intersection set to ones that were found.
+	x_int = x_int(1:n_int);
+	y_int = y_int(1:n_int);
+	
+	% Rotate and sort the intersection points.
+	r_int = sort(A*[x_int; y_int], 2);
+	% Rotate them back.
+	z_int = A'*r_int;
+	
+	% Find it yourself.
+	for i = 1:2:n_int-1
+		% Add the first point.
+		j = j + 1;
+		x_hash(j) = z_int(1, i);
+		y_hash(j) = z_int(2, i);
+		% Add the second point.
+		j = j + 1;
+		x_hash(j) = z_int(1, i+1);
+		y_hash(j) = z_int(2, i+1);
+		% Leave a gap after the segment.
+		j = j + 1;
+	end
+	
+end
 
 keyboard
 
