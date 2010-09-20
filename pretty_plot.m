@@ -11,12 +11,12 @@ function pretty_plot(fig_handle, varargin)
 % This function is similar in usage to the original plot function in
 % MATLAB, but it creates journal-quality stuff
 %
+
 % Versions:
 %  02/15/10 @Sean Torrez    : First version
 %  03/9/10  @Sean Torrez    : Modified to use fig handles only
 %
 % University of Michigan/MACCCS
-%
 
 f = fig_handle;
 figure(f);

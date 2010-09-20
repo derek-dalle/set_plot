@@ -23,7 +23,6 @@ function [X,Y,x_hash,y_hash]=hash_points(x,y,varargin)
 %  07/30/10 @Derek Dalle     : First version
 %
 % GNU Library General Public License
-%
 
 % Ensure column.
 x = x(:);
@@ -38,21 +37,40 @@ y_max = max(y);
 % Default length scale
 L_scale  = norm([x_max-x_min; y_max-y_min]);
 
-% Default option values
-theta_hash     = 51*pi/180;
-hash_width     = 0.03*L_scale;
-hash_sep       = 0.02*L_scale;
+% Number of optional arguments
+n_arg = numel(varargin);
 
-% Find the thickness of the hash region normal to the input.
-for i=1:2:numel(varargin)
-	switch varargin{i}
-		case 'HashAngle'
-			theta_hash = mod(varargin{i+1}, 2*pi);
-		case 'HashWidth'
-			hash_width = varargin{i+1};
-		case 'HashSeparation'
-			hash_sep = varargin{i+1};
-	end
+% Make an options structure.
+if n_arg > 1 && (isstruct(varargin{1}) || isempty(varargin{1}))
+	% Struct
+	options = varargin{1};
+elseif mod(n_arg, 2) == 1
+	% Odd number of option value/name arguments
+	error('hash_points:OptionNumber', ['Optional arguments ', ...
+		'must be either a struct or pairs of option names and values.']);
+else
+	% Option name/value pairs
+	options = struct(varargin{:});
+end
+
+% Process the options.
+% Angle of hash lines.
+if isfield(options, 'HashAngle')
+	theta_hash = options.HashAngle;
+else
+	theta_hash = 51*pi/180;
+end
+% Width of polygon containing hashes
+if isfield(options, 'HashWidth')
+	hash_width = options.HashWidth;
+else
+	hash_width = 0.03*L_scale;
+end
+% Separation between hashes
+if isfield(options, 'HashSeparation')
+	hash_sep = options.HashSeparation;
+else
+	hash_sep = 0.02*L_scale;
 end
 
 % Find locations of NaN's, which represent breaks in the path.
