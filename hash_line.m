@@ -43,7 +43,7 @@ y = y(:);
 n_arg = numel(varargin);
 
 % Make an options structure.
-if n_arg > 1 && (isstruct(varargin{1}) || isempty(varargin{1}))
+if n_arg > 0 && (isstruct(varargin{1}) || isempty(varargin{1}))
 	% Struct
 	options = varargin{1};
 elseif mod(n_arg, 2) == 1
@@ -139,7 +139,7 @@ L_scale  = norm([x_max-x_min; y_max-y_min]);
 n_arg = numel(varargin);
 
 % Make an options structure.
-if n_arg > 1 && (isstruct(varargin{1}) || isempty(varargin{1}))
+if n_arg > 0 && (isstruct(varargin{1}) || isempty(varargin{1}))
 	% Struct
 	options = varargin{1};
 elseif mod(n_arg, 2) == 1
