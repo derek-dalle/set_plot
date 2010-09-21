@@ -1,7 +1,7 @@
-function [h_1,h_2,h_3]=hash_line(x,y,varargin)
+function [h_1,h_2,h_3]=hash_poly(x,y,varargin)
 %
-% hash_line(x,y, ... )
-% [h_1,h_2,h_3] = hash_line(x,y, ... )
+% hash_poly(x,y, ... )
+% [h_1,h_2,h_3] = hash_poly(x,y, ... )
 %
 % INPUTS:
 %         x   : list of x-coordinates in linear path
@@ -70,7 +70,7 @@ else
 end
 
 % Calculate the relevant geometry.
-[X, Y, x_hash, y_hash] = hash_points(x, y, options);
+[X, Y, x_hash, y_hash, x, y] = hash_points_poly(x, y, varargin{:});
 
 % Number of disjoint paths
 n_path = numel(X);
@@ -84,7 +84,7 @@ hold on
 % Loop through the segments.
 for k = 1:n_path
 	% Draw the first polygon.
-	h_3(k) = fill(X{k}, Y{k}, 'w', 'LineStyle', 'none');
+	h_3(k) = fill(X{k}, Y{k}, 'w', 'EdgeAlpha', 0);
 end
 
 % Draw the main line.
@@ -95,19 +95,21 @@ h_2 = plot(x_hash, y_hash, 'LineWidth', hash_thickness, 'Color', 'k');
 
 
 % --- SUBFUNCTION 1: Get hash geometry ---
-function [X,Y,x_hash,y_hash]=hash_points(x,y,varargin)
+function [X,Y,x_hash,y_hash,x_new,y_new]=hash_points_poly(x,y,varargin)
 %
-% [X,Y,x_hash,y_hash] = hash_points(x,y,varargin)
+% [X,Y,x_hash,y_hash,x_new,y_new] = hash_points_poly(x,y,varargin)
 %
 % INPUTS:
-%         x   : list of x-coordinates in linear path
-%         y   : list of y-coordinates in linear path
+%         x      : list of x-coordinates in linear path
+%         y      : list of y-coordinates in linear path
 %
 % OUTPUTS:
 %         X      : cell array of x-coords for polygons that contain hashes
 %         Y      : cell array of y-coords for polygons that contain hashes
 %         x_hash : x-coordinates of hash endpoints
 %         y_hash : y-coordinates of hash endpoints
+%         x_new  : updated input path to complete polygons
+%         y_new  : updated input path to complete polygons
 %
 % This function takes as input a series of line segments and an offset
 % distance and returns a polygon.  The purpose is to essentially to draw a
@@ -144,7 +146,7 @@ if n_arg > 0 && (isstruct(varargin{1}) || isempty(varargin{1}))
 	options = varargin{1};
 elseif mod(n_arg, 2) == 1
 	% Odd number of option value/name arguments
-	error('hash_points:OptionNumber', ['Optional arguments ', ...
+	error('hash_points_poly:OptionNumber', ['Optional arguments ', ...
 		'must be either a struct or pairs of option names and values.']);
 else
 	% Option name/value pairs
@@ -183,24 +185,54 @@ i_2   = find(~i_nan(2:end-1) &  i_nan(3:end  ));
 n_path = numel(i_1);
 % Total number of edges
 n_edge = 0;
+% Number of input path edges
+n_tot  = 0;
 
 % Initialize the paths.
 X = cell(n_path, 1);
 Y = cell(n_path, 1);
+
+% Initialize new paths.
+x_new = nan(numel(x) + 2*n_path, 1);
+y_new = nan(numel(x) + 2*n_path, 1);
 
 % Loop through the segments.
 for k = 1:n_path
 	% Indices of current segment
 	j_1 = i_1(k);
 	j_2 = i_2(k);
+	% Get the current points.
+	x_cur = x(j_1:j_2);
+	y_cur = y(j_1:j_2);
+	% Midpoint of first and last point
+	x_mid = (x_cur(1) + x_cur(end))/2;
+	y_mid = (y_cur(1) + y_cur(end))/2;
+	% Complete current path.
+	x_cur = [x_mid; x_cur; x_mid];
+	y_cur = [y_mid; y_cur; y_mid];
+	% Store the updated path.
+	n_cur = numel(x_cur);
+	x_new(n_tot+(1:n_cur)) = x_cur;
+	y_new(n_tot+(1:n_cur)) = y_cur;
+	n_tot = n_tot + n_cur + 1;
 	% Get the width of the hash region normal to the input path.
 	if numel(hash_width) == n_path
 		h_w = hash_width(k);
 	else
 		h_w = hash_width;
 	end
-	% First draw the offset path.
-	[X{k}, Y{k}] = offset_path(x(j_1:j_2), y(j_1:j_2), h_w);
+	% Draw both offset paths to get the one that is inside the poly.
+	[X_1, Y_1] = offset_path(x_cur, y_cur,  h_w);
+	[X_2, Y_2] = offset_path(x_cur, y_cur, -h_w);
+	% Check which one goes outside the original polygon.
+	if min(X_1)*sign(h_w) < min(x)*sign(h_w)
+		X{k} = X_2;
+		Y{k} = Y_2;
+	else
+		X{k} = X_1;
+		Y{k} = Y_1;
+	end
+	
 	% Count up number of edges.
 	n_edge = n_edge + numel(X{k});
 	% Check for a bigger box.
@@ -209,6 +241,10 @@ for k = 1:n_path
 	y_min = min(y_min, min(Y{k}));
 	y_max = max(y_max, max(Y{k}));
 end
+
+% Truncate new path.
+x_new = x_new(1:n_tot-1);
+y_new = y_new(1:n_tot-1);
 
 % Rotation matrix (for coordinate transforms)
 A = [cosd(theta_hash) sind(theta_hash); ...

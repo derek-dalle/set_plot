@@ -35,7 +35,7 @@ y_min = min(y);
 y_max = max(y);
 
 % Default length scale
-L_scale  = norm([x_max-x_min; y_max-y_min]);
+L_scale  = max([x_max-x_min; y_max-y_min]);
 
 % Number of optional arguments
 n_arg = numel(varargin);
@@ -58,19 +58,19 @@ end
 if isfield(options, 'HashAngle')
 	theta_hash = options.HashAngle;
 else
-	theta_hash = 51*pi/180;
+	theta_hash = 51;
 end
 % Width of polygon containing hashes
 if isfield(options, 'HashWidth')
 	hash_width = options.HashWidth;
 else
-	hash_width = 0.03*L_scale;
+	hash_width = 0.025*L_scale;
 end
 % Separation between hashes
 if isfield(options, 'HashSeparation')
 	hash_sep = options.HashSeparation;
 else
-	hash_sep = 0.02*L_scale;
+	hash_sep = 0.025*L_scale;
 end
 
 % Find locations of NaN's, which represent breaks in the path.
@@ -113,7 +113,8 @@ for k = 1:n_path
 end
 
 % Rotation matrix (for coordinate transforms)
-A = [cos(theta_hash) sin(theta_hash); -sin(theta_hash) cos(theta_hash)];
+A = [cosd(theta_hash) sind(theta_hash); ...
+	-sind(theta_hash) cosd(theta_hash)];
 
 % Calculate coordinates 
 r = A*[x_min, x_max, x_max, x_min; y_min, y_min, y_max, y_max];

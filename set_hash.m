@@ -1,8 +1,12 @@
-function set_hash(h_1,h_2,h_3,varargin)
+function set_hash(h,varargin)
 %
-% set_hash(h_1,h_2,h_3,varargin)
+% set_hash(h, 'OptionName', optionValue, ...)
 %
 % INPUTS:
+%         h   : struct of handles containing the following fields
+%          .line : handle for line that makes up surfaces
+%          .hash : handle for hashes
+%          .path : handle for polygon containing hashes
 %         h_1 : handle for the main line
 %         h_2 : handle for the hash line figure
 %         h_3 : vector of handles for background polygons
@@ -26,33 +30,76 @@ function set_hash(h_1,h_2,h_3,varargin)
 %
 
 % Versions:
-%  07/30/10 @Derek Dalle     : First version
+%  2010/07/30 @Derek Dalle     : First version
+%  2010/09/21 @Derek Dalle     : Better options processing
 %
 % GNU Library General Public License
-%
+
+% Check for sufficient inputs.
+if nargin < 1
+	error('set_hash:NotEnoughInputs', ['The function set_hash ', ...
+		'requires at least 1 input; %i were provided.'], nargin);
+end
+
+% Check if input is a struct.
+if ~isstruct(h)
+	error('set_hash:HandleInput', ['The first input to ', ...
+		'set_hash must be a struct of handles.']);
+end
+
+% Check for the necessary fields.
+if ~isfield(h, 'line')
+	error('set_hash:HandleField', ['The first input must ', ...
+		'contain a field called ''line''.']);
+end
+if ~isfield(h, 'hash')
+	error('set_hash:HandleField', ['The first input must ', ...
+		'contain a field called ''hash''.']);
+end
+if ~isfield(h, 'line')
+	error('set_hash:HandleField', ['The first input must ', ...
+		'contain a field called ''path''.']);
+end
+
+% Distribute handles.
+h_1 = h.line;
+h_2 = h.hash;
+h_3 = h.path;
+
+% Number of optional arguments
+n_arg = numel(varargin);
+
+% Make an options structure.
+if n_arg > 0 && (isstruct(varargin{1}) || isempty(varargin{1}))
+	% Struct
+	options = varargin{1};
+elseif mod(n_arg, 2) == 1
+	% Odd number of option value/name arguments
+	error('set_hash:OptionNumber', ['Optional arguments ', ...
+		'must be either a struct or pairs of option names and values.']);
+else
+	% Option name/value pairs
+	options = struct(varargin{:});
+end
 
 % Ensure column.
 x = get(h_1, 'XData');
 y = get(h_1, 'YData');
 
-% Find the thickness of the hash region normal to the input.
-for i=1:2:numel(varargin)
-	switch varargin{i}
-		case 'HashLineWidth'
-			% Get the value.
-			hash_thickness = varargin{i+1};
-			% Set it.
-			set(h_2, 'LineWidth', hash_thickness);
-		case 'LineWidth'
-			% Get the value.
-			line_thickness = varargin{i+1};
-			% Set it.
-			set(h_1, 'LineWidth', line_thickness);
-	end
+% Process the hash line width.
+if isfield(options, 'HashLineWidth')
+	% Set the new value.
+	set(h_2, 'LineWidth', options.HashLineWidth);
+end
+
+% Process the surface line width.
+if isfield(options, 'LineWidth')
+	% Set the new value.
+	set(h_1, 'LineWidth', options.LineWidth);
 end
 
 % Calculate the relevant geometry.
-[X, Y, x_hash, y_hash] = hash_points(x, y, varargin{:});
+[X, Y, x_hash, y_hash] = hash_points(x, y, options);
 
 % Number of disjoint paths
 n_path = numel(h_3);
@@ -93,7 +140,6 @@ function [X,Y,x_hash,y_hash]=hash_points(x,y,varargin)
 %  07/30/10 @Derek Dalle     : First version
 %
 % GNU Library General Public License
-%
 
 % Ensure column.
 x = x(:);
@@ -106,23 +152,42 @@ y_min = min(y);
 y_max = max(y);
 
 % Default length scale
-L_scale  = norm([x_max-x_min; y_max-y_min]);
+L_scale  = max([x_max-x_min; y_max-y_min]);
 
-% Default option values
-theta_hash     = 51*pi/180;
-hash_width     = 0.03*L_scale;
-hash_sep       = 0.02*L_scale;
+% Number of optional arguments
+n_arg = numel(varargin);
 
-% Find the thickness of the hash region normal to the input.
-for i=1:2:numel(varargin)
-	switch varargin{i}
-		case 'HashAngle'
-			theta_hash = mod(varargin{i+1}, 2*pi);
-		case 'HashWidth'
-			hash_width = varargin{i+1};
-		case 'HashSeparation'
-			hash_sep = varargin{i+1};
-	end
+% Make an options structure.
+if n_arg > 0 && (isstruct(varargin{1}) || isempty(varargin{1}))
+	% Struct
+	options = varargin{1};
+elseif mod(n_arg, 2) == 1
+	% Odd number of option value/name arguments
+	error('hash_points:OptionNumber', ['Optional arguments ', ...
+		'must be either a struct or pairs of option names and values.']);
+else
+	% Option name/value pairs
+	options = struct(varargin{:});
+end
+
+% Process the options.
+% Angle of hash lines.
+if isfield(options, 'HashAngle')
+	theta_hash = options.HashAngle;
+else
+	theta_hash = 51;
+end
+% Width of polygon containing hashes
+if isfield(options, 'HashWidth')
+	hash_width = options.HashWidth;
+else
+	hash_width = 0.025*L_scale;
+end
+% Separation between hashes
+if isfield(options, 'HashSeparation')
+	hash_sep = options.HashSeparation;
+else
+	hash_sep = 0.025*L_scale;
 end
 
 % Find locations of NaN's, which represent breaks in the path.
@@ -165,7 +230,8 @@ for k = 1:n_path
 end
 
 % Rotation matrix (for coordinate transforms)
-A = [cos(theta_hash) sin(theta_hash); -sin(theta_hash) cos(theta_hash)];
+A = [cosd(theta_hash) sind(theta_hash); ...
+	-sind(theta_hash) cosd(theta_hash)];
 
 % Calculate coordinates 
 r = A*[x_min, x_max, x_max, x_min; y_min, y_min, y_max, y_max];

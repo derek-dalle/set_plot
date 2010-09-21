@@ -1,113 +1,18 @@
-function [h_1,h_2,h_3]=hash_line(x,y,varargin)
+function [X,Y,x_hash,y_hash,x_new,y_new]=hash_points_poly(x,y,varargin)
 %
-% hash_line(x,y, ... )
-% [h_1,h_2,h_3] = hash_line(x,y, ... )
-%
-% INPUTS:
-%         x   : list of x-coordinates in linear path
-%         y   : list of y-coordinates in linear path
-%
-% OUTPUTS:
-%         h_1 : handle for the main line
-%         h_2 : handle for the hash line figure
-%         h_3 : vector of handles for background polygons
-%
-% OPTIONS:
-%             HashAngle: [ scalar {51 degrees} ]
-%             HashWidth: [ scalar or vector ]
-%        HashSeparation: [ scalar ]
-%         HashLineWidth: [ scalar {1} ]
-%             LineWidth: [ scalar {3} ]
-%
-% This function takes as input a path or set of paths and draws a hashed
-% line to one side of that path.  It returns handles to the graphics it
-% generates so that the user may change properties later.  The properties
-% that are not part of Matlab's usual set must be set using the function
-% set_hash or here.
-%
-% To specify a set of paths, separate the paths in x and y with at least
-% one NaN.  This is consistent with the behavior of Matlab's functions such
-% as plot.
-%
-
-% Versions:
-%  07/29/10 @Derek Dalle     : First version
-%
-% GNU Library General Public License
-
-% Ensure column.
-x = x(:);
-y = y(:);
-
-% Number of optional arguments
-n_arg = numel(varargin);
-
-% Make an options structure.
-if n_arg > 0 && (isstruct(varargin{1}) || isempty(varargin{1}))
-	% Struct
-	options = varargin{1};
-elseif mod(n_arg, 2) == 1
-	% Odd number of option value/name arguments
-	error('hash_line:OptionNumber', ['Optional arguments ', ...
-		'must be either a struct or pairs of option names and values.']);
-else
-	% Option name/value pairs
-	options = struct(varargin{:});
-end
-
-% Process the options.
-% Thickness of each hash.
-if isfield(options, 'HashLineWidth')
-	hash_thickness = options.HashLineWidth;
-else
-	hash_thickness = 1;
-end
-% Thickness of boundary line.
-if isfield(options, 'LineWidth')
-	line_thickness = options.LineWidth;
-else
-	line_thickness = 3;
-end
-
-% Calculate the relevant geometry.
-[X, Y, x_hash, y_hash] = hash_points(x, y, options);
-
-% Number of disjoint paths
-n_path = numel(X);
-
-% Initialize the handles.
-h_3 = zeros(n_path, 1);
-
-% Overlay the new graphics.
-hold on
-
-% Loop through the segments.
-for k = 1:n_path
-	% Draw the first polygon.
-	h_3(k) = fill(X{k}, Y{k}, 'w', 'LineStyle', 'none');
-end
-
-% Draw the main line.
-h_1 = plot(x, y, 'LineWidth', line_thickness, 'Color', 'k');
-
-% Draw the hashes.
-h_2 = plot(x_hash, y_hash, 'LineWidth', hash_thickness, 'Color', 'k');
-
-
-% --- SUBFUNCTION 1: Get hash geometry ---
-function [X,Y,x_hash,y_hash]=hash_points(x,y,varargin)
-%
-% [X,Y,x_hash,y_hash] = hash_points(x,y,varargin)
+% [X,Y,x_hash,y_hash,x_new,y_new] = hash_points_poly(x,y,varargin)
 %
 % INPUTS:
-%         x   : list of x-coordinates in linear path
-%         y   : list of y-coordinates in linear path
+%         x      : list of x-coordinates in linear path
+%         y      : list of y-coordinates in linear path
 %
 % OUTPUTS:
 %         X      : cell array of x-coords for polygons that contain hashes
 %         Y      : cell array of y-coords for polygons that contain hashes
 %         x_hash : x-coordinates of hash endpoints
 %         y_hash : y-coordinates of hash endpoints
+%         x_new  : updated input path to complete polygons
+%         y_new  : updated input path to complete polygons
 %
 % This function takes as input a series of line segments and an offset
 % distance and returns a polygon.  The purpose is to essentially to draw a
@@ -183,24 +88,54 @@ i_2   = find(~i_nan(2:end-1) &  i_nan(3:end  ));
 n_path = numel(i_1);
 % Total number of edges
 n_edge = 0;
+% Number of input path edges
+n_tot  = 0;
 
 % Initialize the paths.
 X = cell(n_path, 1);
 Y = cell(n_path, 1);
+
+% Initialize new paths.
+x_new = nan(numel(x) + 2*n_path, 1);
+y_new = nan(numel(x) + 2*n_path, 1);
 
 % Loop through the segments.
 for k = 1:n_path
 	% Indices of current segment
 	j_1 = i_1(k);
 	j_2 = i_2(k);
+	% Get the current points.
+	x_cur = x(j_1:j_2);
+	y_cur = y(j_1:j_2);
+	% Midpoint of first and last point
+	x_mid = (x_cur(1) + x_cur(end))/2;
+	y_mid = (y_cur(1) + y_cur(end))/2;
+	% Complete current path.
+	x_cur = [x_mid; x_cur; x_mid];
+	y_cur = [y_mid; y_cur; y_mid];
+	% Store the updated path.
+	n_cur = numel(x_cur);
+	x_new(n_tot+(1:n_cur)) = x_cur;
+	y_new(n_tot+(1:n_cur)) = y_cur;
+	n_tot = n_tot + n_cur + 1;
 	% Get the width of the hash region normal to the input path.
 	if numel(hash_width) == n_path
 		h_w = hash_width(k);
 	else
 		h_w = hash_width;
 	end
-	% First draw the offset path.
-	[X{k}, Y{k}] = offset_path(x(j_1:j_2), y(j_1:j_2), h_w);
+	% Draw both offset paths to get the one that is inside the poly.
+	[X_1, Y_1] = offset_path(x_cur, y_cur,  h_w);
+	[X_2, Y_2] = offset_path(x_cur, y_cur, -h_w);
+	% Check which one goes outside the original polygon.
+	if min(X_1)*sign(h_w) < min(x)*sign(h_w)
+		X{k} = X_2;
+		Y{k} = Y_2;
+	else
+		X{k} = X_1;
+		Y{k} = Y_1;
+	end
+	
 	% Count up number of edges.
 	n_edge = n_edge + numel(X{k});
 	% Check for a bigger box.
@@ -209,6 +144,10 @@ for k = 1:n_path
 	y_min = min(y_min, min(Y{k}));
 	y_max = max(y_max, max(Y{k}));
 end
+
+% Truncate new path.
+x_new = x_new(1:n_tot-1);
+y_new = y_new(1:n_tot-1);
 
 % Rotation matrix (for coordinate transforms)
 A = [cosd(theta_hash) sind(theta_hash); ...
@@ -289,7 +228,7 @@ x_hash = x_hash(1:j-1);
 y_hash = y_hash(1:j-1);
 
 
-% --- SUBFUNCTION 2: Wide brush path ---
+% --- SUBFUNCTION 1: Wide brush path ---
 function [X,Y]=offset_path(x,y,h)
 %
 % [X,Y] = offset_path(x,y,h)
@@ -533,7 +472,7 @@ X = [x(:); Z(1,2:i_cur)'];
 Y = [y(:); Z(2,2:i_cur)'];
 
 
-% --- SUBFUNCTION 3: Intersection of two line segments ---
+% --- SUBFUNCTION 2: Intersection of two line segments ---
 function [int_Q,z_0]=line_int_line_pt(z_1,z_2,z_3,z_4,int_Q)
 %
 % int_Q = line_int_line_pt(z_1,z_2,z_3,z_4)
@@ -675,7 +614,7 @@ else
 end
 
 
-% --- SUBFUNCTION 4: Intesection of polygon and line segment ---
+% --- SUBFUNCTION 3: Intesection of polygon and line segment ---
 function [intr_Q,x_intr,y_intr]=path_int_line(X,Y,x,y)
 %
 % intr_Q = path_int_line(X,Y,x,y)
@@ -785,7 +724,7 @@ x_intr(n_intr+1:end) = [];
 y_intr(n_intr+1:end) = [];
 
 
-% --- SUBFUNCTION 5: Intersection of two lines ---
+% --- SUBFUNCTION 4: Intersection of two lines ---
 function [int_Q,x,y]=line_int_line(X,Y,int_Q)
 %
 % int_Q = line_int_line(X,Y)
