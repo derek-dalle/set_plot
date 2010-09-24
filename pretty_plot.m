@@ -165,24 +165,8 @@ set( hlegend                    , ...
 	'Box'       , 'off'         , ...
 	'Location'  , 'Best'        );
 
-% Now test to see if the bounds are right
-axes_pos = get(h_a, 'Position');
-tight_inset = get(h_a, 'TightInset');
-
-l_shift = tight_inset(1);
-b_shift = tight_inset(2);
-r_shift = tight_inset(3);
-t_shift = tight_inset(4);
-
-set(h_a, 'Position', ...
-	[l_shift, b_shift, Width-l_shift-r_shift, Height-b_shift-t_shift])
-
-tight_inset = get(h_a, 'TightInset');
-w_shift = tight_inset(3);
-h_shift = tight_inset(4);
-
-set(h, ...
-	'FontName'    , 'Times New Roman'   , ...
+set(h_a, ...
+  'FontName'    , 'Times New Roman'   , ...
   'FontUnits'   , 'points'  , ...
   'FontSize'    , 9         , ...
   'Box'         , 'off'     , ...
@@ -195,6 +179,23 @@ set(h, ...
   'YTickLabelMode', 'auto'  , ...
   'LineWidth'   , 1         );
 
-set(h_f, 'PaperPosition', [0 0 width height]);
+% Now test to see if the bounds are right
+axes_pos = get(h_a, 'Position');
+tight_inset = get(h_a, 'TightInset');
+
+l_shift = tight_inset(1);
+b_shift = tight_inset(2);
+r_shift = tight_inset(3);
+t_shift = tight_inset(4);
+
+set(h_a, 'Position', ...
+	[l_shift, b_shift, Width-l_shift-r_shift, Height-b_shift-t_shift])
+
+% tight_inset = get(h_a, 'TightInset');
+% w_shift = tight_inset(3);
+% h_shift = tight_inset(4);
+
+set(h_f, 'PaperPosition', [0 0 Width Height], ...
+	'PaperSize', [Width Height]);
 
 end
