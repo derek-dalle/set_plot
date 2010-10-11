@@ -324,41 +324,6 @@ set(h_a, ...
 	'YTickLabelMode', 'auto'           , ...
 	'LineWidth'     , 1                );
 
-% allLines  = findall(h_f, 'type', 'line');
-% allText   = findall(h_f, 'type', 'text');
-% allAxes   = findall(h_f, 'type', 'axes');
-% allImages = findall(h_f, 'type', 'image');
-% allLights = findall(h_f, 'type', 'light');
-% allPatch  = findall(h_f, 'type', 'patch');
-% allSurf   = findall(h_f, 'type', 'surface');
-% allRect   = findall(h_f, 'type', 'rectangle');
-% 
-% Everything = [allLines;
-% 	allText;
-% 	allImages;
-% 	allLights;
-% 	allPatch;
-% 	allSurf;
-% 	allRect];
-
-% For now, assume that there are axis labels on the edges
-% allExtents = get(allText, 'Extent');
-
-% Now test to see if the bounds are right
-% axes_pos = get(h_a, 'Position');
-% tight_inset = get(h_a, 'TightInset');
-% 
-% l_shift = tight_inset(1);
-% b_shift = tight_inset(2);
-% r_shift = tight_inset(3);
-% t_shift = tight_inset(4);
-% 
-% set(h_a, 'Position', ...
-% 	[l_shift, b_shift, Width-l_shift-r_shift, Height-b_shift-t_shift])
-% 
-% set(h_f, 'PaperPosition', [0 0 Width Height], ...
-% 	'PaperSize', [Width Height]);
-
 print(['-f' num2str(fig_handle)], '-dpdf', 'test.pdf');
 
 end
