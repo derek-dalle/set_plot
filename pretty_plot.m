@@ -33,7 +33,6 @@ function fh = pretty_plot(fig_handle, varargin)
 
 %% Process the inputs
 h_f = fig_handle;
-% figure(h_f);
 set(h_f, 'visible', 'on');
 h_a = gca;
 
@@ -171,7 +170,7 @@ if ischar(options.Color)
 			map = repmat(linspace(0.75, 1, 64)', [1 3]);
 			colormap(map);
 		case 'color'
-			% Do nothing for now
+			TextColor = [0.1 0.1 0.1];
 			
 		otherwise
 			error('pretty_plot:BadColorValue', ...
@@ -197,97 +196,6 @@ fig_pos = get(h_f, 'Position');
 
 set(h_f, 'Position', [fig_pos(1), fig_pos(2), Width Height])
 
-% Create all the labels
-% No title for AIAA papers, this is taken care of in LaTex
-
-haxes = get(h_a);
-hlabels = [haxes.XLabel; haxes.YLabel; haxes.ZLabel];
-hlegend = legend(h_a);
-
-% Get the text and position from each label.
-labels  = get(hlabels);
-strings = {labels.String};
-pos     = reshape([labels.Position],3,3)';
-set(hlabels, 'Units', 'centimeters');
-
-% Determine the system in order to display the fonts properly
-if ispc
-	font_interpreter = 'latex';
-else
-	% Don't use latex because it will mess everything up.
-	font_interpreter = 'latex';
-% 	latexlabels = {};
-	
-	for i = 1:3
-		[unitstr mathstr unittoken] = regexp(strings{1,i}, '([\({\[].*?[\)}\]])', 'match', 'split');
-		if ~isempty(unitstr)
-			texunits{i} = unitstr(1,:);
-		end
-		if ~isempty(mathstr)
-			latexmath{i} = mathstr(1,:);
-		end
-		if ~isempty(unittoken)
-			textokens{i} = unittoken(1,:);
-		end
-		set(hlabels(i), 'String', latexmath{i}{1}, pos);
-		extents(i,:) = get(hlabels, 'Extent');
-		
-		for j = 2:length(latexmath{i}{:})
-			new_pos = [extents(1)+extents(4), extents(2)+extents(5), extents(3)];
-			text(new_pos(1), new_pos(2), new_pos(3), 'hi');
-		end
-		
-	end
-	
-	for i = 1:3
-		[mathstr nonmath mathtoken] = regexp(strings{1,i}, '(\$.*?\$)', 'match', 'split');
-		if ~isempty(mathstr)
-			latexlabels{i} = mathstr(1,:);
-		end
-		if ~isempty(nonmath)
-			texunits{i} = nonmath(1,:);
-		end
-		if ~isempty(mathtoken)
-			textokens{i} = mathtoken(1,:);
-		end
-		set(hlabels(i), 'String', latexlabels{i}{:}, 'Units', 'centimeters');
-	end
-	
-	set(hlabels, 'String', latexlabels, 'Units', 'centimeters');
-	extents = get(hlabels, 'Extent');
-	
-	[mathstr nonmath mathtoken] = regexp(xstring, '(\[.*\])', 'match', 'split');
-	
-end
-
-set([hxlabel, hylabel, hzlabel]             , ...
-	'FontName'   , 'times new roman', ...
-	'FontSize'   , 9                , ...
-	'Interpreter', font_interpreter , ...
-   'Color'      , TextColor       );
-set( hlegend                       , ...
-	'FontName'   , 'times new roman', ...
-	'FontSize'   , 9                , ...
-	'Interpreter', font_interpreter , ...
-	'Box'        , 'off'            , ...
-	'Location'   , 'Best'           , ...
-   'Color'      , TextColor       );
-
-set(h_a, ...
-	'FontName'      , 'times new roman', ...
-	'FontUnits'     , 'points'         , ...
-	'FontSize'      , 9                , ...
-	'Box'           , 'off'            , ...
-	'TickDir'       , 'out'            , ...
-	'TickLength'    , [TickLength TickLength], ...
-	'XMinorTick'    , 'on'             , ...
-	'YMinorTick'    , 'on'             , ...
-	'XColor'        , TextColor        , ...
-	'YColor'        , TextColor        , ...
-	'YTickLabelMode', 'auto'           , ...
-	'LineWidth'     , 1                );
-
-% Now test to see if the bounds are right
 axes_pos = get(h_a, 'Position');
 tight_inset = get(h_a, 'TightInset');
 
@@ -301,6 +209,122 @@ set(h_a, 'Position', ...
 
 set(h_f, 'PaperPosition', [0 0 Width Height], ...
 	'PaperSize', [Width Height]);
+
+% Create all the labels
+haxes = get(h_a);
+hlabels = [haxes.XLabel; haxes.YLabel; haxes.ZLabel; haxes.Title];
+hlegend = legend(h_a);
+
+% Get the text and position from each label.
+set(hlabels, 'Units', 'centimeters');
+labels  = get(hlabels);
+strings = {labels.String};
+pos     = reshape([labels.Position],4,3)';
+
+% Determine the system in order to display the fonts properly
+if ispc
+	font_interpreter = 'latex';
+else
+	% Don't use latex because it will mess everything up.
+	font_interpreter = 'tex';
+	
+	for i = 1:3
+		% Test if there are any math regions. If not, use tex throughout.
+		if regexp(strings{1,i}, '$')
+			% There are some math regions, so fix things up.
+			[unitstr mathstr unittoken] = regexp(strings{1,i}, '([\({\[].*?[\)}\]])', 'match', 'split');
+			if ~isempty(unitstr)
+				texunits{i} = unitstr(1,:);
+			else
+				texunits{i} = {''};
+			end
+			if ~isempty(mathstr)
+				latexmath{i} = mathstr(1,:);
+			end
+			if ~isempty(unittoken)
+				textokens{i} = unittoken(1,:);
+			end
+			set(hlabels(i), 'String', latexmath{i}{1}, 'Position', pos(i,:));
+			extents = get(hlabels(i), 'Extent');
+			rots(i,:) = get(hlabels(i), 'Rotation');
+			
+			for j = 1:length(latexmath{i})
+				new_pos = [extents(1)+extents(3), extents(2), pos(i,3)];
+				if j > 1
+					% First do the math string.
+					htext = text('String',    latexmath{i}{j}, ...
+						'interpreter',         'latex', ...
+						'Units',               'centimeters', ...
+						'Position',            new_pos, ...
+						'HorizontalAlignment', 'left', ...
+						'VerticalAlignment',   'baseline', ...
+						'FontName',            'times new roman', ...
+						'FontSize',            9,      ...
+						'Color',               TextColor, ...
+						'Rotation',            rots(i));
+					set(htext, 'Units', 'centimeters');
+					extents = get(htext, 'Extent');
+				end
+				
+				if j <= length(texunits{i})
+					% Then do the units string; use tex interpreter.
+					if rots(i) == 90
+						new_pos = [extents(1)+extents(3), extents(2)+extents(4), pos(i,3)];
+					else
+						new_pos = [extents(1)+extents(3), extents(2), pos(i,3)];
+					end
+					htext = text('String',    texunits{i}{j}, ...
+						'interpreter',         'tex', ...
+						'Units',               'centimeters', ...
+						'Position',            new_pos, ...
+						'HorizontalAlignment', 'left', ...
+						'VerticalAlignment',   'baseline', ...
+						'FontName',            'times new roman', ...
+						'FontSize',            9,      ...
+						'Color',               TextColor, ...
+						'Rotation',            rots(i));
+					set(htext, 'Units', 'centimeters');
+					extents = get(htext, 'Extent');
+				end
+			end
+			
+		else
+			% There are not any math regions, just use tex.
+			font_interpreter = 'tex';
+		end
+	end
+	
+end
+
+set(hlabels             , ...
+	'FontName'   , 'times', ...
+	'FontSize'   , 9                , ...
+	'Interpreter', font_interpreter , ...
+   'Color'      , TextColor       );
+
+set(hlegend                       , ...
+	'FontName'   , 'times new roman', ...
+	'FontSize'   , 9                , ...
+	'Interpreter', font_interpreter , ...
+	'Box'        , 'off'            , ...
+	'Location'   , 'Best'           , ...
+   'Color'      , TextColor       );
+
+set(h_a, ...
+	'FontName'      , 'times new roman', ...
+	'FontUnits'     , 'points'         , ...
+	'FontSize'      , 9                , ...
+	'Box'           , 'off'            , ...
+	'TickDir'       , 'out'            , ...
+	'XMinorTick'    , 'on'             , ...
+	'YMinorTick'    , 'on'             , ...
+	'ZMinorTick'    , 'on'             , ...
+	'TickLength'    , [TickLength TickLength], ...
+	'XColor'        , TextColor        , ...
+	'YColor'        , TextColor        , ...
+	'ZColor'        , TextColor        , ...
+	'YTickLabelMode', 'auto'           , ...
+	'LineWidth'     , 1                );
 
 print(['-f' num2str(fig_handle)], '-dpdf', 'test.pdf');
 
