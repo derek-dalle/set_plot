@@ -126,6 +126,7 @@ q_onecol  = strcmpi(s_cur, 'onecol' );
 q_present = strcmpi(s_cur, 'present') || strcmpi(s_cur, 'presentation');
 q_pretty  = strcmpi(s_cur, 'pretty' );
 q_plain   = strcmpi(s_cur, 'plain'  );
+q_current = strcmpi(s_cur, 'current');
 
 % Set default options based on overall style.
 if q_pretty
@@ -204,11 +205,26 @@ elseif q_plain
 	% Axes style
 	a_style = 'current';
 	
+elseif q_current
+	% Plain style
+	% Default margin style
+	m_style = 'loose';
+	% Use current interpreters.
+	i_style = 'current';
+	% Default aspect ratio
+	ar_fig  = 'auto';
+	% Default width
+	w_fig   = 'auto';
+	% Font style
+	f_style = 'current';
+	% Axes style
+	a_style = 'current';
+	
 else
 	% Bad input
 	error('set_plot:BadStyle', ['FigureStyle must be either ', ...
 		'''pretty'', ''plain'', ''present'', ''presentation'',\n', ...
-		'''journal'', ''twocol'', or ''onecol''.']);
+		'''current'', ''journal'', ''twocol'', or ''onecol''.']);
 	
 end
 
@@ -222,6 +238,7 @@ if strcmpi(f_style, 'pretty')
 	f_name = 'Times New Roman';
 	% Font size
 	f_size = 9;
+	% Smaller font size ?
 	
 elseif strcmpi(f_style, 'present') || strcmpi(f_style, 'presentation')
 	% Special style for presentations
@@ -264,9 +281,79 @@ end
 
 % Set defaults related to axes style.
 if strcmpi(a_style, 'pretty')
+	% Shorter tick length
+	l_tick = [0.05, 0.0125];
+	% Tick direction
+	d_tick = 'out';
+	% Box
+	s_box  = 'off';
+	% Minor ticks
+	s_tick = 'all';
+	% Grid
+	r_grid = 'none';
+	% Grid style
+	s_grid = 'current';
 	
+elseif strcmpi(a_style, 'simple')
+	% Shorter tick length
+	l_tick = [0.05, 0.0125];
+	% Tick direction
+	d_tick = 'out';
+	% Box
+	s_box  = 'off';
+	% Minor ticks
+	s_tick = 'none';
+	% Grid
+	r_grid = 'none';
+	% Grid style
+	s_grid = 'current';
 	
+elseif strcmpi(a_style, 'fancy')
+	% Shorter tick length
+	l_tick = [0.05, 0.0125];
+	% Tick direction
+	d_tick = 'out';
+	% Box
+	s_box  = 'off';
+	% Minor ticks
+	s_tick = 'none';
+	% Grid
+	r_grid = 'major';
+	% Grid style
+	s_grid = ':';
 	
+elseif strcmpi(a_style, 'smart')
+	% Shorter tick length
+	l_tick = [0.05, 0.0125];
+	% Tick direction
+	d_tick = 'out';
+	% Box
+	s_box  = 'off';
+	% Minor ticks
+	s_tick = 'smart';
+	% Grid
+	r_grid = 'none';
+	% Grid style
+	s_grid = 'current';
+	
+elseif strcmpi(a_style, 'current')
+	% Shorter tick length
+	l_tick = 'current';
+	% Tick direction
+	d_tick = 'current';
+	% Box
+	s_box  = 'current';
+	% Minor ticks
+	s_tick = 'current';
+	% Grid
+	r_grid = 'none';
+	% Grid style
+	s_grid = 'current';
+	
+else
+	% Bad input
+	error('set_plot:BadStyle', ['AxesStyle must be either ', ...
+		'''pretty'', ''simple'', ''current'', ''fancy'', or ''smart''.']);
 	
 end
 	
