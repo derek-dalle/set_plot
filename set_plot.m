@@ -639,11 +639,40 @@ m_cbar   = zeros(1, 4);
 if q_cbar
 	% Change the units.
 	set(h_cbar, 'Units', units)
-	% Get the dimensions
+	% Get the dimensions.
 	pos_cbar = get(h_cbar, 'Position');
 	M_cbar   = get(h_cbar, 'TightInset');
 	% Check the location of the color bar.
 	s_cbar = get(h_cbar, 'Location');
+	% Process 'manual' locations.
+	if strcmpi(s_cbar, 'manual')
+		% Set change parameter to 'true'.
+		q_m_cbar = true;
+		if pos_cbar(1) > pos_axes(1) + pos_axes(3)
+			% Outside on the right
+			s_cbar = 'EastOutside';
+		elseif pos_cbar(2) > pos_axes(2) + pos_axes(4)
+			% Outside on the top
+			s_cbar = 'NorthOutside';
+		elseif pos_cbar(1) + pos_cbar(3) < pos_axes(1)
+			% Outside on the left
+			s_cbar = 'WestOutside';
+		elseif pos_cbar(2) + pos_cbar(4) < pos_axes(2)
+			% Outside on the bottom
+			s_cbar = 'SouthOutside';
+		else
+			% Don't move the colorbar.
+			q_m_cbar = false;
+		end
+		% Test if the colorbar should be reset.
+		if q_m_cbar
+			% Reset the position.
+			set(h_cbar, 'Location', s_cbar);
+			% Reobtain the dimensions.
+			pos_cbar = get(h_cbar, 'Position');
+			M_cbar   = get(h_cbar, 'TightInset');
+		end
+	end
 	% Determine the needed extra margins.
 	switch s_cbar
 		case 'EastOutside'
