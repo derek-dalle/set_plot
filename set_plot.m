@@ -641,23 +641,23 @@ if q_cbar
 	set(h_cbar, 'Units', units)
 	% Get the dimensions.
 	pos_cbar = get(h_cbar, 'Position');
-	M_cbar   = get(h_cbar, 'TightInset');
+	m_cbar   = get(h_cbar, 'TightInset');
 	% Check the location of the color bar.
 	s_cbar = get(h_cbar, 'Location');
 	% Process 'manual' locations.
 	if strcmpi(s_cbar, 'manual')
 		% Set change parameter to 'true'.
 		q_m_cbar = true;
-		if pos_cbar(1) > pos_axes(1) + pos_axes(3)
+		if pos_cbar(1) + pos_cbar(3) > pos_axes(1) + pos_axes(3)
 			% Outside on the right
 			s_cbar = 'EastOutside';
-		elseif pos_cbar(2) > pos_axes(2) + pos_axes(4)
+		elseif pos_cbar(2) + pos_cbar(4) > pos_axes(2) + pos_axes(4)
 			% Outside on the top
 			s_cbar = 'NorthOutside';
-		elseif pos_cbar(1) + pos_cbar(3) < pos_axes(1)
+		elseif pos_cbar(1) < pos_axes(1)
 			% Outside on the left
 			s_cbar = 'WestOutside';
-		elseif pos_cbar(2) + pos_cbar(4) < pos_axes(2)
+		elseif pos_cbar(2) < pos_axes(2)
 			% Outside on the bottom
 			s_cbar = 'SouthOutside';
 		else
@@ -670,26 +670,12 @@ if q_cbar
 			set(h_cbar, 'Location', s_cbar);
 			% Reobtain the dimensions.
 			pos_cbar = get(h_cbar, 'Position');
-			M_cbar   = get(h_cbar, 'TightInset');
+			m_cbar   = get(h_cbar, 'TightInset');
 		end
 	end
-	% Determine the needed extra margins.
-	switch s_cbar
-		case 'EastOutside'
-			% Alter the right margin.
-			m_cbar(3) = pos_cbar(1) - pos_axes(1) + ...
-				pos_cbar(3) - pos_axes(3) + M_cbar(3);
-		case 'NorthOutside'
-			% Alter the top margin.
-			m_cbar(4) = pos_cbar(2) - pos_axes(2) + ...
-				pos_cbar(4) - pos_axes(4) + M_cbar(4);
-		case 'WestOutside'
-			% Alter the left margin.
-			m_cbar(1) = pos_axes(1) - pos_cbar(1) + M_cbar(1);
-		case 'SouthOutside'
-			% Alter the bottom margin.
-			m_cbar(2) = pos_axes(2) - pos_cbar(2) + M_cbar(2);
-	end
+	
+	% For now set the gap between the axes and the colorbar to zero.
+	m_gap = 0;
 	
 end
 
@@ -757,9 +743,42 @@ if q_tight
 	set(h_f, 'Position', pos_fig);
 	
 		% Get the minimum size of the margins.
-	m_axes = get(h_a, 'TightInset');
-	% Get the size of the margins.
-	m_tight = m_opts + max([m_axes; m_cbar]);
+	m_axes  = get(h_a, 'TightInset');
+	m_tight = m_axes;
+	
+	% Make room for the colorbar.
+	if q_cbar
+		% Figure out which side the colorbar is on.
+		switch s_cbar
+			case 'EastOutside'
+				% Right-hand side
+				m_tight(2) = max(m_axes(2), m_cbar(2));
+				m_tight(4) = max(m_axes(4), m_cbar(4));
+				m_tight(3) = m_axes(3) + m_cbar(1) + ...
+					pos_cbar(3) + m_cbar(3) + m_gap;
+			case 'NorthOutside'
+				% Top location
+				m_tight(1) = max(m_axes(1), m_cbar(1));
+				m_tight(3) = max(m_axes(3), m_cbar(3));
+				m_tight(4) = m_axes(4) + m_cbar(2) + ...
+					pos_cbar(4) + m_cbar(4) + m_gap;
+			case 'WestOutside'
+				% Left-hand side
+				m_tight(2) = max(m_axes(2), m_cbar(2));
+				m_tight(4) = max(m_axes(4), m_cbar(4));
+				m_tight(1) = m_axes(1) + m_cbar(1) + ...
+					pos_cbar(3) + m_cbar(3) + m_gap;
+			case 'SouthOutside'
+				% Top location
+				m_tight(1) = max(m_axes(1), m_cbar(1));
+				m_tight(3) = max(m_axes(3), m_cbar(3));
+				m_tight(2) = m_axes(2) + m_cbar(2) + ...
+					pos_cbar(4) + m_cbar(4) + m_gap;
+		end
+	end
+	
+	% Add in extra margins.
+	m_tight = m_opts + m_tight;
 	
 	% Fix the axes.
 	pos_axes(1) = m_tight(1);
@@ -769,49 +788,39 @@ if q_tight
 	% Set them.
 	set(h_a, 'Position', pos_axes);
 	
-	% Find the box containing the colorbar.
+	% Match the colorbar to the axes.
 	if q_cbar
-		% Reobtain the position of the colorbar.
-		pos_cbar = get(h_cbar, 'Position');
-		m_cbar   = get(h_cbar, 'TightInset');
-		% Left-hand coordinate
-		r_cbar   = pos_cbar(1) - m_cbar(1);
-		if r_cbar < 0
-			% Move the position.
-			pos_cbar(1) = pos_axes(1) - r_cbar;
-			% Reset it.
-			set(h_cbar, 'Position', pos_cbar);
-			% Reobtain the position of the colorbar.
-			m_cbar   = get(h_cbar, 'Position');
+		% Figure out which side the colorbar is on.
+		switch s_cbar
+			case 'EastOutside'
+				% Move the colorbar to the right margin.
+				pos_cbar(1) = pos_axes(1) + pos_axes(3) + ...
+					m_axes(3) + m_gap + m_cbar(1);
+				% Match the top and bottom of the colorbar to the axes.
+				pos_cbar(2) = pos_axes(2);
+				pos_cbar(4) = pos_axes(4);
+			case 'NorthOutside'
+				% Move the colorbar to the top margin.
+				pos_cbar(2) = pos_axes(2) + pos_axes(4) + ...
+					m_axes(4) + m_gap + m_cbar(2);
+				% Match the left and right of the colorbar to the axes.
+				pos_cbar(1) = pos_axes(1);
+				pos_cbar(3) = pos_axes(3);
+			case 'WestOutside'
+				% Move the colorbar to the left margin.
+				pos_cbar(1) = m_cbar(1);
+				% Match the top and bottom of the colorbar to the axes.
+				pos_cbar(2) = pos_axes(2);
+				pos_cbar(4) = pos_axes(4);
+			case 'SouthOutside'
+				% Move the colorbar to the top margin.
+				pos_cbar(2) = m_cbar(2);
+				% Match the left and right of the colorbar to the axes.
+				pos_cbar(1) = pos_axes(1);
+				pos_cbar(3) = pos_axes(3);
 		end
-		% Bottom coordinate
-		r_cbar   = pos_cbar(2) - m_cbar(2);
-		if r_cbar < 0
-			% Move the position.
-			pos_cbar(2) = pos_axes(2) - r_cbar;
-			% Reset it.
-			set(h_cbar, 'Position', pos_cbar);
-			% Reobtain the position of the colorbar.
-			m_cbar   = get(h_cbar, 'Position');
-		end
-		% Right-hand coordinate
-		r_cbar  = pos_cbar(1) + pos_cbar(3) + m_cbar(3);
-		if r_cbar > w_fig
-			% Move the position.
-			pos_cbar(1) = pos_axes(1) + w_fig - r_cbar;
-			% Reset it.
-			set(h_cbar, 'Position', pos_cbar);
-			% Reobtain the position of the colorbar.
-			m_cbar   = get(h_cbar, 'Position');
-		end
-		% Top coordinate
-		r_cbar  = pos_cbar(2) + pos_cbar(4) + m_cbar(4);
-		if r_cbar > h_fig
-			% Move the position.
-			pos_cbar(2) = pos_axes(1) + h_fig - r_cbar;
-			% Reset it.
-			set(h_cbar, 'Position', pos_cbar);
-		end
+		% Set the new position.
+		set(h_cbar, 'Position', pos_cbar);
 	end
 	
 	
