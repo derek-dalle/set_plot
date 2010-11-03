@@ -121,12 +121,13 @@ pos_fig  = get(h_f, 'Position');
 pos_axes = get(h_a, 'Position');
 
 
-%% --- Styles and defaults ---
+%% --- Overall style ---
 % Determine overall style of figure.
-[s_cur, options] = cut_option(options, 'FigureStyle', 'plain');
+[s_cur, options] = cut_option(options, 'FigureStyle', 'current');
 % Process value
 % This format is for a two-column journal.
 q_journal = strcmpi(s_cur, 'journal');
+q_fancy   = strcmpi(s_cur, 'fancy'  );
 q_twocol  = strcmpi(s_cur, 'twocol' ) || q_journal;
 q_onecol  = strcmpi(s_cur, 'onecol' );
 q_present = strcmpi(s_cur, 'present') || strcmpi(s_cur, 'presentation');
@@ -151,6 +152,31 @@ if q_pretty
 	f_style = 'pretty';
 	% Axes style
 	a_style = 'pretty';
+	% Style for the colorbar
+	cbar_style = 'pretty';
+	% Color theme style
+	c_style = 'current';
+	
+elseif q_fancy
+	% Style containing even more marking
+	% Default margin style
+	m_style = 'tight';
+	% Manual margins
+	m_opts  = zeros(1,4);
+	% Approach for interpreters
+	i_style = 'auto';
+	% Default aspect ratio
+	ar_fig  = 'auto';
+	% Default width
+	w_fig   = 'auto';
+	% Font style
+	f_style = 'pretty';
+	% Axes style
+	a_style = 'fancy';
+	% Style for the colorbar
+	cbar_style = 'fancy';
+	% Color theme style
+	c_style = 'pretty';
 	
 elseif q_twocol
 	% Complete style for two-column papers
@@ -168,6 +194,10 @@ elseif q_twocol
 	f_style = 'pretty';
 	% Axes style
 	a_style = 'pretty';
+	% Style for the colorbar
+	cbar_style = 'pretty';
+	% Color theme style
+	c_style = 'gray';
 	
 elseif q_onecol
 	% Approach for figures in one-column papers
@@ -185,6 +215,10 @@ elseif q_onecol
 	f_style = 'pretty';
 	% Axes style
 	a_style = 'pretty';
+	% Style for the colorbar
+	cbar_style = 'fancy';
+	% Color theme style
+	c_style = 'pretty';
 	
 elseif q_present
 	% Style for presentation (with bigger fonts)
@@ -202,8 +236,33 @@ elseif q_present
 	f_style = 'present';
 	% Axes style
 	a_style = 'pretty';
+	% Style for the colorbar
+	cbar_style = 'pretty';
+	% Color theme style
+	c_style = 'pretty';
 	
 elseif q_plain
+	% Plain style
+	% Default margin style
+	m_style = 'loose';
+	% Manual margins
+	m_opts  = zeros(1,4);
+	% Use current interpreters.
+	i_style = 'current';
+	% Default aspect ratio
+	ar_fig  = 'auto';
+	% Default width
+	w_fig   = 'auto';
+	% Font style
+	f_style = 'sans-serif';
+	% Axes style
+	a_style = 'current';
+	% Style for the colorbar
+	cbar_style = 'plain';
+	% Color theme style
+	c_style = 'jet';
+	
+elseif q_current
 	% Plain style
 	% Default margin style
 	m_style = 'tight';
@@ -219,32 +278,21 @@ elseif q_plain
 	f_style = 'current';
 	% Axes style
 	a_style = 'current';
-	
-elseif q_current
-	% Plain style
-	% Default margin style
-	m_style = 'loose';
-	% Manual margins
-	m_opts  = zeros(1,4);
-	% Use current interpreters.
-	i_style = 'current';
-	% Default aspect ratio
-	ar_fig  = 'auto';
-	% Default width
-	w_fig   = 'auto';
-	% Font style
-	f_style = 'current';
-	% Axes style
-	a_style = 'current';
+	% Style for the colorbar
+	cbar_style = 'current';
+	% Color theme style
+	c_style = 'current';
 	
 else
 	% Bad input
 	error('set_plot:BadStyle', ['FigureStyle must be either ', ...
 		'''pretty'', ''plain'', ''present'', ''presentation'',\n', ...
-		'''current'', ''journal'', ''twocol'', or ''onecol''.']);
+		'''current'', ''journal'', ''fancy'', ''twocol'', or ''onecol''.']);
 	
 end
 
+
+%% --- Font style ---
 % Get font style options.
 [f_style, options] = cut_option(options, 'FontStyle', f_style);
 
@@ -293,6 +341,9 @@ else
 	
 end
 
+
+%% --- Axes style ---
+
 % Get the axes style options.
 [a_style, options] = cut_option(options, 'AxesStyle', a_style);
 
@@ -333,7 +384,7 @@ elseif strcmpi(a_style, 'fancy')
 	% Box
 	s_box  = 'off';
 	% Minor ticks
-	s_tick = 'none';
+	s_tick = 'all';
 	% Grid
 	r_grid = 'major';
 	% Grid style
@@ -373,7 +424,159 @@ else
 		'''pretty'', ''simple'', ''current'', ''fancy'', or ''smart''.']);
 	
 end
+
+
+%% --- Color scheme ---
+
+% Get the approach for the color schemes
+[c_style, options] = cut_option(options, 'ColorStyle', c_style);
+
+% Process the minor options.
+if strcmpi('ColorStyle', 'pretty')
+	% Color map
+	cmap = 'blue';
 	
+	
+elseif strcmpi(c_style, 'jet')
+	% Color map
+	cmap = 'jet';
+	
+	
+elseif strcmpi(c_style, 'gray') || strcmpi(c_style, 'grayscale')
+	% Color map
+	cmap = 'gray';
+	
+	
+elseif strcmpi(c_style, 'current')
+	% Color map
+	cmap = 'current';
+	
+	
+else
+	% Bad input
+	error('set_plot:ColorStyle', ['ColorStyle must be ''pretty'', ', ...
+		'''gray'', ''jet'', or ''current''.']);
+	
+end
+
+
+% Check the type of the variable
+if isnumeric(cmap)
+	% Check if the matrix has the right number of columns.
+	if size(c_style, 2) == 3
+		
+	else
+		% Bad input
+		error('set_plot:ColorStyle', ['ColorStyle must be ''pretty''', ...
+			'''grayscale'', ''blue'', ''current'', or an Nx3 matrix.']);
+	end
+	
+elseif ischar(c_style)
+	
+	
+else
+	% Bad input
+	error('set_plot:ColorStyle', ['ColorStyle must be ''pretty''', ...
+		'''grayscale'', ''blue'', ''current'', or an Nx3 matrix.']);
+	
+end
+	
+
+%% --- Colorbar style ---
+
+% Determine whether or not there's a color bar.
+q_cbar  = false;
+% Get the children of the figure handle.
+h_child = get(h_f, 'Children');
+% Loop through them.
+for i = 1:numel(h_child)
+	% Test if it is a colorbar object.
+	if strcmpi(get(h_child(i), 'Tag'), 'colorbar')
+		% Store colorbar handle.
+		h_cbar = h_child(i);
+		% Change value of test variable.
+		q_cbar = true;
+		continue
+	end
+end
+
+% Stats on the color bar
+if q_cbar
+	% Get ColorBarStyle option.
+	[cbar_style, options] = cut_option(...
+		options, 'ColorBarStyle', cbar_style);
+	% Process ColorBarStyle option.
+	if strcmpi(cbar_style, 'pretty')
+		% Whether or not to have a box
+		cbar_box = 'off';
+		% Tick direction
+		cbar_d_tick = 'out';
+		% Minor ticks
+		cbar_m_tick = 'on';
+		% Width of colorbar
+		w_cbar = 0.15 * r_units;
+		% Grid lines
+		q_g_cbar = 'off';
+		% Grid line style
+		s_g_cbar = 'current';
+		% Size of gap from axes
+		m_gap = 0.10 * r_units;
+		
+	elseif strcmpi(cbar_style, 'fancy')
+		% Whether or not to have a box
+		cbar_box = 'on';
+		% Tick direction
+		cbar_d_tick = 'out';
+		% Minor ticks
+		cbar_m_tick = 'on';
+		% Width of colorbar
+		w_cbar = 0.15 * r_units;
+		% Grid lines
+		q_g_cbar = 'on';
+		% Grid line style
+		s_g_cbar = ':';
+		% Size of gap from axes
+		m_gap = 0.10 * r_units;
+		
+	elseif strcmpi(cbar_style, 'plain')
+		% Whether or not to have a box
+		cbar_box = 'on';
+		% Tick direction
+		cbar_d_tick = 'out';
+		% Minor ticks
+		cbar_m_tick = 'off';
+		% Width of colorbar
+		w_cbar = 0.2778 * r_units;
+		% Grid lines
+		q_g_cbar = 'off';
+		% Grid line style
+		s_g_cbar = ':';
+		% Size of gap from axes
+		m_gap = 0.10 * r_units;
+		
+	elseif strcmpi(cbar_style, 'current')
+		% Whether or not to have a box
+		cbar_box = 'current';
+		% Tick direction
+		cbar_d_tick = 'current';
+		% Minor ticks
+		cbar_m_tick = 'current';
+		% Width of colorbar
+		w_cbar = 'current';
+		% Grid lines
+		q_g_cbar = 'current';
+		% Grid line style
+		s_g_cbar = 'current';
+		% Size of gap from axes
+		m_gap = 0.10 * r_units;
+		
+	else
+		% Bad input
+		error('set_plot:ColorBarStyle', ['ColorBarStyle must be ', ...
+			'either ''pretty'', ''fancy'', ''plain'', or ''current''.']);
+	end
+end
+
 
 %% --- Font size application ---
 
@@ -431,7 +634,7 @@ end
 set(h_a, 'TickLength', l_tick);
 
 % Get the tick direction.
-[d_tick, options] = cut_option(options, 'Box', d_tick);
+[d_tick, options] = cut_option(options, 'TickDir', d_tick);
 % Check for 'current'.
 if ~strcmpi(d_tick, 'current')
 	% Apply.
@@ -610,32 +813,81 @@ end
 % Check for 'current'.
 if ~strcmpi(s_grid, 'current')
 	% Apply.
-	set(h_a, 'GridStyle', 's_grid')
+	set(h_a, 'GridLineStyle', s_grid)
 end
 
 
-%% --- Colorbar business ---
+%% --- Colorbar formatting ---
 
-% Determine whether or not there's a color bar.
-q_cbar  = false;
-% Get the children of the figure handle.
-h_child = get(h_f, 'Children');
-% Loop through them.
-for i = 1:numel(h_child)
-	% Test if it is a colorbar object.
-	if strcmpi(get(h_child(i), 'Tag'), 'colorbar')
-		% Store colorbar handle.
-		h_cbar = h_child(i);
-		% Change value of test variable.
-		q_cbar = true;
-		continue
+% Check if the colorbar is present.
+if q_cbar
+	
+	% Get the box option.
+	[cbar_box, options] = cut_option(options, 'ColorBarBox', cbar_box);
+	% Check for 'current'.
+	if ~strcmpi(cbar_box, 'current')
+		% Apply.
+		set(h_cbar, 'Box', cbar_box);
+	end
+	
+	% Get the tick direction option.
+	[cbar_d_tick, options] = cut_option(options, ...
+		'ColorBarTickDir', cbar_d_tick);
+	% Check for 'current'.
+	if ~strcmpi(cbar_d_tick, 'current')
+		% Apply.
+		set(h_cbar, 'TickDir', cbar_d_tick);
+	end
+	
+	% Get the minor tick option.
+	[cbar_m_tick, options] = cut_option(options, ...
+		'ColorBarMinorTick', cbar_m_tick);
+	% Check for 'current'.
+	if ~strcmpi(cbar_m_tick, 'current')
+		% Figure out which ticks are on.
+		if strcmpi(get(h_cbar, 'XTick'), 'on')
+			% Apply the minor tick option.
+			set(h_cbar, 'XMinorTick', cbar_m_tick);
+		else
+			% Apply the minor tick option.
+			set(h_cbar, 'YMinorTick', cbar_m_tick);
+		end
+	end
+	
+	% Get the colorbar grid option.
+	[q_g_cbar, options] = cut_option(options, ...
+		'ColorBarGrid', q_g_cbar);
+	% Check for 'current'.
+	if ~strcmpi(q_g_cbar, 'current')
+		% Figure out which ticks are on.
+		if strcmpi(get(h_cbar, 'XTick'), 'on')
+			% Apply the minor tick option.
+			set(h_cbar, 'XGrid', q_g_cbar);
+		else
+			% Apply the minor tick option.
+			set(h_cbar, 'YGrid', q_g_cbar);
+		end
+	end
+	
+	% Get the gridline style option.
+	[s_g_cbar, options] = cut_option(options, ...
+		'ColorBarGridLineStyle', s_g_cbar);
+	% Check for 'current'.
+	if ~strcmpi(s_g_cbar, 'current')
+		% Apply
+		set(h_cbar, 'GridLineStyle', s_g_cbar);
+	end
+	
+	% Apply tick length.
+	if ~strcmpi(l_tick, 'current')
+		set(h_cbar, 'TickLength', l_tick);
 	end
 end
 
-% Initialize extra margins.
-m_cbar   = zeros(1, 4);
 
-% Stats on the color bar
+%% --- Colorbar margins ---
+
+% Check if the colorbar is present.
 if q_cbar
 	% Change the units.
 	set(h_cbar, 'Units', units)
@@ -674,8 +926,23 @@ if q_cbar
 		end
 	end
 	
-	% For now set the gap between the axes and the colorbar to zero.
-	m_gap = 0;
+	% Get the option for the width of the colorbar.
+	[w_cbar, options] = cut_option(options, 'ColorBarWidth', w_cbar);
+	% Check for 'current'.
+	if ~strcmpi(w_cbar, 'current')
+		% Check if a width or height is needed.
+		if pos_cbar(3) > pos_cbar(4)
+			% Height
+			pos_cbar(4) = w_cbar;
+		else
+			% Width
+			pos_cbar(3) = w_cbar;
+		end
+		
+	end
+	
+	% Set the size of the gap between the axes and the colorbar.
+	[m_gap, options] = cut_option(options, 'ColorBarGap', m_gap);
 	
 end
 
