@@ -14,7 +14,13 @@ function set_plot(varargin)
 %
 %
 
+% Versions:
+%  2010/02/15 @Sean Torrez    : First version
+%  2010/03/09 @Sean Torrez    : Modified to use fig handles only
+%  2010/11/02 @Derek Dalle    : Chaned to set_plot
 %
+% Public domain
+
 %% --- Input processing ---
 
 % Number of varargs
@@ -287,8 +293,8 @@ else
 	
 end
 
-% get the axes style options.
-[a_style, options] = cut_option(options, 'FontStyle', a_style);
+% Get the axes style options.
+[a_style, options] = cut_option(options, 'AxesStyle', a_style);
 
 % Set defaults related to axes style.
 if strcmpi(a_style, 'pretty')
@@ -369,18 +375,10 @@ else
 end
 	
 
-%% --- Font application ---
+%% --- Font size application ---
 
 % Get handles relating to fonts.
 h_font = [h_a, h_x, h_y, h_z];
-
-% Get font name.
-[f_name, options] = cut_option(options, 'FontName', f_name);
-% Check for 'current'.
-if ~strcmpi(f_name, 'current')
-	% Apply changes.
-	set(h_font, 'FontName', f_name);
-end
 
 % Get font size.
 [f_size, options] = cut_option(options, 'FontSize', f_size);
@@ -389,6 +387,11 @@ if ~strcmpi(f_size, 'current')
 	% Apply changes.
 	set(h_font, 'FontSize', f_size);
 end
+
+% Remember the current font.
+f_cur = get(h_font, 'FontName');
+% Set the default font to get sizing correct.
+set(h_font, 'FontName', 'Helvetica')
 
 
 %% --- Axes application ---
@@ -611,6 +614,57 @@ if ~strcmpi(s_grid, 'current')
 end
 
 
+%% --- Colorbar business ---
+
+% Determine whether or not there's a color bar.
+q_cbar  = false;
+% Get the children of the figure handle.
+h_child = get(h_f, 'Children');
+% Loop through them.
+for i = 1:numel(h_child)
+	% Test if it is a colorbar object.
+	if strcmpi(get(h_child(i), 'Tag'), 'colorbar')
+		% Store colorbar handle.
+		h_cbar = h_child(i);
+		% Change value of test variable.
+		q_cbar = true;
+		continue
+	end
+end
+
+% Initialize extra margins.
+m_cbar   = zeros(1, 4);
+
+% Stats on the color bar
+if q_cbar
+	% Change the units.
+	set(h_cbar, 'Units', units)
+	% Get the dimensions
+	pos_cbar = get(h_cbar, 'Position');
+	M_cbar   = get(h_cbar, 'TightInset');
+	% Check the location of the color bar.
+	s_cbar = get(h_cbar, 'Location');
+	% Determine the needed extra margins.
+	switch s_cbar
+		case 'EastOutside'
+			% Alter the right margin.
+			m_cbar(3) = pos_cbar(1) - pos_axes(1) + ...
+				pos_cbar(3) - pos_axes(3) + M_cbar(3);
+		case 'NorthOutside'
+			% Alter the top margin.
+			m_cbar(4) = pos_cbar(2) - pos_axes(2) + ...
+				pos_cbar(4) - pos_axes(4) + M_cbar(4);
+		case 'WestOutside'
+			% Alter the left margin.
+			m_cbar(1) = pos_axes(1) - pos_cbar(1) + M_cbar(1);
+		case 'SouthOutside'
+			% Alter the bottom margin.
+			m_cbar(2) = pos_axes(2) - pos_cbar(2) + M_cbar(2);
+	end
+	
+end
+
+
 %% --- Margin alteration ---
 
 % Determine the margin style.
@@ -673,8 +727,10 @@ if q_tight
 	% Set the figure window size.
 	set(h_f, 'Position', pos_fig);
 	
+		% Get the minimum size of the margins.
+	m_axes = get(h_a, 'TightInset');
 	% Get the size of the margins.
-	m_tight = m_opts + get(h_a, 'TightInset');
+	m_tight = m_opts + max([m_axes; m_cbar]);
 	
 	% Fix the axes.
 	pos_axes(1) = m_tight(1);
@@ -683,6 +739,52 @@ if q_tight
 	pos_axes(4) = h_fig - m_tight(2) - m_tight(4);
 	% Set them.
 	set(h_a, 'Position', pos_axes);
+	
+	% Find the box containing the colorbar.
+	if q_cbar
+		% Reobtain the position of the colorbar.
+		pos_cbar = get(h_cbar, 'Position');
+		m_cbar   = get(h_cbar, 'TightInset');
+		% Left-hand coordinate
+		r_cbar   = pos_cbar(1) - m_cbar(1);
+		if r_cbar < 0
+			% Move the position.
+			pos_cbar(1) = pos_axes(1) - r_cbar;
+			% Reset it.
+			set(h_cbar, 'Position', pos_cbar);
+			% Reobtain the position of the colorbar.
+			m_cbar   = get(h_cbar, 'Position');
+		end
+		% Bottom coordinate
+		r_cbar   = pos_cbar(2) - m_cbar(2);
+		if r_cbar < 0
+			% Move the position.
+			pos_cbar(2) = pos_axes(2) - r_cbar;
+			% Reset it.
+			set(h_cbar, 'Position', pos_cbar);
+			% Reobtain the position of the colorbar.
+			m_cbar   = get(h_cbar, 'Position');
+		end
+		% Right-hand coordinate
+		r_cbar  = pos_cbar(1) + pos_cbar(3) + m_cbar(3);
+		if r_cbar > w_fig
+			% Move the position.
+			pos_cbar(1) = pos_axes(1) + w_fig - r_cbar;
+			% Reset it.
+			set(h_cbar, 'Position', pos_cbar);
+			% Reobtain the position of the colorbar.
+			m_cbar   = get(h_cbar, 'Position');
+		end
+		% Top coordinate
+		r_cbar  = pos_cbar(2) + pos_cbar(4) + m_cbar(4);
+		if r_cbar > h_fig
+			% Move the position.
+			pos_cbar(2) = pos_axes(1) + h_fig - r_cbar;
+			% Reset it.
+			set(h_cbar, 'Position', pos_cbar);
+		end
+	end
+	
 	
 elseif q_loose
 	% Use the looser margins.
@@ -760,6 +862,22 @@ else
 	error('set_plot:Interpreter', ['Interpreter must be either ', ...
 		'''auto'', ''automatic'', ''current'', ''tex'',\n', ...
 		'''latex'', ''none'', or ''smart''.']);
+end
+
+
+%% --- Font type application ---
+
+% Get font name.
+[f_name, options] = cut_option(options, 'FontName', f_name);
+% Check for 'current'.
+if strcmpi(f_name, 'current')
+	% Apply old fonts.
+	for i = 1:numel(h_font)
+		set(h_font(i), 'FontName', f_cur{i});
+	end
+else
+	% Apply changes.
+	set(h_font, 'FontName', f_name);
 end
 
 
