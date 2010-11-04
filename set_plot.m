@@ -528,7 +528,7 @@ end
 [c_style, options] = cut_option(options, 'ColorStyle', c_style);
 
 % Process the minor options.
-if strcmpi('ColorStyle', 'pretty')
+if strcmpi(c_style, 'pretty')
 	% Color map
 	s_cmap = 'blue';
 	
