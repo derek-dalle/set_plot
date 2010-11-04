@@ -2,15 +2,27 @@ function set_colormap(varargin)
 % 
 % set_colormap('ColorScheme')
 % set_colormap(h_f, 'ColorScheme')
+% cmap = set_colormap(...)
 %
 % INPUTS:
 %         h_f : figure handle (default is gcf)
 %
 % 
 % OUTPUTS:
+%         cmap : the Nx3 colormap used
 %
+% This function edits a colormap with dramatically more options than the
+% built-in colormap function.  In addition to the built-in colormaps, this
+% function recognizes eight monochromatic that are based on the primary and
+% secondary colors and black and white.  Thus the following example will
+% produce a colormap going from White to Blue to DarkBlue.
 %
-% 
+%     set_colormap blue
+%
+% There is also the option to reverse any colormap by using a prefix.
+%
+%     set_colormap reverse-blue
+%     set_colormap reverse-jet
 %
 
 % Versions:
