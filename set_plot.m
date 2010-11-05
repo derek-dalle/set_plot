@@ -156,6 +156,8 @@ if q_pretty
 	cbar_style = 'pretty';
 	% Color theme style
 	c_style = 'current';
+	% Plot style
+	l_style = 'pretty';
 	
 elseif q_fancy
 	% Style containing even more marking
@@ -177,6 +179,8 @@ elseif q_fancy
 	cbar_style = 'fancy';
 	% Color theme style
 	c_style = 'pretty';
+	% Plot style
+	l_style = 'fancy';
 	
 elseif q_twocol
 	% Complete style for two-column papers
@@ -198,6 +202,8 @@ elseif q_twocol
 	cbar_style = 'pretty';
 	% Color theme style
 	c_style = 'gray';
+	% Plot style
+	l_style = 'pretty';
 	
 elseif q_onecol
 	% Approach for figures in one-column papers
@@ -219,6 +225,8 @@ elseif q_onecol
 	cbar_style = 'fancy';
 	% Color theme style
 	c_style = 'pretty';
+	% Plot style
+	l_style = 'fancy';
 	
 elseif q_present
 	% Style for presentation (with bigger fonts)
@@ -240,6 +248,8 @@ elseif q_present
 	cbar_style = 'pretty';
 	% Color theme style
 	c_style = 'pretty';
+	% Plot style
+	l_style = 'pretty';
 	
 elseif q_plain
 	% Plain style
@@ -260,7 +270,9 @@ elseif q_plain
 	% Style for the colorbar
 	cbar_style = 'plain';
 	% Color theme style
-	c_style = 'jet';
+	c_style = 'plain';
+	% Plot style
+	l_style = 'plain';
 	
 elseif q_current
 	% Plain style
@@ -282,6 +294,8 @@ elseif q_current
 	cbar_style = 'current';
 	% Color theme style
 	c_style = 'current';
+	% Plot style
+	l_style = 'current';
 	
 else
 	% Bad input
@@ -524,36 +538,94 @@ end
 
 %% --- Color scheme ---
 
-% Get the approach for the color schemes
+% Get the approach for the color schemes.
 [c_style, options] = cut_option(options, 'ColorStyle', c_style);
 
 % Process the minor options.
 if strcmpi(c_style, 'pretty')
 	% Color map
 	s_cmap = 'blue';
+	% Color sequence for plots
+	c_pseq = 'gray';
 	
-	
-elseif strcmpi(c_style, 'jet')
+elseif strcmpi(c_style, 'plain')
 	% Color map
 	s_cmap = 'jet';
-	
+	% Color sequence for plots
+	c_pseq = 'plain';
 	
 elseif strcmpi(c_style, 'gray') || strcmpi(c_style, 'grayscale')
 	% Color map
 	s_cmap = 'gray';
-	
+	% Color sequence for plots
+	c_pseq = 'gray';
 	
 elseif strcmpi(c_style, 'current')
 	% Color map
 	s_cmap = 'current';
-	
+	% Color sequence for plots
+	c_pseq = 'current';
 	
 else
 	% Bad input
 	error('set_plot:ColorStyle', ['ColorStyle must be ''pretty'', ', ...
-		'''gray'', ''jet'', or ''current''.']);
+		'''gray'', ''plain'', or ''current''.']);
 	
 end
+
+
+%% --- Plot style scheme ---
+
+% Get the approach for the plot style scheme.
+[l_style, options] = cut_option(options, 'PlotStyle', l_style);
+
+% Process the minor options.
+if strcmpi(l_style, 'pretty')
+	% Line style sequence
+	l_pseq = 'pretty';
+	% Line thickness sequence
+	t_pseq = 'pretty';
+	
+elseif strcmpi(l_style, 'fancy')
+	% Line style sequence
+	l_pseq = 'fancy';
+	% Line thickness sequence
+	t_pseq = 'fancy';
+	
+elseif strcmpi(l_style, 'plain')
+	% Line style sequence
+	l_pseq = 'plain';
+	% Line thickness sequence
+	t_pseq = 'plain';
+	
+elseif strcmpi(l_style, 'current')
+	% Line style sequence
+	l_pseq = 'current';
+	% Line thickness sequence
+	t_pseq = 'current';
+	
+else
+	% Bad input
+	error('set_plot:PlotStyle', ['PlotStyle must be ''pretty'', ', ...
+		'''fancy'', ''plain'', or ''current''.']);
+end
+
+
+%% --- Children processing ---
+
+% Get the handle for the title.
+h_title = get(h_a, 'Title');
+
+% Get the children of the current axes.
+h_child = get(h_a, 'Children');
+
+% List of what type each child is.
+t_child = get(h_child, 'Type');
+
+% Find the children that are lines.
+h_line = h_child(cell_position_string(t_child, 'line'));
+% Find the children that are text boxes.
+h_text = h_child(cell_position_string(t_child, 'text'));
 
 
 %% --- Color map ---
@@ -567,10 +639,247 @@ if ~strcmpi(s_cmap, 'current')
 end
 
 
+%% --- Line style sequence
+
+% Get the PlotLineStyle option.
+[l_pseq, options] = cut_option(options, 'PlotLineStyle', l_pseq);
+
+% Test for a recognized string.
+if ischar(l_pseq) && ~strcmpi(l_pseq, 'current')
+	% Look at the values of the string.
+	if strcmpi(l_pseq, 'pretty')
+		% Solid, dotted, dashed
+		v_pseq = {'-', ':', '--'};
+	elseif strcmpi(l_pseq, 'fancy')
+		% Solid, dotted, dashed, dot-dashed
+		v_pseq = {'-', ':', '--', '-.'};
+	elseif strcmpi(l_pseq, 'simple')
+		% Solid, dashed
+		v_pseq = {'-', '--'};
+	elseif strcmpi(l_pseq, 'plain')
+		% Solid only
+		v_pseq = {'-'};
+	else
+		% Bad input
+		error('set_plot:PlotLineStyle', ['PlotLineStyle must be ', ...
+			'''pretty'', ''fancy'', ''simple'', ''plain'', ', ...
+			'or ''current''.']);
+	end
+elseif iscell(l_pseq)
+	% Transfer the cell array.
+	v_pseq = l_pseq;
+elseif ~strcmpi(l_pseq, 'current')
+	error('set_plot:PlotLineStyle', ['PlotLineStyle must be ', ...
+		'either a recognized string or a cell array.']);
+end
+
+% Apply the conversions.
+if iscell(v_pseq)
+	% Number of styles.
+	n_pseq = numel(v_pseq);
+	% Number of handles
+	n_line = numel(h_line);
+	% Index of style to use.
+	i_pseq = 1;
+	% Loop backwards through lines.
+	for i = n_line:-1:1
+		% Set the color.
+		set(h_line(i), 'LineStyle', v_pseq{i_pseq});
+		% Move to the next style.
+		i_pseq = i_pseq + 1;
+		% Check if the colors should start over.
+		if i_pseq > n_pseq
+			i_pseq = 1;
+		end
+	end
+end
+
+
+%% --- Thickness sequence
+
+% Get the PlotLineStyle option.
+[t_pseq, options] = cut_option(options, 'PlotLineWidth', t_pseq);
+
+% Test for a recognized string.
+if ischar(t_pseq) && ~strcmpi(t_pseq, 'current')
+	% Look at the values of the string.
+	if strcmpi(l_pseq, 'pretty')
+		% Solid, dotted, dashed
+		v_pseq = [0.5, 0.5, 0.5, 2.0, 2.0, 2.0];
+	elseif strcmpi(l_pseq, 'fancy')
+		% Solid, dotted, dashed, dot-dashed
+		v_pseq = [0.5, 0.5, 0.5, 0.5, 2.0, 2.0, 2.0, 2.0];
+	elseif strcmpi(l_pseq, 'simple')
+		% Solid, dashed
+		v_pseq = [0.5, 0.5, 2.0, 2.0];
+	elseif strcmpi(l_pseq, 'plain')
+		% Solid only, one width
+		v_pseq = 0.5;
+	else
+		% Bad input
+		error('set_plot:PlotLineWidth', ['PlotLineWidth must be ', ...
+			'''pretty'', ''fancy'', ''simple'', ''plain'', ', ...
+			'or ''current''.']);
+	end
+elseif isnumeric(t_pseq)
+	% Transfer the values.
+	v_pseq = t_pseq;
+elseif iscell(t_pseq)
+	% Try to transfer the values.
+	v_pseq = [ t_pseq{:} ];
+elseif ~strcmpi(t_pseq, 'current')
+	% Bad input type
+	error('set_plot:PlotLineStyle', ['PlotLineWidth must be ', ...
+		'either a recognized string, matrix, or cell array.']);
+end
+
+% Apply the conversions.
+if isnumeric(v_pseq)
+	% Number of styles.
+	n_pseq = numel(v_pseq);
+	% Number of handles
+	n_line = numel(h_line);
+	% Index of style to use.
+	i_pseq = 1;
+	% Loop backwards through lines.
+	for i = n_line:-1:1
+		% Set the color.
+		set(h_line(i), 'LineWidth', v_pseq(i_pseq));
+		% Move to the next style.
+		i_pseq = i_pseq + 1;
+		% Check if the colors should start over.
+		if i_pseq > n_pseq
+			i_pseq = 1;
+		end
+	end
+end
+
+
+%% --- Color sequence ---
+
+% Get the ColorSequence option.
+[c_pseq, options] = cut_option(options, 'ColorSequence', c_pseq);
+
+% Check the type of the sequence, and convert it to an Nx3 matrix.
+if isnumeric(c_pseq)
+	% Numeric
+	% Check the size
+	if size(c_pseq,2) == 3 && numel(size(c_pseq)) == 2
+		% Transfer the map.
+		v_pseq = c_pseq;
+	else
+		% Bad input
+		error('set_plot:ColorSequenceMatrix', ['Numeric ', ...
+			'ColorSequence must be an Nx3 matrix.']);
+	end
+	
+elseif iscell(c_pseq)
+	% Cell array
+	% Just transfer the cell array and process it later.
+	v_pseq = c_pseq;
+	
+elseif ~ischar(c_pseq);
+	% Bad input
+	error('set_plot:ColorSequenceType', ['ColorSequence must be a ', ...
+		'string, cell array, or Nx3 matrix.']);
+	
+elseif ~strcmpi(c_pseq, 'current')
+	% String
+	% Check for list of known color sequence schemes.
+	if strcmpi(c_pseq, 'plain') || strcmpi(c_pseq, 'default')
+		% Numeric color sequence.
+		v_pseq = [
+			0.00, 0.00, 1.00;
+			0.00, 0.50, 0.00;
+			1.00, 0.00, 0.00;
+			0.00, 0.75, 0.75;
+			0.75, 0.00, 0.75;
+			0.75, 0.75, 0.00;
+			0.25, 0.25, 0.25];
+	elseif strcmpi(c_pseq, 'gray')
+		% Short grayscale scheme
+		v_pseq = {'Black', 'Silver', 'LightGray'};		
+	elseif strcmpi(c_pseq, 'black') || strcmpi(c_pseq, 'k')
+		% Only one color.
+		v_pseq = {'Black'};
+	elseif strcmpi(c_pseq, 'blue')
+		% Long bluescale scheme
+		v_pseq = {'Navy', 'Blue', 'Aqua', 'SkyBlue', 'DarkBlue', ...
+			'RoyalBlue', 'Cyan', 'LightBlue'};
+	elseif strcmpi(c_pseq, 'dark')
+		% List of dark colors.
+		v_pseq = {'Navy', 'ForestGreen', 'DarkRed', 'Silver', ...
+			'SaddleBrown', 'DodgerBlue', 'DarkSalmon'};
+	elseif strcmpi(c_pseq, 'bright')
+		% Lit of vibrant colors.
+		v_pseq = {'Cyan', 'Magenta', 'LawnGreen', ...
+			'Orange', 'GoldenRod', 'Teal'};
+	else
+		% Unrecognized scheme
+		error('set_plot:UnknownSeq', ['ColorSequence %s ', ...
+			'was not recognized.'], c_pseq);
+	end
+	
+end
+
+% Convert cell array if needed.
+if iscell(v_pseq)
+	% Cell array
+	% Transfer back to cell.
+	c_pseq = v_pseq;
+	% Number of colors.
+	n_pseq = numel(c_pseq);
+	% Initialize numeric color sequence.
+	v_pseq = zeros(n_pseq, 3);
+	% Loop through each color.
+	for i = 1:n_pseq
+		% Current color
+		c_cur = c_pseq{i};
+		% Check the type.
+		if isnumeric(c_cur) && numel(c_cur) == 3
+			% Store the color.
+			v_pseq(i,:) = c_cur(:)';
+		elseif ischar(c_cur)
+			% Attempt to convert it.
+			v_cur = html2rgb(c_cur);
+			% Check for success.
+			if any(isnan(v_cur))
+				% Unrecognized color
+				error('set_plot:UnknownColor', ['Color named %s ', ...
+					'was not recognized.'], c_cur);
+			else
+				% Store the color.
+				v_pseq(i,:) = v_cur;
+			end
+		end
+	end
+end
+
+% Apply the sequence.
+if ~strcmpi(c_pseq, 'current')
+	% Number of colors.
+	n_pseq = size(v_pseq, 1);
+	% Number of handles
+	n_line = numel(h_line);
+	% Index of color to use.
+	i_pseq = 1;
+	% Loop backwards through lines.
+	for i = n_line:-1:1
+		% Set the color.
+		set(h_line(i), 'Color', v_pseq(i_pseq,:));
+		% Move to the next color.
+		i_pseq = i_pseq + 1;
+		% Check if the colors should start over.
+		if i_pseq > n_pseq
+			i_pseq = 1;
+		end
+	end
+end
+
 %% --- Font size application ---
 
 % Get handles relating to fonts.
-h_font = [h_a, h_x, h_y, h_z];
+h_font = [h_a, h_x, h_y, h_z, h_title, h_text];
 
 % Get font size.
 [f_size, options] = cut_option(options, 'FontSize', f_size);
@@ -1259,3 +1568,44 @@ else
 	% Return default value.
 	val = default;
 end
+
+
+
+
+
+
+
+% --- SUBFUNCTION 4: Find the location of the matching string ---
+function i=cell_position_string(S,str)
+%
+% i=position(S,x,tol)
+%
+% INPUTS:
+%         S   : cell array of strings
+%         str : targeted string
+%
+% OUTPUTS:
+%         i   : indices of locations of str in S
+%
+% This function finds the location of entries in S that match the string
+% str.  The function assumes S is a cell array of strings.
+%
+
+% Initialize output.
+n_cell = numel(S);                              % number of strings in S
+i      = zeros(1,n_cell);                       % maximum size of i
+n_find = 0;                                     % number of matches
+
+% Loop through S.
+for j=1:n_cell
+  % Check for match of jth cell with str
+  if strcmpi(S{j},str) 
+    % Increase number of finds.
+    n_find    = n_find + 1;
+    % Save index.
+    i(n_find) = j;
+  end
+end
+
+% Delete extra entries of i.
+i = i(1:n_find);
