@@ -1,12 +1,22 @@
 function set_colormap(varargin)
 % 
-% set_colormap('ColorScheme')
-% set_colormap(h_f, 'ColorScheme')
+% set_colormap(colorString)
+% set_colormap(colorCell)
+% set_colormap(colorMap)
+% set_colormap(colorName1, colorName2, ...)
+% set_colormap(colorVal1, colorName1, ...)
+% set_colormap(colorVals, colorName1, ...)
+% set_colormap(h_f, ...)
 % cmap = set_colormap(...)
 %
 % INPUTS:
-%         h_f : figure handle (default is gcf)
-%
+%         h_f         : figure handle (default is gcf)
+%         colorString : name of custom or built-in colormap (notes 1-3)
+%         colorCell   : cell array of colors or colors and values (note 7)
+%         colorMap    : Nx3 or Nx4 matrix (note 4)
+%         colorName1  : RGB color or HTML color (note 5)
+%         colorVal1   : scalar for interpolation (note 6)
+%         colorVals   : list of scalars for interpolation (note 6)
 % 
 % OUTPUTS:
 %         cmap : the Nx3 colormap used
@@ -24,9 +34,62 @@ function set_colormap(varargin)
 %     set_colormap reverse-blue
 %     set_colormap reverse-jet
 %
+% The user can also use a pre-defined colormap using the following command.
+%
+%     set_colormap(cmap)
+%
+% Here cmap is an Nx3 or Nx4 matrix of RGB colors.  Finally, this function
+% provides several ways to construct a colormap manually.  The following
+% example shows how to construct a map that goes through a certain range of
+% colors based on common names.
+%
+%     set_colormap('Navy', 'Blue', 'White')
+%
+% The user may also change the values to which each color corresponds.
+%
+%     set_colormap(0, 'Navy', 0.2, 'Blue', 1, 'White')
+%
+% The function will recognize any of the typical web browser color names.
+%
+% NOTES:
+%       (1) The built-in colormaps can be viewed by looking at "colormap"
+%           the Matlab help browser.  They are autumn, bone, colorcube,
+%           cool, copper, flag, gray, hot, hsv, jet, lines, pink, prism,
+%           spring, summer, white, and winter.
+%
+%       (2) The custom colormaps defined here are black, blue, cyan, green,
+%           magenta, red, white, and yellow.  They can also be aliased
+%           using the single-character abbreviations k, b, c, g, m, r, w,
+%           and y, respectively.
+%
+%       (3) Any of the string colormaps can be reversed by prepending the
+%           string with 'reverse-', for example, reverse-jet and reverse-b.
+%
+%       (4) The colormap can also be described using a matrix.  This matrix
+%           can be an Nx3 matrix, which is the typical format for Matlab
+%           colormaps.  In this case each row refers to a red,green,blue
+%           color.  The matrix can also be an Nx4 matrix, in which case the
+%           first column gives a value to associate with each color.
+%
+%       (5) Colors listed individually can be either an RGB color, which is
+%           a 1x3 double, or an HTML color, which is a string containing
+%           the name of a common color.  A full list can be found at
+%           <http://www.w3schools.com/html/html_colornames.asp>.
+%
+%       (6) The colormap associates a color for each number in the range of
+%           0 to 1.  By default, the colors are spaced out equally, but
+%           this may not always be what the user wants.  The values can be
+%           given alternating with the colors or a list of interpolation
+%           values followed by a list of colors.
+%
+%       (7) A cell array can also be used.  The cell array consists of
+%           either a list of colors or a column of values and a column of
+%           colors or a row of values and a row of colors.
+%
 
 % Versions:
 %  2010/11/04 @Derek Dalle    : Branched from set_plot
+%  2010/11/05 @Derek Dalle    : First version
 %
 % Public domain
 
