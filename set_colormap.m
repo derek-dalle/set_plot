@@ -46,7 +46,10 @@ else
 end
 
 % Check the number of remaining arguments.
-if n_arg - i_arg > 1
+if n_arg < i_arg
+	% Not enough inputs
+	error('set_colormap:NotEnoughInputs', 'No colormap input.');
+elseif n_arg - i_arg > 1
 	% Get the first argument.
 	s_cmap = varargin(i_arg:n_arg);
 else
@@ -63,8 +66,8 @@ if isnumeric(s_cmap)
 	% Check if the matrix has the right number of columns.
 	if numel(size_cmap) ~= 2
 		% Bad input
-		error('set_plot:ColorMap', ['ColorMap must be a ', ...
-			'recognized string or an Nx3 matrix.']);
+		error('set_colormap:ColorMap', ['ColorMap must be a ', ...
+			'cell array, recognized string, or an Nx3 matrix.']);
 	elseif size_cmap(2) == 3
 		% Check if only one color is given.
 		if size(s_cmap, 1) == 1
@@ -100,15 +103,143 @@ if isnumeric(s_cmap)
 		v_cmap = interp1(i_cmap, v_cmap, linspace(0, 1, 64));
 	else
 		% Bad input
-		error('set_plot:ColorMap', ['ColorMap must be a ', ...
-			'recognized string, cell array, or an Nx3 matrix.']);
+		error('set_colormap:ColorMap', ['ColorMap must be a ', ...
+			'cell array, recognized string,, cell array, or an Nx3 matrix.']);
 	end
 	
 	% Apply the new color map.
 	set(h_f, 'ColorMap', v_cmap)
 
 elseif iscell(s_cmap)
+	% Dimensions of cell array.
+	s_cell = size(s_cmap);
+	% Determine the type 
+	if isempty(s_cmap) || numel(s_cell) ~= 2
+		% Bad input
+		error('set_colormap:BadCell', ['Cell array colormap ', ...
+			'must be either one- or two-dimensional.']);
+	elseif min(s_cell) == 1
+		% One-dimensional cell array
+		% First element
+		s_1 = s_cmap{1};
+		% Check the first element.
+		if isnumeric(s_1)
+			% If it's a 1x3 vector, it's a color.
+			if all(size(s_1) == [1 3])
+				% List of colors
+				c_cmap = s_cmap;
+				% Regular interpolation
+				i_cmap = linspace(0, 1, numel(c_cmap));
+			elseif numel(s_1) == numel(s_cmap) - 1
+				% List of colors
+				c_cmap = s_cmap(2:end);
+				% Manual interpolation
+				i_cmap = s_1;
+			elseif numel(s_1) == 1
+				% Alternating interpolation values and colors
+				% List of colors
+				c_cmap = s_cmap(2:2:end);
+				% Manual interpolation
+				i_cmap = [ s_cmap{1:2:end} ];
+			else
+				% Bad input
+				error('set_colormap:BadColorList', ['First element ', ...
+					'of cell array must be a color or list of ', ...
+					'interpolation values.']);
+			end
+		else
+			% List of colors
+			c_cmap = s_cmap;
+			% Regular interpolation
+			i_cmap = linspace(0, 1, numel(c_cmap));
+		end
+	elseif min(s_cell) > 2
+		% Too large of color array.
+		error('set_colormap:BadCell2', ['Two-dimensional cell ', ...
+			'array must be Nx2 or 2xN.']);
+	else
+		% Two-dimensional cell array
+		% Three critical elements
+		s_11 = s_cmap{1,1};
+		s_12 = s_cmap{1,2};
+		s_21 = s_cmap{2,1};
+		% Test if each is a scalar.
+		q_11 = isnumeric(s_11) && numel(s_11) == 1;
+		q_12 = isnumeric(s_12) && numel(s_12) == 1;
+		q_21 = isnumeric(s_21) && numel(s_21) == 1;
+		% Test these to find the interpolation values.
+		if q_11 && q_12
+			% Top row
+			% List of colors
+			c_cmap = s_cmap(2,:);
+			% Manual interpolation
+			i_cmap = [ s_cmap{1,:} ];
+		elseif q_11 && q_21
+			% Left column
+			% List of colors
+			c_cmap = s_cmap(:,2);
+			% Manual interpolation
+			i_cmap = [ s_cmap{:,1} ];
+		elseif q_12
+			% Bottom row
+			% List of colors
+			c_cmap = s_cmap(1,:);
+			% Manual interpolation
+			i_cmap = [ s_cmap{2,:} ];
+		elseif q_21
+			% Right column
+			% List of colors
+			c_cmap = s_cmap(:,1);
+			% Manual interpolation
+			i_cmap = [ s_cmap{:,1} ];
+		else
+			error('set_colormap:BadCell2', ['One of the rows or ', ...
+				'columns must consist entirely of scalars.']);
+		end
+	end
 	
+	% Initialize rgb colors
+	v_cmap = zeros(numel(c_cmap), 3);
+	% Convert each color into a rgb color.
+	for i = 1:numel(c_cmap)
+		% Current color
+		c_cur = c_cmap{i};
+		% Check if it already is an rgb color.
+		if isnumeric(c_cur)
+			% Check if it has the right size
+			if numel(c_cur) == 3
+				% Store it.
+				v_cmap(i,:) = c_cur(:)';
+			else
+				% Bad color
+				error('set_colormap:BadColor', ['Each color must be ', ...
+					'either a built-in color string, an HTML color name, ', ...
+					'or a three-element vector.']);
+			end
+		elseif ischar(c_cur)
+			% Check for a conversion.
+			v_cur = html2rgb(c_cur);
+			% Check for success.
+			if any(isnan(v_cur))
+				% Bad color
+				error('set_colormap:NoColor', ['Color named %s ', ...
+					'was not recognized.'], c_cur);
+			else
+				% Store the color.
+				v_cmap(i,:) = v_cur;
+			end
+		else
+			% Bad color
+			error('set_colormap:BadColor', ['Each color must be ', ...
+				'either a built-in color string, an HTML color name, ', ...
+				'or a three-element vector.']);
+		end
+	end
+	
+	% Expand the colormap.
+	v_cmap = interp1(i_cmap, v_cmap, linspace(0, 1, 64));
+	% Apply it.
+	set(h_f, 'ColorMap', v_cmap);
 	
 elseif ischar(s_cmap)
 	% Check if string begins with 'reverse-'.
@@ -179,7 +310,7 @@ elseif ischar(s_cmap)
 	
 else
 	% Bad input
-	error('set_plot:ColorMap', ['ColorMap must be a ', ...
-		'recognized string or an Nx3 matrix.']);
+	error('set_colormap:ColorMap', ['ColorMap must be a ', ...
+		'cell array, recognized string, or an Nx3 matrix.']);
 	
 end
