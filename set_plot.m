@@ -141,7 +141,7 @@ if q_pretty
 	% Default margin style
 	m_style = 'tight';
 	% Manual margins
-	m_opts  = zeros(1,4);
+	m_opts  = 0.025 * ones(1,4);
 	% Approach for interpreters
 	i_style = 'auto';
 	% Default aspect ratio
@@ -155,16 +155,18 @@ if q_pretty
 	% Style for the colorbar
 	cbar_style = 'pretty';
 	% Color theme style
-	c_style = 'current';
+	c_style = 'pretty';
 	% Plot style
 	l_style = 'pretty';
+	% Contour style
+	ctr_style = 'pretty';
 	
 elseif q_fancy
 	% Style containing even more marking
 	% Default margin style
 	m_style = 'tight';
 	% Manual margins
-	m_opts  = zeros(1,4);
+	m_opts  = 0.025 * ones(1,4);
 	% Approach for interpreters
 	i_style = 'auto';
 	% Default aspect ratio
@@ -181,13 +183,15 @@ elseif q_fancy
 	c_style = 'pretty';
 	% Plot style
 	l_style = 'fancy';
+	% Contour style
+	ctr_style = 'fancy';
 	
 elseif q_twocol
 	% Complete style for two-column papers
 	% Default margin style
 	m_style = 'tight';
 	% Manual margins
-	m_opts  = zeros(1,4);
+	m_opts  = 0.025 * ones(1,4);
 	% Approach for interpreters
 	i_style = 'auto';
 	% Default aspect ratio
@@ -204,13 +208,15 @@ elseif q_twocol
 	c_style = 'gray';
 	% Plot style
 	l_style = 'pretty';
+	% Contour style
+	ctr_style = 'pretty';
 	
 elseif q_onecol
 	% Approach for figures in one-column papers
 	% Default margin style
 	m_style = 'tight';
 	% Manual margins
-	m_opts  = zeros(1,4);
+	m_opts  = 0.025 * ones(1,4);
 	% Use automatic interpreters.
 	i_style = 'auto';
 	% Default aspect ratio
@@ -227,13 +233,15 @@ elseif q_onecol
 	c_style = 'pretty';
 	% Plot style
 	l_style = 'fancy';
+	% Contour style
+	ctr_style = 'fancy';
 	
 elseif q_present
 	% Style for presentation (with bigger fonts)
 	% Default margin style
 	m_style = 'tight';
 	% Manual margins
-	m_opts  = zeros(1,4);
+	m_opts  = 0.025 * ones(1,4);
 	% Use automatic interpreters.
 	i_style = 'auto';
 	% Default aspect ratio
@@ -250,13 +258,15 @@ elseif q_present
 	c_style = 'pretty';
 	% Plot style
 	l_style = 'pretty';
+	% Contour style
+	ctr_style = 'pretty';
 	
 elseif q_plain
 	% Plain style
 	% Default margin style
 	m_style = 'loose';
 	% Manual margins
-	m_opts  = zeros(1,4);
+	m_opts  = 0.025 * ones(1,4);
 	% Use current interpreters.
 	i_style = 'current';
 	% Default aspect ratio
@@ -273,13 +283,15 @@ elseif q_plain
 	c_style = 'plain';
 	% Plot style
 	l_style = 'plain';
+	% Contour style
+	ctr_style = 'plain';
 	
 elseif q_current
 	% Plain style
 	% Default margin style
 	m_style = 'tight';
 	% Manual margins
-	m_opts  = zeros(1,4);
+	m_opts  = 0.025 * ones(1,4);
 	% Use current interpreters.
 	i_style = 'current';
 	% Default aspect ratio
@@ -296,6 +308,8 @@ elseif q_current
 	c_style = 'current';
 	% Plot style
 	l_style = 'current';
+	% Contour style
+	ctr_style = 'current';
 	
 else
 	% Bad input
@@ -611,6 +625,119 @@ else
 end
 
 
+%% --- Contour style ---
+
+% Get the contour style option.
+[ctr_style, options] = cut_option(options, 'ContourStyle', ctr_style);
+
+% Check value of string
+if strcmpi(ctr_style, 'pretty')
+	% Filled or not
+	q_fill = 'off';
+	% Labels or not
+	q_label = 'on';
+	% Line color
+	c_c_line = 'auto';
+	% Label font color
+	c_c_lbl = 'Black';
+	% Label font name
+	f_c_lbl = 'auto';
+	% Label font size
+	s_c_lbl = 'auto';
+	
+elseif strcmpi(ctr_style, 'fancy')
+	% Filled or not
+	q_fill = 'on';
+	% Labels or not
+	q_label = 'on';
+	% Line color
+	c_c_line = 'Black';
+	% Label font color
+	c_c_lbl = 'auto';
+	% Label font name
+	f_c_lbl = 'auto';
+	% Label font size
+	s_c_lbl = 'auto';
+	
+elseif strcmpi(ctr_style, 'black')
+	% Filled or not
+	q_fill = 'off';
+	% Labels or not
+	q_label = 'on';
+	% Line color
+	c_c_line = 'Black';
+	% Label font color
+	c_c_lbl = 'Black';
+	% Label font name
+	f_c_lbl = 'auto';
+	% Label font size
+	s_c_lbl = 'auto';
+	
+elseif strcmpi(ctr_style, 'fill')
+	% Filled or not
+	q_fill = 'on';
+	% Labels or not
+	q_label = 'off';
+	% Line color
+	c_c_line = 'Black';
+	% Label font color
+	c_c_lbl = 'current';
+	% Label font name
+	f_c_lbl = 'auto';
+	% Label font size
+	s_c_lbl = 'auto';
+	
+elseif strcmpi(ctr_style, 'smooth')
+	% Filled or not
+	q_fill = 'on';
+	% Labels or not
+	q_label = 'off';
+	% Line color
+	c_c_line = 'auto';
+	% Label font color
+	c_c_lbl = 'current';
+	% Label font name
+	f_c_lbl = 'auto';
+	% Label font size
+	s_c_lbl = 'auto';
+	
+elseif strcmpi(ctr_style, 'simple') || strcmpi(ctr_style, 'plain')
+	% Filled or not
+	q_fill = 'off';
+	% Labels or not
+	q_label = 'off';
+	% Line color
+	c_c_line = 'auto';
+	% Label font color
+	c_c_lbl = 'current';
+	% Label font name
+	f_c_lbl = 'auto';
+	% Label font size
+	s_c_lbl = 'auto';
+	
+elseif strcmpi(ctr_style, 'current')
+	% Filled or not
+	q_fill = 'current';
+	% Labels or not
+	q_label = 'current';
+	% Line color
+	c_c_line = 'current';
+	% Label font color
+	c_c_lbl = 'current';
+	% Label font name
+	f_c_lbl = 'current';
+	% Label font size
+	s_c_lbl = 'current';
+	
+else
+	% Bad input
+	error('set_plot:ContourStyle', ['ContourStyle must be ', ...
+		'''pretty'', ''fancy'', ''fill'', ''simple'',\n', ...
+		'''black'', ''plain'', ''smooth'', or ''current''.']);
+	
+end
+
+
 %% --- Children processing ---
 
 % Get the handle for the title.
@@ -622,10 +749,17 @@ h_child = get(h_a, 'Children');
 % List of what type each child is.
 t_child = get(h_child, 'Type');
 
+% Convert to cell array if necessary.
+if ~iscell(t_child)
+	t_child = {t_child};
+end
+
 % Find the children that are lines.
 h_line = h_child(cell_position_string(t_child, 'line'));
 % Find the children that are text boxes.
 h_text = h_child(cell_position_string(t_child, 'text'));
+% Get the contour objects
+h_contour = h_child(cell_position_string(t_child, 'hggroup'));
 
 
 %% --- Color map ---
@@ -639,7 +773,7 @@ if ~strcmpi(s_cmap, 'current')
 end
 
 
-%% --- Line style sequence
+%% --- Line style sequence ---
 
 % Get the PlotLineStyle option.
 [l_pseq, options] = cut_option(options, 'PlotLineStyle', l_pseq);
@@ -674,7 +808,7 @@ elseif ~strcmpi(l_pseq, 'current')
 end
 
 % Apply the conversions.
-if iscell(v_pseq)
+if ~strcmpi(l_pseq, 'current') && iscell(v_pseq)
 	% Number of styles.
 	n_pseq = numel(v_pseq);
 	% Number of handles
@@ -695,7 +829,7 @@ if iscell(v_pseq)
 end
 
 
-%% --- Thickness sequence
+%% --- Thickness sequence ---
 
 % Get the PlotLineStyle option.
 [t_pseq, options] = cut_option(options, 'PlotLineWidth', t_pseq);
@@ -734,7 +868,7 @@ elseif ~strcmpi(t_pseq, 'current')
 end
 
 % Apply the conversions.
-if isnumeric(v_pseq)
+if ~strcmpi(t_pseq, 'current') && isnumeric(v_pseq)
 	% Number of styles.
 	n_pseq = numel(v_pseq);
 	% Number of handles
@@ -823,7 +957,7 @@ elseif ~strcmpi(c_pseq, 'current')
 end
 
 % Convert cell array if needed.
-if iscell(v_pseq)
+if ~strcmpi(c_pseq, 'current') && iscell(v_pseq)
 	% Cell array
 	% Transfer back to cell.
 	c_pseq = v_pseq;
@@ -876,6 +1010,7 @@ if ~strcmpi(c_pseq, 'current')
 	end
 end
 
+
 %% --- Font size application ---
 
 % Get handles relating to fonts.
@@ -894,6 +1029,147 @@ f_cur = get(h_font, 'FontName');
 % Set the default font to get sizing correct.
 set(h_font, 'FontName', 'Helvetica')
 
+
+%% --- Contour formatting ---
+
+% Only bother if there are contours
+if numel(h_contour) > 0
+	% Get the fill option.
+	[q_fill, options] = cut_option(options, 'ContourFill', q_fill);
+	% Apply it.
+	if ~strcmpi(q_fill, 'current')
+		set(h_contour, 'Fill', q_fill);
+	end
+	
+	% Get the label option.
+	[q_label, options] = cut_option(options, 'ContourText', q_label);
+	% Apply it.
+	if ~strcmpi(q_label, 'current')
+		set(h_contour, 'ShowText', q_label);
+	end
+	
+	% Get the labels if possible.
+	h_c_child = get(h_contour, 'Children');
+	% Type of each.
+	i_c_child = get(h_c_child, 'Type');
+	% Find those that are labels.
+	h_c_text  = h_c_child(cell_position_string(i_c_child, 'text'));
+	% Move all labels so that they don't cross the contour lines by default.
+	set(h_c_text, 'VerticalAlignment', 'bottom');
+	
+	% Get the font size option.
+	[s_c_lbl, options] = cut_option(options, 'ContourFontSize', s_c_lbl);
+	% Evaluate 'auto'.
+	if strcmpi(s_c_lbl, 'auto')
+		% Give it a smaller value than the overall font size.
+		s_c_lbl = f_size - 1;
+	end
+	% Check for 'current'.
+	if ~strcmpi(s_c_lbl, 'current')
+		% Apply the font size change.
+		set(h_c_text, 'FontSize', s_c_lbl);
+	end
+	
+	% Get the line coloring option.
+	[c_c_line, options] = cut_option(options, 'ContourLineColor', c_c_line);
+	% Apply it.
+	if ischar(c_c_line)
+		% Check for recognized values.
+		if strcmpi(c_c_line, 'current')
+			% Do nothing.
+		elseif strcmpi(c_c_line, 'auto')
+			% Use the given value.
+			set(h_contour, 'LineColor', c_c_line);
+			% In this case the labels should be on the boundary.
+			set(h_c_text, 'VerticalAlignment', 'middle')
+		else
+			% Attempt a conversion to a single color.
+			v_c_line = html2rgb(c_c_line);
+			% Check for a successful conversion.
+			if any(isnan(v_c_line))
+				% Unrecognized color
+				error('set_plot:UnkonwContourColor', ['ContourLine color ', ...
+					'%s was not recognized.'], c_c_line);
+			else
+				% Apply the rgb color
+				set(h_contour, 'LineColor', v_c_line);
+			end
+		end
+	elseif isnumeric(c_c_line)
+		% Apply the color directly
+		set(h_contour, 'LineColor', c_c_line);
+	else
+		% Bad input type
+		error('set_plot:ContourColor', ['ContourLineColor must be ', ...
+			'string or 1x3 double.']);
+	end
+	
+	% Get the font name option.
+	[f_c_lbl, options] = cut_option(options, 'ContourFontName', f_c_lbl);
+	% Apply it.
+	if strcmpi(f_c_lbl, 'auto')
+		% Use the overall font.
+		set(h_c_text, 'FontName', f_name);
+	elseif strcmpi(f_c_lbl, 'current')
+		% Do nothing.
+	elseif ischar(f_c_lbl)
+		% Apply the given option
+		set(h_c_text, 'FontName', f_c_lbl);
+	else
+		% Bad type
+		error('set_plot:ContourFont', ['ContourFontName must be ', ...
+			'''auto'', ''current'', or a recognized font name.']);
+	end
+	
+	% Get the font color option.
+	[c_c_lbl, options] = cut_option(options, 'ContourFontColor', c_c_lbl);
+	% Apply it.
+	if strcmpi(c_c_lbl, 'auto')
+		% Pick a color that doesn't clash (hopefully) for each label.
+		% Number of labels..
+		n_lbl = numel(h_c_text);
+		% Get the current color map.
+		v_cmap = get(h_f, 'ColorMap');
+		% Get the limits of the color map.
+		m_cmap = get(h_a, 'CLim');
+		% Get the interpolation points.
+		i_cmap = linspace(0, 1, size(v_cmap,1));
+		% Loop through each label.
+		for i = 1:n_lbl
+			% Get the value of the contour via the label text.
+			v_lbl = str2double(get(h_c_text(i), 'String'));
+			% Find the normalized value (for the colormap).
+			x_lbl = (v_lbl - min(m_cmap)) / diff(m_cmap);
+			% Interpolate to find the corresponding color.
+			c_cur = interp1(i_cmap, v_cmap, x_lbl);
+			% Assign the text color to be the inverse of this.
+			set(h_c_text(i), 'Color', 1 - c_cur);
+		end
+		
+	elseif strcmpi(c_c_lbl, 'current')
+		% Do nothing
+	elseif ischar(c_c_lbl)
+		% Try to apply a single color.
+		% Convert the color.
+		v_c_lbl = html2rgb(c_c_lbl);
+		% Check for success.
+		if any(isnan(v_c_lbl))
+			% Bad color string
+			error('set_plot:ContourFontColor', ['ContourFontColor ', ...
+				'%s is not recognized.'], c_c_lbl);
+		else
+			% Apply color.
+			set(h_c_text, 'Color', v_c_lbl);
+		end
+	elseif isnumeric(c_c_lbl) && numel(c_c_lbl) == 3
+		% Try to apply a single color.
+		set(h_c_text, 'Color', c_c_lbl(:)');
+	else
+		% Bad input
+		error('set_plot:ContourFontColor', ['ContourFontColor ', ...
+			'must be ''auto'', ''current'', or a recognized color.']);
+	end
+end
 
 %% --- Axes application ---
 
