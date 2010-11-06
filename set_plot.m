@@ -1134,6 +1134,8 @@ if numel(h_contour) > 0
 		m_cmap = get(h_a, 'CLim');
 		% Get the interpolation points.
 		i_cmap = linspace(0, 1, size(v_cmap,1));
+		% Little vector for converting rgb to grayscale.
+		v_rgb  = [0.299; 0.587; 0.114];
 		% Loop through each label.
 		for i = 1:n_lbl
 			% Get the value of the contour via the label text.
@@ -1142,8 +1144,10 @@ if numel(h_contour) > 0
 			x_lbl = (v_lbl - min(m_cmap)) / diff(m_cmap);
 			% Interpolate to find the corresponding color.
 			c_cur = interp1(i_cmap, v_cmap, x_lbl);
-			% Assign the text color to be the inverse of this.
-			set(h_c_text(i), 'Color', 1 - c_cur);
+			% Convert to grayscale.
+			c_cur = ones(1,3) * (c_cur * v_rgb);
+			% Choose between black and white accordingly.
+			set(h_c_text(i), 'Color', c_cur < 0.5);
 		end
 		
 	elseif strcmpi(c_c_lbl, 'current')

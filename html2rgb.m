@@ -80,7 +80,7 @@ s_colors = {
 	'Fuchsia',               [255,   0, 255];
 	'G',                     [  0, 128,   0];
 	'Gainsboro',             [220, 220, 220];
-	'GhostWhite',            [248, 2482 255];
+	'GhostWhite',            [248, 248, 255];
 	'Gold',                  [255, 215,   0];
 	'GoldenRod',             [218, 165,  32];
 	'Gray',                  [128, 128, 128];
@@ -136,7 +136,7 @@ s_colors = {
 	'OldLace',               [253, 245, 230];
 	'Olive',                 [128, 128,   0];
 	'OliveDrab',             [107, 142,  35];
-	'Orange',                [255, 265,   0];
+	'Orange',                [255, 165,   0];
 	'OrangeRed',             [255,  69,   0];
 	'Orchid',                [218, 112, 214];
 	'PaleGoldenRod',         [238, 232, 170];
