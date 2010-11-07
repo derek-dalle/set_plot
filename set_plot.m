@@ -69,48 +69,150 @@ function h = set_plot(varargin)
 % Cascading styles:
 %    AxesStyle
 %       'current'
-%           TickLength -> 'current'
-%           TickDir    -> 'current'
 %           Box        -> 'current'
-%           MinorTick  -> 'current'
 %           Grid       -> 'current'
 %           GridStyle  -> 'current'
+%           MinorTick  -> 'current'
+%           TickDir    -> 'current'
+%           TickLength -> 'current'
 %       'fancy'
-%           TickLength -> [0.0050, 0.0125]
-%           TickDir    -> 'out'
 %           Box        -> 'off'
-%           MinorTick  -> 'all'
 %           Grid       -> 'major'
-%       'plain'
-%           TickLength -> [0.0100, 0.0250]
-%           TickDir    -> 'in'
-%           Box        -> 'on'
-%           MinorTick  -> 'none'
-%           Grid       -> 'none'
-%           GridStyle  -> 'current'
 %           GridStyle  -> ':'
-%       'pretty'
-%           TickLength -> [0.0050, 0.0125]
-%           TickDir    -> 'out'
-%           Box        -> 'off'
 %           MinorTick  -> 'all'
+%           TickDir    -> 'out'
+%           TickLength -> [0.0050, 0.0125]
+%       'plain'
+%           Box        -> 'on'
 %           Grid       -> 'none'
 %           GridStyle  -> 'current'
-%       'simple'
-%           TickLength -> [0.0050, 0.0125]
-%           TickDir    -> 'out'
-%           Box        -> 'off'
 %           MinorTick  -> 'none'
-%           Grid       -> 'none'
-%           GridStyle  -> 'current'
-%       'smart'
-%           TickLength -> [0.0050, 0.0125]
-%           TickDir    -> 'out'
+%           TickDir    -> 'in'
+%           TickLength -> [0.0100, 0.0250]
+%       'pretty'
 %           Box        -> 'off'
-%           MinorTick  -> 'smart'
 %           Grid       -> 'none'
 %           GridStyle  -> 'current'
-%        
+%           MinorTick  -> 'all'
+%           TickDir    -> 'out'
+%           TickLength -> [0.0050, 0.0125]
+%       'simple'
+%           Box        -> 'off'
+%           Grid       -> 'none'
+%           GridStyle  -> 'current'
+%           MinorTick  -> 'none'
+%           TickDir    -> 'out'
+%           TickLength -> [0.0050, 0.0125]
+%       'smart'
+%           Box        -> 'off'
+%           Grid       -> 'none'
+%           GridStyle  -> 'current'
+%           MinorTick  -> 'smart'
+%           TickDir    -> 'out'
+%           TickLength -> [0.0050, 0.0125]
+%
+%   FigureStyle
+%       'current'
+%           AspectRatio      -> 'auto'
+%           AxesStyle        -> 'current'
+%           ColorBarStyle    -> 'current'
+%           ColorStyle       -> 'current'
+%           ContourStyle     -> 'current'
+%           FontStyle        -> 'current'
+%           InterpreterStyle -> 'current'
+%           PlotLineStyle    -> 'current'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 'auto'
+%       'fancy'
+%           AspectRatio      -> 'auto'
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'pretty'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'pretty'
+%           InterpreterStyle -> 'auto'
+%           PlotLineStyle    -> 'pretty'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 'auto'
+%       'onecol'
+%           AspectRatio      -> (sqrt(5) - 1) / 2
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'fancy'
+%           ColorStyle       -> 'pretty'
+%           ContourStyle     -> 'fancy'
+%           FontStyle        -> 'pretty'
+%           InterpreterStyle -> 'auto'
+%           PlotLineStyle    -> 'fancy'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 6 [inches]
+%       'plain'
+%           AspectRatio      -> 'auto'
+%           AxesStyle        -> 'plain'
+%           ColorBarStyle    -> 'plain'
+%           ColorStyle       -> 'plain'
+%           ContourStyle     -> 'plain'
+%           FontStyle        -> 'plain'
+%           InterpreterStyle -> 'current'
+%           PlotLineStyle    -> 'plain'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'loose'
+%           Width            -> 'auto'
+%       'present' | 'presentation'
+%           AspectRatio      -> 0.75
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'pretty'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'present'
+%           InterpreterStyle -> 'auto'
+%           PlotLineStyle    -> 'pretty'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 2.125 [inches]
+%       'pretty'
+%           AspectRatio      -> 'auto'
+%           AxesStyle        -> 'fancy'
+%           ColorBarStyle    -> 'fancy'
+%           ColorStyle       -> 'pretty'
+%           ContourStyle     -> 'fancy'
+%           FontStyle        -> 'pretty'
+%           InterpreterStyle -> 'auto'
+%           PlotLineStyle    -> 'fancy'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 'auto'
+%       'twocol' | 'journal'
+%           AspectRatio      -> 0.75
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'gray'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'pretty'
+%           InterpreterStyle -> 'auto'
+%           PlotLineStyle    -> 'pretty'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 3.4 [inches]
+%
+%   FontStyle
+%       'current'
+%           FontName -> 'current'
+%           FontSize -> 'current'
+%       'plain'
+%           FontName -> 'Helvetica'
+%           FontSize -> 10
+%       'pretty' | 'fancy' | 'present' | 'presentation'
+%           FontName -> 'Times New Roman'
+%           FontSize -> 9
+%       'sans-serif'
+%           FontName -> 'Helvetica'
+%           FontSize -> 'current'
+%       'serif'
+%           FontName -> 'Times New Roman'
+%           FontSize -> 'current'
 %
 
 % Versions:
@@ -374,9 +476,9 @@ elseif q_plain
 	% Default width
 	w_fig   = 'auto';
 	% Font style
-	f_style = 'sans-serif';
+	f_style = 'plain';
 	% Axes style
-	a_style = 'current';
+	a_style = 'plain';
 	% Style for the colorbar
 	cbar_style = 'plain';
 	% Color theme style
@@ -425,7 +527,7 @@ end
 [f_style, options] = cut_option(options, 'FontStyle', f_style);
 
 % Set defaults related to font style.
-if strcmpi(f_style, 'pretty')
+if strcmpi(f_style, 'pretty') || strcmpi(f_style, 'fancy')
 	% Make all aspects of the written quantities look good.
 	% Font name
 	f_name = 'Times New Roman';
@@ -453,6 +555,13 @@ elseif strcmpi(f_style, 'sans-serif')
 	% Font size
 	f_size = 'current';
 	
+elseif strcmpi(f_style, 'plain')
+	% Change the fonts back to teh defaults.
+	% Font name
+	f_name = 'Helvetica';
+	% Font size
+	f_size = 10;
+	
 elseif strcmpi(f_style, 'current')
 	% Don't change anything.
 	% Font name
@@ -464,7 +573,7 @@ else
 	% Bad input
 	error('set_plot:BadStyle', ['FontStyle must be either ', ...
 		'''pretty'', ''current'', ''present'', ''presentation'',\n', ...
-		'''serif'', or ''sans-serif''.']);
+		'''fancy'', ''plain'', ''serif'', or ''sans-serif''.']);
 	
 end
 
