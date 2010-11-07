@@ -15,6 +15,50 @@ function h = set_plot(varargin)
 % OUTPUTS:
 %         h           : struct containing all handles used
 %
+% This function is used to specify several options simultaneously to a
+% figure.  The most basic task performed by this function is to alter the
+% paper size so that figures saved using SaveAs have the expected size
+% without any cropping.
+%
+% The simple command
+% 
+%     set_plot(h_f)
+%
+% will take a figure (with the handle h_f) and decrease its handles to zero
+% if possible.  The function does its other useful work using options.  The
+% following command will do nothing to the figure other than change the
+% paper size.
+%
+%     set_plot(h_f, 'MarginStyle', 'loose')
+%
+% The following command is perhaps the most useful one.  It changes all
+% aspects of the figure to make it look fairly good without any extra work.
+%
+%     set_plot(h_f, 'FigureStyle', 'pretty')
+%
+% In addition to changing the formatting of the figure, the following
+% command also changes the size of the figure so that it will fit in a
+% two-column article.
+%
+%     set_plot(h_f, 'FigureStyle', 'twocol')
+%
+% The function utilizes a system of cascading options, meaning that the
+% values of some of the options affect the default values of some other
+% options.  It is possible to use these broad options like 'FigureStyle' or
+% much more detailed options like 'FontSize'.
+%
+%     set_plot(h_f, 'FigureStyle', 'fancy', 'FontSize', 9.5)
+%
+% Options can also be specified using a struct, which is useful if the same
+% options are going to be used for a series of figures.
+%
+%     opts = struct('FigureStyle', 'fancy', 'FontSize', 9.5);
+%     set_plot(h_f, opts)
+%
+% A fill list of options and their possible values is shown below.  A chart
+% of the cascading options and their affects on the detailed options is
+% below that.
+%
 % OPTIONS:
 %         AspectRatio
 %            [ {auto} | positive scalar ]
@@ -22,51 +66,141 @@ function h = set_plot(varargin)
 %            function to use the aspect ratio of the current figure window.
 %         AxesStyle
 %            [ {current} | pretty | fancy | simple | smart | plain ]
-%            Scheme to use for axes.  This is one of the cascading styles.
-%         Box              : whether or not to draw a box around the plot
+%            Scheme to use for axes.  This is a cascading style.
+%         Box
 %            [ {current} | on | off ]
-%         ColorBarStyle    : style to use for colorbar
+%            Whether or not to draw a box around the plot.
+%         ColorBarStyle
 %            [ {current} | pretty | fancy | plain ]
-%         ColorStyle       : overall color theme
+%            Style to use for colorbar.  This is a cascading style.
+%         ColorBarBox
+%            [ {current} | on | off ]
+%            Whether or not to draw a box around the colorbar.
+%         ColorBarMinorTick
+%            [ {current} | on | off ]
+%            Whether or not to use minor ticks on the colorbar.
+%         ColorBarTickDir
+%            [ {current} | in | out ]
+%            Direction to draw ticks on the colorbar
+%         ColorBarWidth
+%            [ {current} | positive scalar ]
+%            Width of colorbar, not including labels and ticks.
+%         ColorBarGrid
+%            [ {current} | on | off ]
+%            Whether or not to draw grid lines in the colorbar.
+%         ColorBarGridLineStyle
+%            [ {current} | : | - | -- | -. ]
+%            Style for grid lines in colorbar.
+%         ColorBarGap
+%            [ {0.1} | positive scalar ]
+%            Distance between box containing plot and box containing
+%            colorbar.
+%         ColorMap
+%            [ {current} | string | Nx3 double | Nx4 double | cell array ]
+%            The colormap can consist of either a label to a standard
+%            Matlab colormap or use a matrix of colors.  An additional
+%            option is to use a cell array of colors.  Each color can be
+%            either a 1x3 RGB color or an HTML color string such as
+%            'OliveGreen'.  An example might be
+%                {'Navy', 'RoyalBlue', [0.95, 0.9, 0.85]}.
+%         ColorSequence
+%            [ {current} | plain | default | gray | black | blue | dark
+%               | bright | Nx3 matrix | cell array ]
+%            Sequence of colors for plot lines.
+%         ColorStyle
 %            [ {current} | pretty | plain | gray | grayscale ]
-%         ContourFontColor : color to use for labels in contour plots
-%            [ ]
-%         ContourStyle     : style to use for contour plots
+%            Overall color theme.  This is a cascading style.
+%            Color to use for labels in contour plots
+%         ContourFill
+%            [ {current} | on | off ]
+%            Whether or not contours plots should be filled in.
+%         ContourFontColor
+%            [ {current} | auto | string | 1x3 double ]
+%            Color to use for contour text labels.  The 'auto' value
+%            chooses either black or white for each label in an attempt to
+%            pick a color that is readable against the background.
+%         ContourFontName
+%            [ {current} | auto | string]
+%            Font to use for contour text labels.  The 'auto' value
+%            inherits the overall font specified using FontName.
+%         ContourFontSize
+%            [ {current} | auto | positive scalar ]
+%            Size of font to use for contour text labels.  The 'auto' value
+%            corresponds to a size one point smaller than the overall font
+%            size specified using FontSize.
+%         ContourLineColor
+%            [ {current} | auto | string | 1x3 double ]
+%            Color to use for contour lines.  The 'auto' value tells the
+%            function to match the contour lines to the colormap values.
+%         ContourStyle
 %            [ {current} | pretty | fancy | black | fill | smooth
 %               | simple | plain ]
-%         FigureStyle      : overall figure style
+%            Style to use for contour plots.  This is a cascading style.
+%         ContourText
+%            [ {current} | on | off ]
+%            Whether or not to use labels in contour plots.
+%         FigureStyle
 %            [ {current} | pretty | fancy | plain | journal | twocol
 %               | onecol | present | presentation ]
-%         FontName         : name of font to use for most text
+%            Overall figure style.  This is a cascading style.
+%         FontName
 %            [ {current} | font name (string) ]
-%         FontSize         : size of fonts to use
+%            Name of font to use for most text
+%         FontSize
 %            [ {current} | positive scalar ]
-%         FontStyle        : scheme for text fonts and sizes
-%            [ {current} | pretty | presentation | serif | sans-serif ]
-%         Grid             : whether or not to draw grid lines
+%            Size of fonts to use.
+%         FontStyle
+%            [ {current} | pretty | present | plain | serif | sans-serif ]
+%            Scheme for text fonts and sizes.  This is a cascading style.
+%         Grid
 %            [ {current} | major | all | on | off | none | smart
 %               | x | y | z | X | Y | Z ]
-%         InterpreterStyle : rules to use for text interpreters
+%            Whether or not to draw grid lines.  The strings 'x', 'y', etc.
+%            and their combinations can be used to control the grid lines
+%            for each axis.  The capital versions turn on both major and
+%            minor grid lines.  The 'smart' value turns on all major grid
+%            lines and minor grid lines for any axis with linear spacing.
+%         InterpreterStyle
 %            [ {current} | auto | tex | latex | none ]
-%         MarginStyle      : style for the margins
-%            [ {tight} | loose ]
-%         Margin           : extra margin to add for tight MarginStyle
+%            Rules to use for text interpreters.  The 'auto' option turns
+%            most interpreters to 'tex', except those with multiple '$'
+%            characters, for which it uses the 'latex' interpreter.
+%         Margin
 %            [ 0.025 | scalar vector with up to four entries ]
-%         MinorTick        : whether or not to use minor ticks on the axes
+%            Extra margin to add for 'tight' MarginStyle.
+%         MarginStyle
+%            [ {tight} | loose ]
+%            Style for the margins.  The 'tight' option cuts off all
+%            margins, and the 'loose' option restores the defaults.  Both
+%            options change the paper size so that the figure has the
+%            proper dimensions when the 'SaveAs' command is used.
+%         MinorTick
 %            [ {current} | all | none | on | off | smart 
 %               | x | y | z | xy | xz | xy | xyz ]
-%         PlotStyle        : style to use for plot lines
+%            Whether or not to use minor ticks on the axes.  The 'smart'
+%            value turns on minor ticks for all non-logarithmic axes.
+%         PlotLineStyle
+%            [ {current} | pretty | fancy | simple | plain | cell array ]
+%            Sequence of plot styles.
+%         PlotLineWidth
+%            [ {current} | pretty | fancy | simple | plain | cell array
+%               | double array ]
+%            Sequence of widths for plot lines.
+%         PlotStyle
 %            [ {current} | pretty | fancy | plain ]
-%         TickDir          : tick direction
-%            [ {current} | on | off ]
-%         TickLength       : length of ticks for figure
+%            Style to use for plot lines.  This is a cascading style.
+%         TickDir
+%            [ {current} | in | out ]
+%            Tick direction for main plot.
+%         TickLength
 %            [ {current} | short | long | 1x2 double ]
-%         Width            : width of figure
+%            Length of ticks for main axes.
+%         Width
 %            [ {auto} | positive scalar ]
+%            Width of figure.
 %
 %
-%
-% Cascading styles:
+% CASCADING STYLE CHART:
 %    AxesStyle
 %       'current'
 %           Box        -> 'current'
@@ -110,6 +244,98 @@ function h = set_plot(varargin)
 %           MinorTick  -> 'smart'
 %           TickDir    -> 'out'
 %           TickLength -> [0.0050, 0.0125]
+%
+%   ColorBarStyle
+%       'current'
+%           ColorBarBox           -> 'current'
+%           ColorBarMinorTick     -> 'current'
+%           ColorBarTickDir       -> 'current'
+%           ColorBarWidth         -> 'current'
+%           ColorBarGrid          -> 'current'
+%           ColorBarGridLineStyle -> 'current'
+%           ColorBarGap           -> 0.1 [inches]
+%       'fancy'
+%           ColorBarBox           -> 'on'
+%           ColorBarMinorTick     -> 'on'
+%           ColorBarTickDir       -> 'out'
+%           ColorBarWidth         -> 0.15 [inches]
+%           ColorBarGrid          -> 'on'
+%           ColorBarGridLineStyle -> ':'
+%           ColorBarGap           -> 0.1 [inches]
+%       'plain'
+%           ColorBarBox           -> 'on'
+%           ColorBarMinorTick     -> 'off'
+%           ColorBarTickDir       -> 'in'
+%           ColorBarWidth         -> 0.2778 [inches]
+%           ColorBarGrid          -> 'off'
+%           ColorBarGridLineStyle -> 'current'
+%           ColorBarGap           -> 0.1 [inches]
+%       'pretty'
+%           ColorBarBox           -> 'off'
+%           ColorBarMinorTick     -> 'on'
+%           ColorBarTickDir       -> 'out'
+%           ColorBarWidth         -> 0.15 [inches]
+%           ColorBarGrid          -> 'off'
+%           ColorBarGridLineStyle -> 'current'
+%           ColorBarGap           -> 0.1 [inches]
+%
+%   ColorStyle
+%       'current'
+%           ColorMap      -> 'current'
+%           ColorSequence -> 'current'
+%       'gray' | 'grayscale'
+%           ColorMap      -> 'gray'
+%           ColorSequence -> 'gray'
+%       'plain'
+%           ColorMap      -> 'jet'
+%           ColorSequence -> 'plain'
+%       'pretty'
+%           ColorMap      -> 'blue'
+%           ColorSequence -> 'gray'
+%
+%   ContourStyle
+%       'black'
+%           ContourFill      -> 'off'
+%           ContourFontColor -> 'Black'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'Black'
+%           ContourText      -> 'on'
+%       'current'
+%           ContourFill      -> 'current'
+%           ContourFontColor -> 'current'
+%           ContourFontName  -> 'current'
+%           ContourFontSize  -> 'current'
+%           ContourLineColor -> 'current'
+%           ContourText      -> 'current'
+%       'fancy'
+%           ContourFill      -> 'on'
+%           ContourFontColor -> 'auto'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'Black'
+%           ContourText      -> 'on'
+%       'pretty'
+%           ContourFill      -> 'off'
+%           ContourFontColor -> 'Black'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'auto'
+%           ContourText      -> 'on'
+%       'simple' | 'plain'
+%           ContourFill      -> 'off'
+%           ContourFontColor -> 'current'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'auto'
+%           ContourText      -> 'off'
+%       'smooth'
+%           ContourFill      -> 'on'
+%           ContourFontColor -> 'current'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'auto'
+%           ContourText      -> 'off'
 %
 %   FigureStyle
 %       'current'
@@ -214,11 +440,26 @@ function h = set_plot(varargin)
 %           FontName -> 'Times New Roman'
 %           FontSize -> 'current'
 %
+%   PlotStyle
+%       'current'
+%           PlotLineStyle -> 'current'
+%           PlotLineWidth -> 'current'
+%       'fancy'
+%           PlotLineStyle -> 'fancy'
+%           PlotLineWidth -> 'fancy'
+%       'plain'
+%           PlotLineStyle -> 'plain'
+%           PlotLineWidth -> 'plain'
+%       'pretty'
+%           PlotLineStyle -> 'pretty'
+%           PlotLineWidth -> 'pretty'
+%
 
 % Versions:
 %  2010/02/15 @Sean Torrez    : First version
 %  2010/03/09 @Sean Torrez    : Modified to use fig handles only
 %  2010/11/02 @Derek Dalle    : Changed to set_plot
+%  2010/11/06 @Derek Dalle    : First version
 %
 % Public domain
 
@@ -1312,7 +1553,7 @@ if numel(h_contour) > 0
 			% Check for a successful conversion.
 			if any(isnan(v_c_line))
 				% Unrecognized color
-				error('set_plot:UnkonwContourColor', ['ContourLine color ', ...
+				error('set_plot:UnkonwContourColor', ['ContourLineColor ', ...
 					'%s was not recognized.'], c_c_line);
 			else
 				% Apply the rgb color
