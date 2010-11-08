@@ -169,7 +169,7 @@ function h = set_plot(varargin)
 %            [ 0.025 | scalar vector with up to four entries ]
 %            Extra margin to add for 'tight' MarginStyle.
 %         MarginStyle
-%            [ {tight} | loose ]
+%            [ {tight} | loose | image ]
 %            Style for the margins.  The 'tight' option cuts off all
 %            margins, and the 'loose' option restores the defaults.  Both
 %            options change the paper size so that the figure has the
@@ -1998,12 +1998,14 @@ end
 % Process style choice.
 q_tight = strcmpi(m_style, 'tight');
 q_loose = strcmpi(m_style, 'loose');
+q_image = strcmpi(m_style, 'image');
 
 % Get aspect ratio.
 [ar_fig, options] = cut_option(options, 'AspectRatio', ar_fig);
 % Convert 'auto' option.
 if strcmpi(ar_fig, 'auto') || strcmpi(ar_fig, 'automatic') || ...
 		strcmpi(ar_fig, 'current')
+	% Get the aspect ratio of the current window.
 	ar_fig = pos_fig(4) / pos_fig(3);
 end
 
@@ -2134,6 +2136,129 @@ if q_tight
 		set(h_cbar, 'Position', pos_cbar);
 	end
 	
+elseif q_image
+	% Use the aspect ratio of the axes.
+	for i = 1:2
+		% Get the limits of the plot.
+		a_x = get(h_a, 'XLim');
+		a_y = get(h_a, 'YLim');
+		a_z = get(h_a, 'ZLim');
+		% Test for a 3D plot.
+		q_z = diff(a_z) ~= 400000;
+		% Aspect ratio of the axes.
+		if ~q_z
+			% 2D aspect ratio of axes
+			ar_axes = diff(a_y) / diff(a_x);
+		else
+			% 3D aspect ratio of axes
+			% View angle
+			o_view = get(h_a, 'View');
+			% Azimuth and elevation.
+			el = o_view(1);
+			az = o_view(2);
+			% Get the length on the screen of the figure.
+			l_x = diff(a_x) * abs(cosd(az)) + diff(a_y) * abs(sind(az));
+			l_y = diff(a_x) * abs(sind(az)) + diff(a_y) * abs(cosd(az));
+			l_y = l_y * abs(sind(el)) + diff(a_z) * abs(cosd(el));
+			% 3D aspect ratio on the screen
+			ar_axes = l_y / l_x;
+		end
+		
+		% Get the minimum size of the margins.
+		m_axes  = get(h_a, 'TightInset');
+		m_tight = m_axes;
+		
+		% Make room for the colorbar.
+		if q_cbar
+			% Figure out which side the colorbar is on.
+			switch s_cbar
+				case 'EastOutside'
+					% Right-hand side
+					m_tight(2) = max(m_axes(2), m_cbar(2));
+					m_tight(4) = max(m_axes(4), m_cbar(4));
+					m_tight(3) = m_axes(3) + m_cbar(1) + ...
+						pos_cbar(3) + m_cbar(3) + m_gap;
+				case 'NorthOutside'
+					% Top location
+					m_tight(1) = max(m_axes(1), m_cbar(1));
+					m_tight(3) = max(m_axes(3), m_cbar(3));
+					m_tight(4) = m_axes(4) + m_cbar(2) + ...
+						pos_cbar(4) + m_cbar(4) + m_gap;
+				case 'WestOutside'
+					% Left-hand side
+					m_tight(2) = max(m_axes(2), m_cbar(2));
+					m_tight(4) = max(m_axes(4), m_cbar(4));
+					m_tight(1) = m_axes(1) + m_cbar(1) + ...
+						pos_cbar(3) + m_cbar(3) + m_gap;
+				case 'SouthOutside'
+					% Top location
+					m_tight(1) = max(m_axes(1), m_cbar(1));
+					m_tight(3) = max(m_axes(3), m_cbar(3));
+					m_tight(2) = m_axes(2) + m_cbar(2) + ...
+						pos_cbar(4) + m_cbar(4) + m_gap;
+			end
+		end
+		
+		% Add in extra margins.
+		m_tight = m_opts + m_tight;
+		
+		% Fix the axes.
+		pos_axes(1) = m_tight(1);
+		pos_axes(2) = m_tight(2);
+		pos_axes(3) = w_fig - m_tight(1) - m_tight(3);
+		pos_axes(4) = ar_axes * pos_axes(3);
+		
+		% Match the colorbar to the axes.
+		if q_cbar
+			% Figure out which side the colorbar is on.
+			switch s_cbar
+				case 'EastOutside'
+					% Move the colorbar to the right margin.
+					pos_cbar(1) = pos_axes(1) + pos_axes(3) + ...
+						m_axes(3) + m_gap + m_cbar(1);
+					% Match the top and bottom of the colorbar to the axes.
+					pos_cbar(2) = pos_axes(2);
+					pos_cbar(4) = pos_axes(4);
+				case 'NorthOutside'
+					% Move the colorbar to the top margin.
+					pos_cbar(2) = pos_axes(2) + pos_axes(4) + ...
+						m_axes(4) + m_gap + m_cbar(2);
+					% Match the left and right of the colorbar to the axes.
+					pos_cbar(1) = pos_axes(1);
+					pos_cbar(3) = pos_axes(3);
+				case 'WestOutside'
+					% Move the colorbar to the left margin.
+					pos_cbar(1) = m_cbar(1);
+					% Match the top and bottom of the colorbar to the axes.
+					pos_cbar(2) = pos_axes(2);
+					pos_cbar(4) = pos_axes(4);
+				case 'SouthOutside'
+					% Move the colorbar to the top margin.
+					pos_cbar(2) = m_cbar(2);
+					% Match the left and right of the colorbar to the axes.
+					pos_cbar(1) = pos_axes(1);
+					pos_cbar(3) = pos_axes(3);
+			end
+			% Set the new position.
+			set(h_cbar, 'Position', pos_cbar);
+		end
+		
+		% Correct overall height of figure.
+		h_fig  = pos_axes(4) + m_tight(2) + m_tight(4);
+		
+		% Set the paper size.
+		set(h_f, 'PaperSize', [w_fig, h_fig]);
+		% This should have no effect.
+		set(h_f, 'PaperPosition', [0, 0, w_fig, h_fig]);
+		
+		% Fix the size of the figure.
+		pos_fig(3:4) = [w_fig, h_fig];
+		% Set the figure window size.
+		set(h_f, 'Position', pos_fig);
+		
+		% Set the axes position.
+		set(h_a, 'Position', pos_axes);
+	end
 	
 elseif q_loose
 	% Use the looser margins.
