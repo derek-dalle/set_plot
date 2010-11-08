@@ -1300,16 +1300,16 @@ end
 % Test for a recognized string.
 if ischar(t_pseq) && ~strcmpi(t_pseq, 'current')
 	% Look at the values of the string.
-	if strcmpi(l_pseq, 'pretty')
+	if strcmpi(t_pseq, 'pretty')
 		% Solid, dotted, dashed
 		v_pseq = [0.5, 0.5, 0.5, 2.0, 2.0, 2.0];
-	elseif strcmpi(l_pseq, 'fancy')
+	elseif strcmpi(t_pseq, 'fancy')
 		% Solid, dotted, dashed, dot-dashed
 		v_pseq = [0.5, 0.5, 0.5, 0.5, 2.0, 2.0, 2.0, 2.0];
-	elseif strcmpi(l_pseq, 'simple')
+	elseif strcmpi(t_pseq, 'simple')
 		% Solid, dashed
 		v_pseq = [0.5, 0.5, 2.0, 2.0];
-	elseif strcmpi(l_pseq, 'plain')
+	elseif strcmpi(t_pseq, 'plain')
 		% Solid only, one width
 		v_pseq = 0.5;
 	else
