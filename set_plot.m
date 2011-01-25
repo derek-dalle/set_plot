@@ -1420,7 +1420,7 @@ elseif ~strcmpi(c_pseq, 'current')
 end
 
 % Convert cell array if needed.
-if ~strcmpi(c_pseq, 'current') && iscell(v_pseq)
+if ~all(strcmpi(c_pseq, 'current')) && iscell(v_pseq)
 	% Cell array
 	% Transfer back to cell.
 	c_pseq = v_pseq;
@@ -1515,6 +1515,10 @@ if numel(h_contour) > 0
 	h_c_child = get(h_contour, 'Children');
 	% Type of each.
 	i_c_child = get(h_c_child, 'Type');
+	% Ensure cell array.
+	if numel(h_c_child) < 2
+		i_c_child = {i_c_child};
+	end
 	% Find those that are labels.
 	h_c_text  = h_c_child(cell_position_string(i_c_child, 'text'));
 	% Find those that are lines.
@@ -2143,16 +2147,16 @@ elseif q_image
 		a_x = get(h_a, 'XLim');
 		a_y = get(h_a, 'YLim');
 		a_z = get(h_a, 'ZLim');
+		% View angle
+		o_view = get(h_a, 'View');
 		% Test for a 3D plot.
-		q_z = diff(a_z) ~= 400000;
+		q_z = any(o_view ~= [0 90]);
 		% Aspect ratio of the axes.
 		if ~q_z
 			% 2D aspect ratio of axes
 			ar_axes = diff(a_y) / diff(a_x);
 		else
 			% 3D aspect ratio of axes
-			% View angle
-			o_view = get(h_a, 'View');
 			% Azimuth and elevation.
 			el = o_view(1);
 			az = o_view(2);
