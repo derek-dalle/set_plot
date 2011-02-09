@@ -164,11 +164,17 @@ function h = set_plot(varargin)
 %            for each axis.  The capital versions turn on both major and
 %            minor grid lines.  The 'smart' value turns on all major grid
 %            lines and minor grid lines for any axis with linear spacing.
-%         InterpreterStyle
+%         Interpreter
 %            [ {current} | auto | tex | latex | none ]
 %            Rules to use for text interpreters.  The 'auto' option turns
 %            most interpreters to 'tex', except those with multiple '$'
 %            characters, for which it uses the 'latex' interpreter.
+%         LegendBox
+%            [ {current} | on | off ]
+%            Whether or not to use a box around the legend.
+%         LegendGap
+%            [ {0.1} | positive scalar ]
+%            Gap between graph and legend.
 %         LegendStyle
 %            [ {current} | plain | pretty ]
 %            Style to use for the legend.  This is a cascading style.
@@ -356,7 +362,8 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'current'
 %           ContourStyle     -> 'current'
 %           FontStyle        -> 'current'
-%           InterpreterStyle -> 'current'
+%           Interpreter -> 'current'
+%           LegendStyle      -> 'current'
 %           PlotLineStyle    -> 'current'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
@@ -368,7 +375,8 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'pretty'
 %           ContourStyle     -> 'pretty'
 %           FontStyle        -> 'pretty'
-%           InterpreterStyle -> 'auto'
+%           Interpreter -> 'auto'
+%           LegendStyle      -> 'pretty'
 %           PlotLineStyle    -> 'pretty'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
@@ -380,7 +388,8 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'pretty'
 %           ContourStyle     -> 'fancy'
 %           FontStyle        -> 'pretty'
-%           InterpreterStyle -> 'auto'
+%           Interpreter -> 'auto'
+%           LegendStyle      -> 'pretty'
 %           PlotLineStyle    -> 'fancy'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
@@ -392,7 +401,8 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'plain'
 %           ContourStyle     -> 'plain'
 %           FontStyle        -> 'plain'
-%           InterpreterStyle -> 'current'
+%           Interpreter -> 'current'
+%           LegendStyle      -> 'plain'
 %           PlotLineStyle    -> 'plain'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'loose'
@@ -404,7 +414,8 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'pretty'
 %           ContourStyle     -> 'pretty'
 %           FontStyle        -> 'present'
-%           InterpreterStyle -> 'auto'
+%           Interpreter -> 'auto'
+%           LegendStyle      -> 'pretty'
 %           PlotLineStyle    -> 'pretty'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
@@ -416,7 +427,8 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'pretty'
 %           ContourStyle     -> 'fancy'
 %           FontStyle        -> 'pretty'
-%           InterpreterStyle -> 'auto'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
 %           PlotLineStyle    -> 'fancy'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
@@ -428,7 +440,8 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'gray'
 %           ContourStyle     -> 'pretty'
 %           FontStyle        -> 'pretty'
-%           InterpreterStyle -> 'auto'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
 %           PlotLineStyle    -> 'pretty'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
@@ -454,24 +467,13 @@ function h = set_plot(varargin)
 %   LegendStyle
 %       'current'
 %           LegendBox   -> 'current'
-%           LegendWidth -> 'current'
 %           LegendGap   -> 0.1 [inches]
 %       'plain'
-%           ColorBarBox           -> 'on'
-%           ColorBarMinorTick     -> 'off'
-%           ColorBarTickDir       -> 'in'
-%           ColorBarWidth         -> 0.2778 [inches]
-%           ColorBarGrid          -> 'off'
-%           ColorBarGridLineStyle -> 'current'
-%           ColorBarGap           -> 0.1 [inches]
+%           LegendBox   -> 'current'
+%           LegendGap   -> 0.1 [inches]
 %       'pretty'
-%           ColorBarBox           -> 'off'
-%           ColorBarMinorTick     -> 'on'
-%           ColorBarTickDir       -> 'out'
-%           ColorBarWidth         -> 0.15 [inches]
-%           ColorBarGrid          -> 'off'
-%           ColorBarGridLineStyle -> 'current'
-%           ColorBarGap           -> 0.1 [inches]
+%           LegendBox   -> 'current'
+%           LegendGap   -> 0.1 [inches]
 %
 %   PlotStyle
 %       'current'
@@ -630,6 +632,8 @@ if q_pretty
 	a_style = 'pretty';
 	% Style for the colorbar
 	cbar_style = 'pretty';
+	% Style for the legend
+	lgnd_style = 'pretty';
 	% Color theme style
 	c_style = 'pretty';
 	% Plot style
@@ -655,6 +659,8 @@ elseif q_fancy
 	a_style = 'fancy';
 	% Style for the colorbar
 	cbar_style = 'fancy';
+	% Style for the legend
+	lgnd_style = 'pretty';
 	% Color theme style
 	c_style = 'pretty';
 	% Plot style
@@ -680,6 +686,8 @@ elseif q_twocol
 	a_style = 'pretty';
 	% Style for the colorbar
 	cbar_style = 'pretty';
+	% Style for the legend
+	lgnd_style = 'pretty';
 	% Color theme style
 	c_style = 'gray';
 	% Plot style
@@ -705,6 +713,8 @@ elseif q_onecol
 	a_style = 'pretty';
 	% Style for the colorbar
 	cbar_style = 'fancy';
+	% Style for the legend
+	lgnd_style = 'pretty';
 	% Color theme style
 	c_style = 'pretty';
 	% Plot style
@@ -730,6 +740,8 @@ elseif q_present
 	a_style = 'pretty';
 	% Style for the colorbar
 	cbar_style = 'pretty';
+	% Style for the legend
+	lgnd_style = 'pretty';
 	% Color theme style
 	c_style = 'pretty';
 	% Plot style
@@ -755,6 +767,8 @@ elseif q_plain
 	a_style = 'plain';
 	% Style for the colorbar
 	cbar_style = 'plain';
+	% Style for the legend
+	lgnd_style = 'plain';
 	% Color theme style
 	c_style = 'plain';
 	% Plot style
@@ -780,6 +794,8 @@ elseif q_current
 	a_style = 'current';
 	% Style for the colorbar
 	cbar_style = 'current';
+	% Style for the legend
+	lgnd_style = 'current';
 	% Color theme style
 	c_style = 'current';
 	% Plot style
@@ -1055,7 +1071,7 @@ for i = 1:numel(h_child)
 	% Test if it is a legend object.
 	if strcmpi(get(h_child(i), 'Tag'), 'legend')
 		% Store legend handle.
-		h_cbar = h_child(i);
+		h_legend = h_child(i);
 		% Change value of test variable.
 		q_legend = true;
 		continue
@@ -1065,77 +1081,31 @@ end
 % Stats on the legend
 if q_legend
 	% Get ColorBarStyle option.
-	[cbar_style, options] = cut_option(...
-		options, 'ColorBarStyle', cbar_style);
+	[lgnd_style, options] = cut_option(...
+		options, 'ColorBarStyle', lgnd_style);
 	% Process ColorBarStyle option.
-	if strcmpi(cbar_style, 'pretty')
+	if strcmpi(lgnd_style, 'pretty')
 		% Whether or not to have a box
-		cbar_box = 'off';
-		% Tick direction
-		cbar_d_tick = 'out';
-		% Minor ticks
-		cbar_m_tick = 'on';
-		% Width of colorbar
-		w_cbar = 0.15 * r_units;
-		% Grid lines
-		q_g_cbar = 'off';
-		% Grid line style
-		s_g_cbar = 'current';
+		lgnd_box = 'off';
 		% Size of gap from axes
-		m_gap = 0.10 * r_units;
-		
-	elseif strcmpi(cbar_style, 'fancy')
-		% Whether or not to have a box
-		cbar_box = 'on';
-		% Tick direction
-		cbar_d_tick = 'out';
-		% Minor ticks
-		cbar_m_tick = 'on';
-		% Width of colorbar
-		w_cbar = 0.15 * r_units;
-		% Grid lines
-		q_g_cbar = 'on';
-		% Grid line style
-		s_g_cbar = ':';
-		% Size of gap from axes
-		m_gap = 0.10 * r_units;
+		m_l_gap = 0.10 * r_units;
 		
 	elseif strcmpi(cbar_style, 'plain')
 		% Whether or not to have a box
-		cbar_box = 'on';
-		% Tick direction
-		cbar_d_tick = 'out';
-		% Minor ticks
-		cbar_m_tick = 'off';
-		% Width of colorbar
-		w_cbar = 0.2778 * r_units;
-		% Grid lines
-		q_g_cbar = 'off';
-		% Grid line style
-		s_g_cbar = ':';
+		lgnd_box = 'on';
 		% Size of gap from axes
-		m_gap = 0.10 * r_units;
+		m_l_gap = 0.10 * r_units;
 		
 	elseif strcmpi(cbar_style, 'current')
 		% Whether or not to have a box
-		cbar_box = 'current';
-		% Tick direction
-		cbar_d_tick = 'current';
-		% Minor ticks
-		cbar_m_tick = 'current';
-		% Width of colorbar
-		w_cbar = 'current';
-		% Grid lines
-		q_g_cbar = 'current';
-		% Grid line style
-		s_g_cbar = 'current';
+		lgnd_box = 'current';
 		% Size of gap from axes
-		m_gap = 0.10 * r_units;
+		m_l_gap = 0.10 * r_units;
 		
 	else
 		% Bad input
-		error('set_plot:ColorBarStyle', ['ColorBarStyle must be ', ...
-			'either ''pretty'', ''fancy'', ''plain'', or ''current''.']);
+		error('set_plot:LegendStyle', ['LegendStyle must be ', ...
+			'either ''pretty'', ''plain'', or ''current''.']);
 	end
 end
 
@@ -1555,7 +1525,7 @@ elseif ~strcmpi(c_pseq, 'current')
 			0.25, 0.25, 0.25];
 	elseif strcmpi(c_pseq, 'gray')
 		% Short grayscale scheme
-		v_pseq = {'Black', 'Silver', 'LightGray'};		
+		v_pseq = {'Black', 'DarkGray', 'Silver', 'LightGray'};		
 	elseif strcmpi(c_pseq, 'black') || strcmpi(c_pseq, 'k')
 		% Only one color.
 		v_pseq = {'Black'};
@@ -1805,7 +1775,7 @@ for h_c = h_contour(:)'
 end
 
 
-%% --- Colorbar formatting ---
+%% --- Bargraph formatting ---
 
 % Get the option for bar colors.
 [c_bar, options] = cut_option(options, 'BarColorStyle', c_bar);
@@ -2175,6 +2145,79 @@ if q_cbar
 end
 
 
+%% --- Legend formatting ---
+
+% Check if the colorbar is present.
+if q_legend
+	
+	% Get the box option.
+	[lgnd_box, options] = cut_option(options, 'LegendBox', lgnd_box);
+	% Check for 'current'.
+	if ~strcmpi(lgnd_box, 'current')
+		% Apply.
+		set(h_legend, 'Box', lgnd_box);
+	end
+	
+	% Children
+	h_l_child = get(h_legend, 'Children');
+	% Type of each child
+	t_l_child = get(h_l_child, 'Type');
+	% Label handles
+	h_l_text = h_l_child(cell_position_string(t_l_child, 'text'));
+	% Interpreter for each label
+	i_l_text = get(h_l_text, 'Interpreter');
+	% Set the interpreter to none for sizing.
+	set(h_l_text, 'Interpreter', 'tex');
+end
+
+
+%% --- Legend margins ---
+
+% Check if the colorbar is present.
+if q_legend
+	% Change the units.
+	set(h_legend, 'Units', units)
+	% Get the dimensions.
+	pos_lgnd = get(h_legend, 'Position');
+	m_lgnd   = get(h_legend, 'TightInset');
+	% Check the location of the legend.
+	s_lgnd = get(h_legend, 'Location');
+	% Process 'manual' locations.
+	if strcmpi(s_lgnd, 'manual')
+		% Set change parameter to 'true'.
+		q_m_lgnd = true;
+		if pos_lgnd(1) + pos_lgnd(3) > pos_lgnd(1) + pos_lgnd(3)
+			% Outside on the right
+			s_lgnd = 'EastOutside';
+		elseif pos_cbar(2) + pos_cbar(4) > pos_axes(2) + pos_axes(4)
+			% Outside on the top
+			s_lgnd = 'NorthOutside';
+		elseif pos_cbar(1) < pos_axes(1)
+			% Outside on the left
+			s_lgnd = 'WestOutside';
+		elseif pos_cbar(2) < pos_axes(2)
+			% Outside on the bottom
+			s_lgnd = 'SouthOutside';
+		else
+			% Don't move the colorbar.
+			q_m_lgnd = false;
+		end
+		% Test if the legend position should be reset.
+		if q_m_lgnd
+			% Reset the position.
+			set(h_lgnd, 'Location', s_lgnd);
+			% Reobtain the dimensions.
+			pos_cbar = get(h_lgnd, 'Position');
+			m_lgnd   = get(h_lgnd, 'TightInset');
+		end
+	end
+	
+	% Set the size of the gap between the axes and the colorbar.
+	[m_l_gap, options] = cut_option(options, 'LegendGap', m_l_gap);
+	
+end
+
+
 %% --- Margin alteration ---
 
 % Determine the margin style.
@@ -2271,6 +2314,37 @@ if q_tight
 				m_tight(3) = max(m_axes(3), m_cbar(3));
 				m_tight(2) = m_axes(2) + m_cbar(2) + ...
 					pos_cbar(4) + m_cbar(4) + m_gap;
+		end
+	end
+	
+	% Make room for the legend.
+	if q_legend
+		% Figure out which side the legend is on.
+		switch s_lgnd
+			case 'EastOutside'
+				% Right-hand side
+				m_tight(2) = max(m_axes(2), m_lgnd(2));
+				m_tight(4) = max(m_axes(4), m_lgnd(4));
+				m_tight(3) = m_axes(3) + m_lgnd(1) + ...
+					pos_lgnd(3) + m_lgnd(3) + m_l_gap;
+			case 'NorthOutside'
+				% Top location
+				m_tight(1) = max(m_axes(1), m_lgnd(1));
+				m_tight(3) = max(m_axes(3), m_lgnd(3));
+				m_tight(4) = m_axes(4) + m_lgnd(2) + ...
+					pos_lgnd(4) + m_lgnd(4) + m_l_gap;
+			case 'WestOutside'
+				% Left-hand side
+				m_tight(2) = max(m_axes(2), m_lgnd(2));
+				m_tight(4) = max(m_axes(4), m_lgnd(4));
+				m_tight(1) = m_axes(1) + m_lgnd(1) + ...
+					pos_lgnd(3) + m_lgnd(3) + m_l_gap;
+			case 'SouthOutside'
+				% Top location
+				m_tight(1) = max(m_axes(1), m_lgnd(1));
+				m_tight(3) = max(m_axes(3), m_lgnd(3));
+				m_tight(2) = m_axes(2) + m_lgnd(2) + ...
+					pos_lgnd(4) + m_lgnd(4) + m_l_gap;
 		end
 	end
 	
@@ -2461,65 +2535,49 @@ elseif q_loose
 	
 end
 
-% Get interpreter option
+
+%% --- Interpreter management ---
+
+% Handles for all objects with an interpreter
+h_interpreter = [h_x; h_y; h_z; h_l_text];
+% Original interpreters for all of them
+i_interpreter = {i_x; i_y; i_z; i_l_text};
+
+% Get interpreter option.
 [i_style, options] = cut_option(options, 'Interpreter', i_style);
-% Check for how to handle interpreters for labels.
-if strcmpi(i_style, 'auto') || strcmpi(i_style, 'automatic')
-	% Check for a pair of \$ characters in each label.
-	% x-axis
-	if numel(regexp(get(h_x, 'String'), '\$')) > 1
-		% At least one equation region
-		set(h_x, 'Interpreter', 'latex');
+
+% Loop through the handles with an interpreter.
+for i = 1:numel(h_interpreter)
+	% Current handle
+	h_i = h_interpreter(i);
+	% Check how to handle the interpreter.
+	if strcmpi(i_style, 'auto') || strcmpi(i_style, 'automatic')
+		% Check for a pair of \$ characters in each label.
+		if numel(regexp(get(h_i, 'String'), '\$')) > 1
+			% At least one equation region
+			set(h_i, 'Interpreter', 'latex');
+		else
+			% No equation regions
+			set(h_i, 'Interpreter', 'tex');
+		end
+	elseif strcmpi(i_style, 'latex')
+		% Set all interpreters to 'latex'.
+		set(h_i, 'Interpreter', 'latex');
+	elseif strcmpi(i_style, 'tex')
+		% Set all interpreters to 'tex'.
+		set(h_i, 'Interpreter', 'tex');
+	elseif strcmpi(i_style, 'none')
+		% Set all interpreters to 'none'.
+		set(h_i, 'Interpreter', 'none');
+	elseif strcmpi(i_style, 'current')
+		% Set the interpreter to its original value.
+		set(h_i, 'Interpreter', i_interpreter{i});
 	else
-		% No equation regions
-		set(h_x, 'Interpreter', 'tex');
+		% Bad input
+		error('set_plot:Interpreter', ['Interpreter must be either ', ...
+			'''auto'', ''automatic'', ''current'', ''tex'',\n', ...
+			'''latex'', or ''none''.']);
 	end
-	% y-axis
-	if numel(regexp(get(h_y, 'String'), '\$')) > 1
-		% At least one equation region
-		set(h_y, 'Interpreter', 'latex');
-	else
-		% No equation regions
-		set(h_y, 'Interpreter', 'tex');
-	end
-	% z-axis
-	if numel(regexp(get(h_z, 'String'), '\$')) > 1
-		% At least one equation region
-		set(h_z, 'Interpreter', 'latex');
-	else
-		% No equation regions
-		set(h_z, 'Interpreter', 'tex');
-	end
-	
-elseif strcmpi(i_style, 'latex')
-	% Set all interpreters to 'latex'.
-	set(h_x, 'Interpreter', 'latex');
-	set(h_y, 'Interpreter', 'latex');
-	set(h_z, 'Interpreter', 'latex');
-	
-elseif strcmpi(i_style, 'tex')
-	% Set all interpreters to 'latex'.
-	set(h_x, 'Interpreter', 'tex');
-	set(h_y, 'Interpreter', 'tex');
-	set(h_z, 'Interpreter', 'tex');
-	
-elseif strcmpi(i_style, 'none')
-	% Set all interpreters to 'latex'.
-	set(h_x, 'Interpreter', 'none');
-	set(h_y, 'Interpreter', 'none');
-	set(h_z, 'Interpreter', 'none');
-	
-elseif strcmpi(i_style, 'current')
-	% Reset the interpreters to their original values.
-	set(h_x, 'Interpreter', i_x);
-	set(h_y, 'Interpreter', i_y);
-	set(h_z, 'Interpreter', i_z);
-	
-else
-	% Bad input
-	error('set_plot:Interpreter', ['Interpreter must be either ', ...
-		'''auto'', ''automatic'', ''current'', ''tex'',\n', ...
-		'''latex'', ''none'', or ''smart''.']);
 end
 
 
