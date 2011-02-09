@@ -1496,23 +1496,23 @@ set(h_font, 'FontName', 'Helvetica')
 %% --- Contour formatting ---
 
 % Only bother if there are contours
-if numel(h_contour) > 0
+for h_c = h_contour(:)'
 	% Get the fill option.
 	[q_fill, options] = cut_option(options, 'ContourFill', q_fill);
 	% Apply it.
 	if ~strcmpi(q_fill, 'current')
-		set(h_contour, 'Fill', q_fill);
+		set(h_c, 'Fill', q_fill);
 	end
 	
 	% Get the label option.
 	[q_label, options] = cut_option(options, 'ContourText', q_label);
 	% Apply it.
 	if ~strcmpi(q_label, 'current')
-		set(h_contour, 'ShowText', q_label);
+		set(h_c, 'ShowText', q_label);
 	end
 	
 	% Get the labels if possible.
-	h_c_child = get(h_contour, 'Children');
+	h_c_child = get(h_c, 'Children');
 	% Type of each.
 	i_c_child = get(h_c_child, 'Type');
 	% Ensure cell array.
@@ -1548,7 +1548,7 @@ if numel(h_contour) > 0
 			% Do nothing.
 		elseif strcmpi(c_c_line, 'auto')
 			% Use the given value.
-			set(h_contour, 'LineColor', c_c_line);
+			set(h_c, 'LineColor', c_c_line);
 			% In this case the labels should be on the boundary.
 			set(h_c_text, 'VerticalAlignment', 'middle')
 		else
@@ -1561,12 +1561,12 @@ if numel(h_contour) > 0
 					'%s was not recognized.'], c_c_line);
 			else
 				% Apply the rgb color
-				set(h_contour, 'LineColor', v_c_line);
+				set(h_c, 'LineColor', v_c_line);
 			end
 		end
 	elseif isnumeric(c_c_line)
 		% Apply the color directly
-		set(h_contour, 'LineColor', c_c_line);
+		set(h_c, 'LineColor', c_c_line);
 	else
 		% Bad input type
 		error('set_plot:ContourColor', ['ContourLineColor must be ', ...
