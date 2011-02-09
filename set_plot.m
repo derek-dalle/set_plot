@@ -112,7 +112,7 @@ function h = set_plot(varargin)
 %               | bright | Nx3 matrix | cell array ]
 %            Sequence of colors for plot lines.
 %         ColorStyle
-%            [ {current} | pretty | plain | gray | grayscale ]
+%            [ {current} | pretty | plain | gray | bright | dark ]
 %            Overall color theme.  This is a cascading style.
 %            Color to use for labels in contour plots
 %         ContourFill
@@ -145,7 +145,7 @@ function h = set_plot(varargin)
 %            Whether or not to use labels in contour plots.
 %         FigureStyle
 %            [ {current} | pretty | fancy | plain | journal | twocol
-%               | onecol | present | presentation ]
+%               | onecol | present | presentation | color ]
 %            Overall figure style.  This is a cascading style.
 %         FontName
 %            [ {current} | font name (string) ]
@@ -293,10 +293,18 @@ function h = set_plot(varargin)
 %           ColorBarGap           -> 0.1 [inches]
 %
 %   ColorStyle
+%       'bright'
+%           ColorMap      -> 'cyan'
+%           ColorSequence -> 'bright'
+%           BarColorStyle -> 'sequence'
 %       'current'
 %           ColorMap      -> 'current'
 %           ColorSequence -> 'current'
 %           BarColorStyle -> 'current'
+%       'dark'
+%           ColorMap      -> 'blue'
+%           ColorSequence -> 'dark'
+%           BarColorStyle -> 'sequence'
 %       'gray' | 'grayscale'
 %           ColorMap      -> 'gray'
 %           ColorSequence -> 'gray'
@@ -355,6 +363,19 @@ function h = set_plot(varargin)
 %           ContourText      -> 'off'
 %
 %   FigureStyle
+%       'color'
+%           AspectRatio      -> 0.75
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'dark'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'pretty'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotLineStyle    -> 'pretty'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 3.4 [inches]
 %       'current'
 %           AspectRatio      -> 'auto'
 %           AxesStyle        -> 'current'
@@ -362,7 +383,7 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'current'
 %           ContourStyle     -> 'current'
 %           FontStyle        -> 'current'
-%           Interpreter -> 'current'
+%           Interpreter      -> 'current'
 %           LegendStyle      -> 'current'
 %           PlotLineStyle    -> 'current'
 %           Margin           -> 0.025 * ones(1,4)
@@ -375,7 +396,7 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'pretty'
 %           ContourStyle     -> 'pretty'
 %           FontStyle        -> 'pretty'
-%           Interpreter -> 'auto'
+%           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotLineStyle    -> 'pretty'
 %           Margin           -> 0.025 * ones(1,4)
@@ -388,7 +409,7 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'pretty'
 %           ContourStyle     -> 'fancy'
 %           FontStyle        -> 'pretty'
-%           Interpreter -> 'auto'
+%           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotLineStyle    -> 'fancy'
 %           Margin           -> 0.025 * ones(1,4)
@@ -401,7 +422,7 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'plain'
 %           ContourStyle     -> 'plain'
 %           FontStyle        -> 'plain'
-%           Interpreter -> 'current'
+%           Interpreter      -> 'current'
 %           LegendStyle      -> 'plain'
 %           PlotLineStyle    -> 'plain'
 %           Margin           -> 0.025 * ones(1,4)
@@ -414,7 +435,7 @@ function h = set_plot(varargin)
 %           ColorStyle       -> 'pretty'
 %           ContourStyle     -> 'pretty'
 %           FontStyle        -> 'present'
-%           Interpreter -> 'auto'
+%           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotLineStyle    -> 'pretty'
 %           Margin           -> 0.025 * ones(1,4)
@@ -495,7 +516,9 @@ function h = set_plot(varargin)
 %  2010/03/09 @Sean Torrez    : Modified to use fig handles only
 %  2010/11/02 @Derek Dalle    : Changed to set_plot
 %  2010/11/06 @Derek Dalle    : First version
+%  2011/02/09 @Derek Dalle    : Added legend handling
 %
+% Copyright 2010, 2011 Derek Dalle and Sean Torrez
 % Public domain
 
 %% --- Input processing ---
@@ -612,6 +635,7 @@ q_present = strcmpi(s_cur, 'present') || strcmpi(s_cur, 'presentation');
 q_pretty  = strcmpi(s_cur, 'pretty' );
 q_plain   = strcmpi(s_cur, 'plain'  );
 q_current = strcmpi(s_cur, 'current');
+q_f_color = strcmpi(s_cur, 'color'  );
 
 % Set default options based on overall style.
 if q_pretty
@@ -690,6 +714,33 @@ elseif q_twocol
 	lgnd_style = 'pretty';
 	% Color theme style
 	c_style = 'gray';
+	% Plot style
+	l_style = 'pretty';
+	% Contour style
+	ctr_style = 'pretty';
+	
+elseif q_f_color
+	% Complete style for color two-column papers
+	% Default margin style
+	m_style = 'tight';
+	% Manual margins
+	m_opts  = 0.025 * ones(1,4);
+	% Approach for interpreters
+	i_style = 'auto';
+	% Default aspect ratio
+	ar_fig  = 0.75;
+	% Default width
+	w_fig   = 3.4 * r_units;
+	% Font style
+	f_style = 'pretty';
+	% Axes style
+	a_style = 'pretty';
+	% Style for the colorbar
+	cbar_style = 'pretty';
+	% Style for the legend
+	lgnd_style = 'pretty';
+	% Color theme style
+	c_style = 'dark';
 	% Plot style
 	l_style = 'pretty';
 	% Contour style
@@ -807,7 +858,8 @@ else
 	% Bad input
 	error('set_plot:BadStyle', ['FigureStyle must be either ', ...
 		'''pretty'', ''plain'', ''present'', ''presentation'',\n', ...
-		'''current'', ''journal'', ''fancy'', ''twocol'', or ''onecol''.']);
+		'''current'', ''journal'', ''fancy'', ''twocol'', ', ...
+		'''color'', or ''onecol''.']);
 	
 end
 
@@ -1140,6 +1192,22 @@ elseif strcmpi(c_style, 'gray') || strcmpi(c_style, 'grayscale')
 	% Color style for bar
 	c_bar  = 'contour';
 	
+elseif strcmpi(c_style, 'bright')
+	% Color map
+	s_cmap = 'cyan';
+	% Color sequence for plots
+	c_pseq = 'bright';
+	% Color style for bar
+	c_bar  = 'sequence';
+	
+elseif strcmpi(c_style, 'dark')
+	% Color map
+	s_cmap = 'blue';
+	% Color sequence for plots
+	c_pseq = 'dark';
+	% Color style for bar
+	c_bar  = 'sequence';
+	
 elseif strcmpi(c_style, 'current')
 	% Color map
 	s_cmap = 'current';
@@ -1151,7 +1219,8 @@ elseif strcmpi(c_style, 'current')
 else
 	% Bad input
 	error('set_plot:ColorStyle', ['ColorStyle must be ''pretty'', ', ...
-		'''gray'', ''plain'', or ''current''.']);
+		'''gray'', ''grayscale'',\n', ...
+		'''plain'', ''bright'', ''dark'', or ''current''.']);
 	
 end
 
