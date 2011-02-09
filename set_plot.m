@@ -67,6 +67,10 @@ function h = set_plot(varargin)
 %         AxesStyle
 %            [ {current} | pretty | fancy | simple | smart | plain ]
 %            Scheme to use for axes.  This is a cascading style.
+%         BarColorStyle
+%            [ {current} | contour | sequence ]
+%            Whether to use the colormap or the color sequence for the
+%            colors of bar graph objects.
 %         Box
 %            [ {current} | on | off ]
 %            Whether or not to draw a box around the plot.
@@ -283,15 +287,19 @@ function h = set_plot(varargin)
 %       'current'
 %           ColorMap      -> 'current'
 %           ColorSequence -> 'current'
+%           BarColorStyle -> 'current'
 %       'gray' | 'grayscale'
 %           ColorMap      -> 'gray'
 %           ColorSequence -> 'gray'
+%           BarColorStyle -> 'contour'
 %       'plain'
 %           ColorMap      -> 'jet'
 %           ColorSequence -> 'plain'
+%           BarColorStyle -> 'contour'
 %       'pretty'
 %           ColorMap      -> 'blue'
 %           ColorSequence -> 'gray'
+%           BarColorStyle -> 'contour'
 %
 %   ContourStyle
 %       'black'
@@ -1024,24 +1032,32 @@ if strcmpi(c_style, 'pretty')
 	s_cmap = 'blue';
 	% Color sequence for plots
 	c_pseq = 'gray';
+	% Color style for bar
+	c_bar  = 'contour';
 	
 elseif strcmpi(c_style, 'plain')
 	% Color map
 	s_cmap = 'jet';
 	% Color sequence for plots
 	c_pseq = 'plain';
+	% Color style for bar
+	c_bar  = 'contour';
 	
 elseif strcmpi(c_style, 'gray') || strcmpi(c_style, 'grayscale')
 	% Color map
 	s_cmap = 'gray';
 	% Color sequence for plots
 	c_pseq = 'gray';
+	% Color style for bar
+	c_bar  = 'contour';
 	
 elseif strcmpi(c_style, 'current')
 	% Color map
 	s_cmap = 'current';
 	% Color sequence for plots
 	c_pseq = 'current';
+	% Color style for bar
+	c_bar  = 'current';
 	
 else
 	% Bad input
@@ -1221,9 +1237,34 @@ end
 h_line = h_child(cell_position_string(t_child, 'line'));
 % Find the children that are text boxes.
 h_text = h_child(cell_position_string(t_child, 'text'));
-% Get the contour objects
-h_contour = h_child(cell_position_string(t_child, 'hggroup'));
+% Get the 'hggroup' objects.
+h_hggroup = h_child(cell_position_string(t_child, 'hggroup'));
 
+% Number of said handles
+n_hggroup = numel(h_hggroup);
+% Initialize which of the handles are for bars.
+q_h_bar = false(n_hggroup, 1);
+% Initialize which of the handles are for contours.
+q_h_contour = false(n_hggroup, 1);
+% Loop through them.
+for i = 1:n_hggroup
+	% Get all the fields available.
+	s_cur = get(h_hggroup(i));
+	% Test what type of handle it is.
+	if isfield(s_cur, 'ContourMatrix')
+		% Contour plot
+		q_h_contour(i) = true;
+	elseif isfield(s_cur, 'BarLayout')
+		% Bar graph
+		q_h_bar(i) = true;
+	end
+end
+
+% Handles to contour plots
+h_contour = h_hggroup(q_h_contour);
+% Handles to bar graph objects
+h_bar = h_hggroup(q_h_bar);
+	
 
 %% --- Color map ---
 
@@ -1641,6 +1682,26 @@ for h_c = h_contour(:)'
 		% Bad input
 		error('set_plot:ContourFontColor', ['ContourFontColor ', ...
 			'must be ''auto'', ''current'', or a recognized color.']);
+	end
+end
+
+
+%% --- Colorbar formatting ---
+
+% Get the option for bar colors.
+[c_bar, options] = cut_option(options, 'BarColorStyle', c_bar);
+
+% Only bother if there are contours
+for i = 1:numel(h_bar)
+	% Get the current handle.
+	h_b = h_bar(i);
+	
+	% Use the appropriate color if the sequence should be used.
+	if strcmpi(c_bar, 'sequence')
+		% Get the color index.
+		i_pseq = i - floor((i-0.5)/n_pseq) * n_pseq;
+		% Set the color.
+		set(h_b, 'FaceColor', v_pseq(i_pseq,:));
 	end
 end
 
