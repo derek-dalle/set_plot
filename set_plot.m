@@ -169,6 +169,9 @@ function h = set_plot(varargin)
 %            Rules to use for text interpreters.  The 'auto' option turns
 %            most interpreters to 'tex', except those with multiple '$'
 %            characters, for which it uses the 'latex' interpreter.
+%         LegendStyle
+%            [ {current} | plain | pretty ]
+%            Style to use for the legend.  This is a cascading style.
 %         Margin
 %            [ 0.025 | scalar vector with up to four entries ]
 %            Extra margin to add for 'tight' MarginStyle.
@@ -447,6 +450,28 @@ function h = set_plot(varargin)
 %       'serif'
 %           FontName -> 'Times New Roman'
 %           FontSize -> 'current'
+%
+%   LegendStyle
+%       'current'
+%           LegendBox   -> 'current'
+%           LegendWidth -> 'current'
+%           LegendGap   -> 0.1 [inches]
+%       'plain'
+%           ColorBarBox           -> 'on'
+%           ColorBarMinorTick     -> 'off'
+%           ColorBarTickDir       -> 'in'
+%           ColorBarWidth         -> 0.2778 [inches]
+%           ColorBarGrid          -> 'off'
+%           ColorBarGridLineStyle -> 'current'
+%           ColorBarGap           -> 0.1 [inches]
+%       'pretty'
+%           ColorBarBox           -> 'off'
+%           ColorBarMinorTick     -> 'on'
+%           ColorBarTickDir       -> 'out'
+%           ColorBarWidth         -> 0.15 [inches]
+%           ColorBarGrid          -> 'off'
+%           ColorBarGridLineStyle -> 'current'
+%           ColorBarGap           -> 0.1 [inches]
 %
 %   PlotStyle
 %       'current'
@@ -945,6 +970,100 @@ end
 
 % Stats on the color bar
 if q_cbar
+	% Get ColorBarStyle option.
+	[cbar_style, options] = cut_option(...
+		options, 'ColorBarStyle', cbar_style);
+	% Process ColorBarStyle option.
+	if strcmpi(cbar_style, 'pretty')
+		% Whether or not to have a box
+		cbar_box = 'off';
+		% Tick direction
+		cbar_d_tick = 'out';
+		% Minor ticks
+		cbar_m_tick = 'on';
+		% Width of colorbar
+		w_cbar = 0.15 * r_units;
+		% Grid lines
+		q_g_cbar = 'off';
+		% Grid line style
+		s_g_cbar = 'current';
+		% Size of gap from axes
+		m_gap = 0.10 * r_units;
+		
+	elseif strcmpi(cbar_style, 'fancy')
+		% Whether or not to have a box
+		cbar_box = 'on';
+		% Tick direction
+		cbar_d_tick = 'out';
+		% Minor ticks
+		cbar_m_tick = 'on';
+		% Width of colorbar
+		w_cbar = 0.15 * r_units;
+		% Grid lines
+		q_g_cbar = 'on';
+		% Grid line style
+		s_g_cbar = ':';
+		% Size of gap from axes
+		m_gap = 0.10 * r_units;
+		
+	elseif strcmpi(cbar_style, 'plain')
+		% Whether or not to have a box
+		cbar_box = 'on';
+		% Tick direction
+		cbar_d_tick = 'out';
+		% Minor ticks
+		cbar_m_tick = 'off';
+		% Width of colorbar
+		w_cbar = 0.2778 * r_units;
+		% Grid lines
+		q_g_cbar = 'off';
+		% Grid line style
+		s_g_cbar = ':';
+		% Size of gap from axes
+		m_gap = 0.10 * r_units;
+		
+	elseif strcmpi(cbar_style, 'current')
+		% Whether or not to have a box
+		cbar_box = 'current';
+		% Tick direction
+		cbar_d_tick = 'current';
+		% Minor ticks
+		cbar_m_tick = 'current';
+		% Width of colorbar
+		w_cbar = 'current';
+		% Grid lines
+		q_g_cbar = 'current';
+		% Grid line style
+		s_g_cbar = 'current';
+		% Size of gap from axes
+		m_gap = 0.10 * r_units;
+		
+	else
+		% Bad input
+		error('set_plot:ColorBarStyle', ['ColorBarStyle must be ', ...
+			'either ''pretty'', ''fancy'', ''plain'', or ''current''.']);
+	end
+end
+
+
+%% --- Legend style ---
+
+% Determine whether or not there's a legend.
+q_legend = false;
+% Loop through them.
+for i = 1:numel(h_child)
+	% Test if it is a legend object.
+	if strcmpi(get(h_child(i), 'Tag'), 'legend')
+		% Store legend handle.
+		h_cbar = h_child(i);
+		% Change value of test variable.
+		q_legend = true;
+		continue
+	end
+end
+
+% Stats on the legend
+if q_legend
 	% Get ColorBarStyle option.
 	[cbar_style, options] = cut_option(...
 		options, 'ColorBarStyle', cbar_style);
