@@ -2218,6 +2218,7 @@ end
 
 % Default legend text lables.
 h_l_text = [];
+i_l_text = {};
 
 % Check if the colorbar is present.
 if q_legend
