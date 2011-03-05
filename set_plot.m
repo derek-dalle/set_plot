@@ -375,7 +375,7 @@ function h = set_plot(varargin)
 %           PlotLineStyle    -> 'pretty'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
-%           Width            -> 3.4 [inches]
+%           Width            -> 3.1 [inches]
 %       'current'
 %           AspectRatio      -> 'auto'
 %           AxesStyle        -> 'current'
@@ -466,7 +466,7 @@ function h = set_plot(varargin)
 %           PlotLineStyle    -> 'pretty'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
-%           Width            -> 3.4 [inches]
+%           Width            -> 3.1 [inches]
 %
 %   FontStyle
 %       'current'
@@ -703,7 +703,7 @@ elseif q_twocol
 	% Default aspect ratio
 	ar_fig  = 0.75;
 	% Default width
-	w_fig   = 3.4 * r_units;
+	w_fig   = 3.1 * r_units;
 	% Font style
 	f_style = 'pretty';
 	% Axes style
@@ -730,7 +730,7 @@ elseif q_f_color
 	% Default aspect ratio
 	ar_fig  = 0.75;
 	% Default width
-	w_fig   = 3.4 * r_units;
+	w_fig   = 3.1 * r_units;
 	% Font style
 	f_style = 'pretty';
 	% Axes style
@@ -1393,10 +1393,13 @@ end
 
 % Find the children that are lines.
 h_line = h_child(cell_position_string(t_child, 'line'));
+% h_line = findall(h_a, 'Type', 'line');
 % Find the children that are text boxes.
-h_text = h_child(cell_position_string(t_child, 'text'));
+% h_text = h_child(cell_position_string(t_child, 'text'));
+h_text = findall(h_a, 'Type', 'text');
 % Get the 'hggroup' objects.
-h_hggroup = h_child(cell_position_string(t_child, 'hggroup'));
+% h_hggroup = h_child(cell_position_string(t_child, 'hggroup'));
+h_hggroup = findall(h_a, 'Type', 'hggroup');
 
 % Number of said handles
 n_hggroup = numel(h_hggroup);
@@ -1676,7 +1679,7 @@ end
 %% --- Font size application ---
 
 % Get handles relating to fonts.
-h_font = [h_a, h_x, h_y, h_z, h_title, h_text];
+h_font = [h_a; h_x; h_y; h_z; h_title; h_text];
 
 % Get font size.
 [f_size, options] = cut_option(options, 'FontSize', f_size);
@@ -2969,6 +2972,8 @@ if isnumeric(s_cmap)
 	elseif size_cmap(2) == 3
 		% Check if only one color is given.
 		if size(s_cmap, 1) == 1
+			% Add in row for black.
+			s_cmap = [0, 0, 0; s_cmap];
 			% Interpolate from black.
 			v_cmap = interp1([0, 1], s_cmap, linspace(0, 1, 64));
 		elseif size(s_cmap, 1) < 32
