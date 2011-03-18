@@ -1,44 +1,64 @@
-function h = hash_poly(x, y, varargin)
+function set_hash_poly(h, varargin)
 %
-% hash_poly(x, y)
-% hash_poly(x, y, 'OptionName', optValue, ... )
-% hash_poly(x, y, options)
-% h = hash_poly(x, y, ... )
+% set_hash_poly(h, 'OptionName', optionValue, ...)
 %
 % INPUTS:
-%         x : list of x-coordinates in linear path
-%         y : list of y-coordinates in linear path
+%         h : struct of handles containing the following fields
+%          .line : handle for line that makes up surfaces
+%          .hash : handle for hashes
+%          .path : handle for polygon containing hashes (optional)
 %
 % OUTPUTS:
-%         h : struct containing handle for the main line and the hashes
+%         NULL
 %
 % OPTIONS:
-%             HashAngle: [ scalar {51 degrees} ]
-%             HashWidth: [ scalar or vector ]
+%             HashAngle: [ {51} | scalar ]
+%             HashWidth: [ scalar | vector ]
 %        HashSeparation: [ scalar ]
-%         HashLineWidth: [ scalar {1} ]
-%             LineWidth: [ scalar {3} ]
+%         HashLineWidth: [ {1} | scalar ]
+%             LineWidth: [ {3} | scalar ]
 %
-% This function takes as input a path or set of paths and draws a hashed
-% line to one side of that path.  It returns handles to the graphics it
-% generates so that the user may change properties later.  The properties
-% that are not part of Matlab's usual set must be set using the function
-% set_hash or here.
+% This function is meant to alter properties of a hash-line drawing
+% produced by hash_line.  It is required to alter some of the properties
+% associated with the drawing that cannot normally be accessed from the
+% graphics handles.  This includes the angle of the hashes, for instance.
 %
-% To specify a set of paths, separate the paths in x and y with at least
-% one NaN.  This is consistent with the behavior of Matlab's functions such
-% as plot.
+% Its usage is very similar to that of set, except that the user must
+% specify all handles pertaining to the drawing.
 %
 
 % Versions:
-%  2010.07.29 @Derek Dalle     : First version
-%  2011.03.18 @Derek Dalle     : Customized for polygons
+%  2010.07.30 @Derek Dalle     : First version
+%  2010.09.21 @Derek Dalle     : Better options processing
+%  2010.03.18 @Derek Dalle     : Customized for polygons
 %
 % GNU Library General Public License
 
-% Ensure column.
-x = x(:);
-y = y(:);
+% Check for sufficient inputs.
+if nargin < 1
+	error('set_hash:NotEnoughInputs', ['The function set_hash ', ...
+		'requires at least 1 input; %i were provided.'], nargin);
+end
+
+% Check if input is a struct.
+if ~isstruct(h)
+	error('set_hash:HandleInput', ['The first input to ', ...
+		'set_hash must be a struct of handles.']);
+end
+
+% Check for the necessary fields.
+if ~isfield(h, 'line')
+	error('set_hash:HandleField', ['The first input must ', ...
+		'contain a field called ''line''.']);
+end
+if ~isfield(h, 'hash')
+	error('set_hash:HandleField', ['The first input must ', ...
+		'contain a field called ''hash''.']);
+end
+
+% Distribute handles.
+h_l = h.line;
+h_h = h.hash;
 
 % Number of optional arguments
 n_arg = numel(varargin);
@@ -47,97 +67,55 @@ n_arg = numel(varargin);
 if n_arg > 0 && (isstruct(varargin{1}) || isempty(varargin{1}))
 	% Struct
 	options = varargin{1};
-elseif n_arg > 0 && iscell(varargin{1})
-	% Cell array
-	options = struct(varargin{1}{:});
 elseif mod(n_arg, 2) == 1
 	% Odd number of option value/name arguments
-	error('hash_line:OptionNumber', ['Optional arguments ', ...
+	error('set_hash:OptionNumber', ['Optional arguments ', ...
 		'must be either a struct or pairs of option names and values.']);
 else
 	% Option name/value pairs
 	options = struct(varargin{:});
 end
 
-% Process the options.
-% Thickness of each hash.
+% Ensure column.
+x = get(h_l, 'XData');
+y = get(h_l, 'YData');
+
+% Process the hash line width.
 if isfield(options, 'HashLineWidth')
-	hash_thickness = options.HashLineWidth;
-else
-	hash_thickness = 1;
+	% Set the new value.
+	set(h_h, 'LineWidth', options.HashLineWidth);
 end
-% Thickness of boundary line.
+
+% Process the surface line width.
 if isfield(options, 'LineWidth')
-	line_thickness = options.LineWidth;
-else
-	line_thickness = 3;
+	% Set the new value.
+	set(h_l, 'LineWidth', options.LineWidth);
 end
 
-% Overlay the new graphics.
-hold on
+% Get the axes handle containing the graphics.
+h_a = get(h_l, 'Parent');
+% Get the view window for those axes.
+a_x = get(h_a, 'XLim');
+a_y = get(h_a, 'YLim');
+% Default length scale.
+L_scale = max([diff(a_x), diff(a_y)]);
 
-% Find locations of NaN's, which represent breaks in the path.
-i_nan = isnan(x);
-
-% Find the transitions
-i_nan = [true; i_nan; true];
-i_1   = find( i_nan(1:end-2) & ~i_nan(2:end-1));
-i_2   = find(~i_nan(2:end-1) &  i_nan(3:end  ));
-
-% Number of polygons
-n_poly = numel(i_1);
-% Total number of edges
-n_edge = 0;
-
-% Split up the polygons.
-x_p = nan(2*numel(x), 1);
-y_p = nan(2*numel(x), 1);
-% Loop through the polygons.
-for k = 1:n_poly
-	% Number of points in polygon k.
-	n_k = i_2(k) - i_1(k) + 2;
-	% Sotre the points
-	x_p(n_edge + (1:n_k)) = [x(i_1(k):i_2(k)); x(i_1(k))];
-	y_p(n_edge + (1:n_k)) = [y(i_1(k):i_2(k)); y(i_1(k))];
-	% Number of edges
-	n_edge = n_edge + n_k + 1;
-end
-
-% Contract the polygon path.
-x_p = x_p(1:n_edge-1);
-y_p = y_p(1:n_edge-1);
-
-% Draw the main line.
-h_p = plot(x_p, y_p, 'LineWidth', line_thickness, 'Color', 'k');
-
-% Get an axes handle.
-r_lim = axis;
-% Default length scale based on current axis window.
-L_scale = max([r_lim(2) - r_lim(1), r_lim(4) - r_lim(3)]);
-% Set the default inset distance.
-hash_width = 0.02 * L_scale;
-% Set the default distance between hashes.
-hash_sep = 0.02 * L_scale;
-	
-% Store the options.
+% Inset distance
 if ~isfield(options, 'HashWidth')
-	options.HashWidth = hash_width;
+	% Default
+	options.HashWidth = 0.02 * L_scale;
 end
+% Distance between hashes
 if ~isfield(options, 'HashSeparation')
-	options.HashSeparation = hash_sep;
+	% Defaul
+	options.HashSeparation = 0.02 * L_scale;
 end
 
 % Calculate the relevant geometry.
 [x_hash, y_hash] = hash_points_poly(x, y, options);
 
-% Draw the hashes.
-h_h = plot(x_hash, y_hash, 'LineWidth', hash_thickness, ...
-	'Color', 'k');
-
-% Check for outputs.
-if nargout > 0
-	h = struct('line', h_p, 'hash', h_h);
-end
+% Draw the new hashes.
+set(h_h, 'XData', x_hash, 'YData', y_hash);
 
 
 % --- SUBFUNCTION 1: Get hash geometry ---

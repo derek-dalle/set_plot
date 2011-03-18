@@ -1,18 +1,16 @@
-function [X,Y,x_hash,y_hash,x_new,y_new]=hash_points_poly(x,y,varargin)
+function [X, Y] = hash_points_poly(x, y, varargin)
 %
-% [X,Y,x_hash,y_hash,x_new,y_new] = hash_points_poly(x,y,varargin)
+% [X, Y] = hash_points_poly(x, y)
+% [X, Y] = hash_points_poly(x, y, 'OptionName', 'optValue', ...)
+% [X, Y] = hash_points_poly(x, y, options)
 %
 % INPUTS:
-%         x      : list of x-coordinates in linear path
-%         y      : list of y-coordinates in linear path
+%         x : list of x-coordinates in polygon
+%         y : list of y-coordinates in polygon
 %
 % OUTPUTS:
-%         X      : cell array of x-coords for polygons that contain hashes
-%         Y      : cell array of y-coords for polygons that contain hashes
-%         x_hash : x-coordinates of hash endpoints
-%         y_hash : y-coordinates of hash endpoints
-%         x_new  : updated input path to complete polygons
-%         y_new  : updated input path to complete polygons
+%         X : x-coordinates of hash endpoints
+%         Y : y-coordinates of hash endpoints
 %
 % This function takes as input a series of line segments and an offset
 % distance and returns a polygon.  The purpose is to essentially to draw a
@@ -22,23 +20,22 @@ function [X,Y,x_hash,y_hash,x_new,y_new]=hash_points_poly(x,y,varargin)
 %
 
 % Versions:
-%  07/30/10 @Derek Dalle     : First version
+%  2010.07.30 @Derek Dalle     : First version
+%  2011.03.18 @Derek Dalle     : Customized for polygons
 %
 % GNU Library General Public License
-%
 
 % Ensure column.
 x = x(:);
 y = y(:);
 
 % Find a length scale to use when setting defaults.
-x_min = min(x);
-x_max = max(x);
-y_min = min(y);
-y_max = max(y);
-
+x_min = min(x); x_max = max(x);
+y_min = min(y); y_max = max(y);
 % Default length scale
-L_scale  = max([x_max-x_min; y_max-y_min]);
+L_scale = max([x_max-x_min; y_max-y_min]);
+% Minimum nonzero length
+x_tol = 1e-8 * L_scale;
 
 % Number of optional arguments
 n_arg = numel(varargin);
@@ -47,6 +44,9 @@ n_arg = numel(varargin);
 if n_arg > 0 && (isstruct(varargin{1}) || isempty(varargin{1}))
 	% Struct
 	options = varargin{1};
+elseif n_arg > 0 && iscell(varargin{1})
+	% Cell array
+	options = struct(varargin{1}{:});
 elseif mod(n_arg, 2) == 1
 	% Odd number of option value/name arguments
 	error('hash_points:OptionNumber', ['Optional arguments ', ...
@@ -84,70 +84,31 @@ i_nan = [true; i_nan; true];
 i_1   = find( i_nan(1:end-2) & ~i_nan(2:end-1));
 i_2   = find(~i_nan(2:end-1) &  i_nan(3:end  ));
 
-% Number of disjoint paths
-n_path = numel(i_1);
+% Number of polygons
+n_poly = numel(i_1);
 % Total number of edges
 n_edge = 0;
-% Number of input path edges
-n_tot  = 0;
 
-% Initialize the paths.
-X = cell(n_path, 1);
-Y = cell(n_path, 1);
-
-% Initialize new paths.
-x_new = nan(numel(x) + 2*n_path, 1);
-y_new = nan(numel(x) + 2*n_path, 1);
-
-% Loop through the segments.
-for k = 1:n_path
-	% Indices of current segment
-	j_1 = i_1(k);
-	j_2 = i_2(k);
-	% Get the current points.
-	x_cur = x(j_1:j_2);
-	y_cur = y(j_1:j_2);
-	% Midpoint of first and last point
-	x_mid = (x_cur(1) + x_cur(end))/2;
-	y_mid = (y_cur(1) + y_cur(end))/2;
-	% Complete current path.
-	x_cur = [x_mid; x_cur; x_mid];
-	y_cur = [y_mid; y_cur; y_mid];
-	% Store the updated path.
-	n_cur = numel(x_cur);
-	x_new(n_tot+(1:n_cur)) = x_cur;
-	y_new(n_tot+(1:n_cur)) = y_cur;
-	n_tot = n_tot + n_cur + 1;
-	% Get the width of the hash region normal to the input path.
-	if numel(hash_width) == n_path
-		h_w = hash_width(k);
-	else
-		h_w = hash_width;
-	end
-	% Draw both offset paths to get the one that is inside the poly.
-	[X_1, Y_1] = offset_path(x_cur, y_cur,  h_w);
-	[X_2, Y_2] = offset_path(x_cur, y_cur, -h_w);
-	% Check which one goes outside the original polygon.
-	if min(X_1)*sign(h_w) < min(x)*sign(h_w)
-		X{k} = X_2;
-		Y{k} = Y_2;
-	else
-		X{k} = X_1;
-		Y{k} = Y_1;
-	end
-	
-	% Count up number of edges.
-	n_edge = n_edge + numel(X{k});
-	% Check for a bigger box.
-	x_min = min(x_min, min(X{k}));
-	x_max = max(x_max, max(X{k}));
-	y_min = min(y_min, min(Y{k}));
-	y_max = max(y_max, max(Y{k}));
+% Split up the polygons.
+X_P = cell(n_poly, 1); Y_P = cell(n_poly, 1);
+% Initialize offset polygons.
+X_O = cell(n_poly, 1); Y_O = cell(n_poly, 1);
+% Loop through the polygons.
+for k = 1:n_poly
+	% Nominal points in polygon k
+	x_P = [x(i_1(k):i_2(k)); x(i_1(k))];
+	y_P = [y(i_1(k):i_2(k)); y(i_1(k))];
+	% Delete duplicates.
+	i_delete = [(abs(diff(x_P))<=x_tol & abs(diff(y_P))<=x_tol); false];
+	x_P = x_P(~i_delete);
+	y_P = y_P(~i_delete);
+	% Get the offset paths.
+	[X_O{k}, Y_O{k}] = inset_poly(x_P, y_P, hash_width);
+	% Save the points.
+	X_P{k} = x_P; Y_P{k} = y_P;
+	% Number of edges
+	n_edge = n_edge + numel(x_P) + numel(X_O{k}) - 2;
 end
-
-% Truncate new path.
-x_new = x_new(1:n_tot-1);
-y_new = y_new(1:n_tot-1);
 
 % Rotation matrix (for coordinate transforms)
 A = [cosd(theta_hash) sind(theta_hash); ...
@@ -157,17 +118,15 @@ A = [cosd(theta_hash) sind(theta_hash); ...
 r = A*[x_min, x_max, x_max, x_min; y_min, y_min, y_max, y_max];
 
 % Extrema in new coordinates
-s_min = min(r(1,:));
-s_max = max(r(1,:));
-n_min = min(r(2,:));
-n_max = max(r(2,:));
+s_min = min(r(1,:)); s_max = max(r(1,:));
+n_min = min(r(2,:)); n_max = max(r(2,:));
 
 % Maximum number of hashes
 n_hash = floor((n_max-n_min)/hash_sep);
 
 % Initialize hash output.
-x_hash = nan(2 * n_hash * n_edge, 1);
-y_hash = nan(2 * n_hash * n_edge, 1);
+X = nan(2 * n_hash * n_edge, 1);
+Y = nan(2 * n_hash * n_edge, 1);
 
 % Index of next point
 j = 0;
@@ -177,46 +136,62 @@ for n = n_min:hash_sep:n_max
 	% Find endpoits of hash.
 	z_1 = A'*[s_min; n];
 	z_2 = A'*[s_max; n];
+	% Coordinates
+	x_l = [z_1(1), z_2(1)];
+	y_l = [z_1(2), z_2(2)];
 	
 	% Initialize line-path intersections.
-	x_int = zeros(1, 2*n_edge);
-	y_int = zeros(1, 2*n_edge);
-	n_int = 0;
+	x_i = zeros(1, 2*n_edge);
+	y_i = zeros(1, 2*n_edge);
+	n_i = 0;
 	% Loop through brush-width polygons.
-	for k = 1:n_path
-		% Find intersection points.
-		[intr_Q, x_k, y_k] = path_int_line(X{k}, Y{k}, ...
-			[z_1(1); z_2(1)], [z_1(2); z_2(2)]);
-		% If there are intersections, add them.
-		if intr_Q
+	for k = 1:n_poly
+		% Find intersections with input polygons.
+		[q_p, x_p, y_p] = path_int_line(...
+			X_P{k}, Y_P{k}, x_l, y_l);
+		% Find intersections with offset polygons.
+		[q_o, x_o, y_o] = path_int_line(...
+			X_O{k}, Y_O{k}, x_l, y_l);
+		% Store the intersections with the polygon.
+		if q_p
 			% Number of intersections
-			n_k = numel(x_k);
+			n_p = numel(x_p);
 			% Add the points.
-			x_int(n_int + (1:n_k)) = x_k;
-			y_int(n_int + (1:n_k)) = y_k;
-			% Increase the number of intersections.
-			n_int = n_int + n_k;
+			x_i(n_i + (1:n_p)) = x_p;
+			y_i(n_i + (1:n_p)) = y_p;
+			% Update number of intersections.
+			n_i = n_i + n_p;
+		end
+		% Store the intersections with the offset.
+		if q_o
+			% Number of intersections
+			n_o = numel(x_o);
+			% Add the points.
+			x_i(n_i + (1:n_o)) = x_o;
+			y_i(n_i + (1:n_o)) = y_o;
+			% Update number of intersections.
+			n_i = n_i + n_o;
 		end
 	end
 	% Contract the intersection set to ones that were found.
-	x_int = x_int(1:n_int);
-	y_int = y_int(1:n_int);
+	x_i = x_i(1:n_i);
+	y_i = y_i(1:n_i);
 	
 	% Rotate and sort the intersection points.
-	r_int = sort(A*[x_int; y_int], 2);
+	r_i = sort(A*[x_i; y_i], 2);
 	% Rotate them back.
-	z_int = A'*r_int;
+	z_i = A'*r_i;
 	
 	% Find it yourself.
-	for i = 1:2:n_int-1
+	for i = 1:2:n_i-1
 		% Add the first point.
 		j = j + 1;
-		x_hash(j) = z_int(1, i);
-		y_hash(j) = z_int(2, i);
+		X(j) = z_i(1, i);
+		Y(j) = z_i(2, i);
 		% Add the second point.
 		j = j + 1;
-		x_hash(j) = z_int(1, i+1);
-		y_hash(j) = z_int(2, i+1);
+		X(j) = z_i(1, i+1);
+		Y(j) = z_i(2, i+1);
 		% Leave a gap after the segment.
 		j = j + 1;
 	end
@@ -224,397 +199,305 @@ for n = n_min:hash_sep:n_max
 end
 
 % Trim the remaining NaNs out of the hash line.
-x_hash = x_hash(1:j-1);
-y_hash = y_hash(1:j-1);
+X = X(1:j-1);
+Y = Y(1:j-1);
 
 
 % --- SUBFUNCTION 1: Wide brush path ---
-function [X,Y]=offset_path(x,y,h)
+function [X, Y] = inset_poly(x, y, h)
 %
-% [X,Y] = offset_path(x,y,h)
+% [X, Y] = inset_poly(x, y, h)
 %
 % INPUTS:
-%         x : list of x-coordinates in linear path
-%         y : list of y-coordinates in linear path
-%         h : offset distance of new path
+%         x : list of x-coordinates of single polygon vertices
+%         y : list of y-coordinates of single polygon vertices
+%         h : offset distance
 %
 % OUTPUTS:
-%         X : list of x-coordinates in offset path
-%         Y : list of y-coordinates in offset path
+%         X : list of x-coordinates of inset path(s)
+%         Y : list of y-coordinates of inset path(s)
 %
-% This function takes as input a series of line segments and an offset
-% distance and returns a polygon.  The purpose is to essentially to draw a
-% version of the line with thickness h.  The output is a polygon that
-% starts with the original path and then contains an offset path in reverse
-% order.
+%
+% This function takes a set of polygon vertices as input and returns a
+% polygon that is a constant offset h inward from the original polygon.
 %
 
 % Versions:
-%  07/23/10 @Derek Dalle     : First version
+%   2011/03/17 @Derek Dalle   : First version
 %
-% GNU Library General Public License
-%
+% Public domain
 
-% Number of points in x
-n_vertex = numel(x);
-
-% Test input.
-if n_vertex~=numel(y)
-  error('geom:nopoly',...
-     'Dimensions of x and y in offset_path(x,y) must match.');
+% Test the input
+if numel(x) ~= numel(y)
+	% Uneven number of vertices
+	error('inset_poly:UnevenVertices', ...
+		'Number of vertices in x and y must be equal.');
+elseif any(isnan(x)) || any(isnan(y))
+	% Multiple segments
+	error('inset_poly:MultipleSegments', ...
+		'The function offset_poly only works on a single patch.');
 end
 
-% Find extrema of polygon if there is a polygon.
-if n_vertex > 0
-  X_min    = min(x);
-  X_max    = max(x);
-  Y_min    = min(y);
-  Y_max    = max(y);
-  % Decide minimum nonzero distance.
-  tol      = 1e-8 * max(X_max - X_min, Y_max - Y_min);
-end
+% Ensure column and add last segment.
+x = [x(:); x(1)];
+y = [y(:); y(1)];
 
-% Combine points into one variable.
-z = [x(:)'; y(:)'];
+% Find duplicates.
+i_delete = [(diff(x) == 0 & diff(y) == 0); false];
+% Eliminate them.
+x = x(~i_delete);
+y = y(~i_delete);
+% Number of vertices
+n_vertex = numel(x) - 1;
 
-
-% Initialize polygon.
-Z = nan(2, 4*n_vertex);
-
-% Put first point into polygon.
-z_2 = z(:,n_vertex);
-Z(:,1) = z_2;
-
-% Rotation matrix
-A = [0, -1; 1, 0];
-
-% This is the index of the last point that has been added.
-i_cur  = 1;
-n_edge = 0;
-
-% Magnitude of h.
-ah = abs(h);
-
-% This is just a switch that alternates each time a path is trimmed.
-trim_Q = true;
-
-% Loop through edges, starting from the end.
-for j=1:n_vertex-1
-	% End points
-	z_1 = z_2;
-	z_2 = z(:,end-j);
-	% Calculate tangent vector of the segment.
-	t = z_2 - z_1;
-	% Length of the vector.
-	l = norm(t);
-	% Check for zero length.
-	if abs(l) > tol
-		% Unit tangent
-		t = t/l;
-		% Unit normal
-		n = A*t;
-		
-		% Add first point.
-		if i_cur == 1
-			% First endpoint of offset path
-			r_4 = z_1 + h*n;
-		else
-			% First endpoint of offset path
-			r_4 = z_1 - ah*t + h*n;
-		end
-		
-		% Last point of offset path
-		if j == n_vertex - 1
-			% For the last segment, don't go beyond the endpoint.
-			r_3 = z_2 + h*n;
-		else
-			% Otherwise, go past the end of the segment.
-			r_3 = z_2 + ah*t + h*n;
-		end
-	end
-	
-	% New line segment endpoints
-	y_1 = Z(:,i_cur);
-	y_2 = r_4;
-	% Blindly add r_4 and worry about intersections later.
-	i_cur  = i_cur  + 1;
-	n_edge = n_edge + 1;
-	Z(:,i_cur) = r_4;
-	% Check intersections between new edge and existing edges.
-	k_int = false(1, n_edge-2);
-	z_int = nan(2, n_edge-2);
-	% First point
-	x_2 = Z(:,1);
-	% Loop through available edges.
-	for k=1:n_edge-2
-		% Find endpoints of segment k.
-		x_1 = x_2;
-		x_2 = Z(:,k+1);
-		% Calculate intersection.
-		[k_int(k), z_int(:,k)] = ...
-			line_int_line_pt(x_1, x_2, y_1, y_2);
-	end
-	
-	% New line segment endpoints
-	y_1 = y_2;
-	y_2 = r_3;
-	% Blindly add r_3 and worry about intersections later.
-	i_cur  = i_cur  + 1;
-	n_edge = n_edge + 1;
-	Z(:,i_cur) = r_3;
-	% Check intersections between new edge and existing edges.
-	k_int = false(1, n_edge-2);
-	z_int = nan(2, n_edge-2);
-	% First point
-	x_2 = Z(:,1);
-	% Loop through available edges.
-	for k=1:n_edge-2
-		% Find endpoints of segment k.
-		x_1 = x_2;
-		x_2 = Z(:,k+1);
-		% Calculate intersection.
-		[k_int(k), z_int(:,k)] = ...
-			line_int_line_pt(x_1, x_2, y_1, y_2);
-	end
-	
-	% Indices of edges intersecting edges
-	i_int = find(k_int);
-	% Number of intersections
-	n_int = numel(i_int);
-	% Find the last segment if there are any intersections.
-	if n_int > 0
-		% Find previous endpoint of input path
-		z_0 = z(:,end-j+2);
-		% Calculate the cross product between the last two path vectors.
-		c_1 = cross([z_1-z_0; 0], [z_2-z_1; 0]);
-		% Calculate the cross product between the last two offset vectors.
-		c_2 = cross([y_1-x_2; 0], [y_2-y_1; 0]);
-	end
-	
-	% Delete the most recent segments if drawing the new segment causes 
-	% the polygon to cross itself.  This will be the case if the last segment
-	% traces in a direction opposite to that of the input path.
-	if n_int >0 && c_1(3)*c_2(3) <= 0
-		% Index of point to be replaced
-		i_rep = i_int(end) + 1;
-		% Replace the relevant point with the newly found intersection.
-		Z(:,i_rep) = z_int(:,i_int(end));
-		% Indices of points to be deleted
-		i_del = i_rep+1:n_edge;
-		n_del = numel(i_del);
-		% Delete the points.
-		Z(:,i_del) = [];
-		i_cur  = i_cur  - n_del;
-		n_edge = n_edge - n_del;
-		n_int  = n_int  - 1;
-	end
-	
-	% Loop through remaining pairs of intersections.
-	for k=n_int:-2:2
-		% Indices of edges that intersect current edge.
-		i_1 = i_int(k-1);
-		i_2 = i_int(k);
-		% Replace first endpoint.
-		Z(:,i_1+1) = z_int(:,i_1);
-		if i_2 - i_1 > 1
-			% Replace second endpoint.
-			Z(:,i_2  ) = z_int(:,i_2);
-			% Indices to delete
-			i_del = i_1+1:i_2-2;
-			% Delete the points.
-			Z(:,i_del) = [];
-			i_cur  = i_cur  - n_del;
-			n_edge = n_edge - n_del;
-		else
-			% Shift points down one spot.
-			Z(:,i_2+2:i_cur+1) = Z(:,i_2+1:i_cur);
-			% Insert new endpoint.
-			i_cur  = i_cur  + 1;
-			n_edge = n_edge + 1;
-			Z(:,i_2+1) = z_int(:,i_2);
-		end
-	end
-	
-	% If there is still an intersection left over, trim the current segment.
-	if mod(n_int, 2) == 1
-		% Index of intersection
-		i_1 = i_int(1);
-		% Replace the newest endpoint.
-		if trim_Q
-			Z(:,i_cur) = z_int(:,i_1);
-		else
-			Z(:,i_cur-1) = z_int(:,i_1);
-		end
-		% Toggle the switch of which point to remove.
-		trim_Q = ~trim_Q;
-	end
-end
-
-% If the last segment was trimmed, also trim the last segment.
-if ~trim_Q
-	% Endpoints of last segment
-	y_1 = y_2;
-	y_2 = z(:,1);
-	% Endpoints of trimming segment
-	x_1 = Z(:,i_1);
-	x_2 = Z(:,i_1+1);
-	% Find intersection.
-	[k_int, z_int] = line_int_line_pt(x_1, x_2, y_1, y_2);
-	% Append this point to the end.
-	if k_int
-		i_cur  = i_cur  + 1;
-		Z(:,i_cur) = z_int;
-	end
-end
-
-% Output
-X = [x(:); Z(1,2:i_cur)'];
-Y = [y(:); Z(2,2:i_cur)'];
-
-
-% --- SUBFUNCTION 2: Intersection of two line segments ---
-function [int_Q,z_0]=line_int_line_pt(z_1,z_2,z_3,z_4,int_Q)
-%
-% int_Q = line_int_line_pt(z_1,z_2,z_3,z_4)
-% [int_Q,z_0] = line_int_line_pt(z_1,z_2,z_3,z_4)
-% int_Q = line_int_line_pt(z_1,z_2,z_3,z_4,int_Q)
-% [int_Q,z_0] = line_int_line_pt(z_1,z_2,z_3,z_4,int_Q)
-%
-% INPUTS:
-%         z_1   : vertex of first segment
-%         z_2   : vertex of first segment
-%         z_3   : vertex of second segment
-%         z_4   : vertex of second segment
-%         int_Q : (optional) whether or not the two lines intersect
-%
-% OUTPUTS:
-%         int_Q : true if and only if the two lines intersect
-%         z_0   : intersection point
-%
-% This function finds the intersection point of two line segments.  The
-% first line has the vertices (x11,y11) and (x12,y12), and the second line
-% has the vertices (x21,y21) and (x22,y22).  If the two line segments do
-% not intersect, the returned intersection point is [NaN NaN].  If the two
-% segments share a segment, the output is simply one of the points along
-% the shared segment.
-%
-% The optional input can be used to save the time of the program checking
-% if the two segments intersect, or it can be used to force the function to
-% find the intersection of non-parallel lines (where the intersection point
-% might not be part of either line segment).  The function can be used as
-% an intersection test on its own using the second output.
-%
-% Versions:
-%  04/03/09 @Derek Dalle     : First version
-%  03/01/10 @Derek Dalle     : Changed the input format
-%
-% GPL Library license
-%
-
-% Smallest non-zero dot product
-tol = 1e-8*max(norm(z_2-z_1), norm(z_4-z_3));
-% Distribute points in the lines to points.
-x_11 = z_1(1);                                % x, point 1 of line 1
-x_12 = z_2(1);                                % x, point 2 of line 1
-x_21 = z_3(1);                                % x, point 1 of line 2
-x_22 = z_4(1);                                % x, point 2 of line 2
-y_11 = z_1(2);                                % y, point 1 of line 1
-y_12 = z_2(2);                                % y, point 2 of line 1
-y_21 = z_3(2);                                % y, point 1 of line 2
-y_22 = z_4(2);                                % y, point 2 of line 2
-% Distribute points in the lines to points.
-z_11  = [x_11, y_11];                         % point 1 of line 1
-z_12  = [x_12, y_12];                         % point 2 of line 1
-z_21  = [x_21, y_21];                         % point 1 of line 2
-z_22  = [x_22, y_22];                         % point 2 of line 2
-% Test for intersection of the two lines.
-if nargin < 5
-  % Rotation matrix
-  A     = [0,-1;1,0];
-  % Line 1 normal
-  n     = A*(z_12-z_11)';
-  % Dot products of line 1 with segments connecting z11 to z21 and z22
-  c_1   = (z_21-z_11)*n;
-  c_2   = (z_22-z_11)*n;
-  % Test if line 1 straddles line 2. ( -\- or -- \ )
-  if abs(c_1)<tol && abs(c_2)<tol
-    % Parallel segments on same line ( --- or -- -- )
-    int_Q =          ((z_21-z_11)*(z_21-z_12)'<=0);
-    int_Q = int_Q || ((z_22-z_11)*(z_22-z_12)'<=0);
-    int_Q = int_Q || ((z_21-z_11)*(z_22-z_11)'<=0);
-    int_Q = int_Q || ((z_21-z_12)*(z_22-z_12)'<=0);
-  elseif c_1*c_2 <= tol
-    % Line 1 straddles line 2.
-    % Line 2 normal
-    n     = A*(z_22-z_21)';
-    % Test if line 2 straddles line 1.
-    int_Q = ((z_12-z_21)*n)*((z_11-z_21)*n) <= tol;
-  else
-    % Line 1 does not straddle line 2.
-    int_Q = false;
-  end
-end
-% Apply correct case.
-if int_Q && nargout > 1
-  % Test if each line is vertical.
-  vert_1 = abs(x_12-x_11)<tol;                % test if line 1 is vertical
-  vert_2 = abs(x_22-x_21)<tol;                % test if line 2 is vertical
-  % Calculate slopes for non-vertical lines.
-  if ~vert_1
-    m_1  = (y_12-y_11)/(x_12-x_11);           % slope of line 1
-  end
-  if ~vert_2
-    m_2  = (y_22-y_21)/(x_22-x_21);           % slope of line 2
-  end
-  % Calculate intersection point.
-  if (vert_1 && vert_2) || (~(vert_1 || vert_2) && (abs(m_1-m_2)<=tol))
-    % Lines are parallel.
-    % Try both endpoints of line 1.
-    L_1  = norm(z_11 - z_12);                 % length of first segment
-    L_2  = norm(z_21 - z_22);                 % length of second segment
-    L_11 = norm(z_11 - z_21);                 % length from z_11 to z_21
-    L_12 = norm(z_11 - z_22);                 % length from z_11 to z_22
-    L_21 = norm(z_12 - z_21);                 % length from z_12 to z_21
-    L_22 = norm(z_12 - z_22);                 % length from z_12 to z_22
-    % Test if point (x_11,y_11) is on line 2 by comparing lengths.
-    if abs(L_11 + L_12 - L_2) <= tol
-      z_0(1) = x_11;
-      z_0(2) = y_11;
-    elseif abs(L_21 + L_22 - L_2) <= tol
-      z_0(1) = x_12;
-      z_0(2) = y_12;
-    elseif abs(L_11 + L_21 - L_1) <= tol
-      z_0(1) = x_21;
-      z_0(2) = y_21;
-    else
-      z_0(1) = NaN;
-      z_0(2) = NaN;
-      int_Q  = false;
-    end
-  elseif vert_1
-    % Line 1 is vertical.
-    z_0(1) = x_11;                              % x, intersection point
-    z_0(2) = y_21+m_2*(x_11-x_21);                 % y, intersection point
-  elseif vert_2
-    % Line 2 is vertical.
-    z_0(1) = x_21;                              % x, intersection point
-    z_0(2) = y_11+m_1*(x_21-x_11);                 % y, intersection point
-  else
-    % Neither line is vertical
-    y_10   = y_11 - m_1*x_11;                   % y-intercept, line 1
-    y_20   = y_21 - m_2*x_21;                   % y-intercept, line 2
-    x      = (y_20-y_10)/(m_1-m_2);             % x, intersection point
-		z_0(1) = x;
-    z_0(2) = y_11 + m_1*(x-x_11);               % y, intersection point
-  end
+% Get a tolerance distance
+if n_vertex > 1
+	% Use the size of the polygon.
+	x_min = min(x); x_max = max(x);
+	y_min = min(y); y_max = max(y);
+	% Smallest nonzero distance
+	x_tol = 1e-8 * max(x_max - x_min, y_max - y_min);
 else
-  % Lines do not intersect
-  z_0(1) = NaN;
-  z_0(2) = NaN;
+	% Trivial
+	x_tol = 0;
 end
 
+% Check for self-intersecting polygon.
+for i = 1:n_vertex-1
+	% Edges to test with
+	if i == 1
+		j_cur = 3:n_vertex;
+	else
+		j_cur = i+2:n_vertex+1;
+	end
+	% Test for intersection
+	if path_int_line(x(j_cur), y(j_cur), x(i:i+1), y(i:i+1))
+		error('inset_poly:SelfIntersect', ...
+			'Self-intersecting polygon.');
+	end
+end
 
-% --- SUBFUNCTION 3: Intesection of polygon and line segment ---
+% Midpoint of the first segment.
+if n_vertex > 1
+	x_0 = (x(1) + x(2)) / 2;
+	y_0 = (y(1) + y(2)) / 2;
+end
+% Point along right perpindicular.
+x_1 = x_0 + (y(2) - y(1));
+y_1 = y_0 - (x(2) - x(1));
+% Find intersections between this line and the polygon.
+[q_int, x_i, y_i] = path_int_line(x, y, [x_0; x_1], [y_0; y_1]);
+% 1-norm to each point.
+d_i = abs(x_i - x_0) + abs(y_i - y_0);
+% Deselect the x_0 point
+d_i = d_i(d_i > 0);
+% Find closest intersection point.
+if q_int && numel(d_i) > 0
+	% Index of closest
+	i = find(d_i == min(d_i), 1);
+	% Select that point
+	x_1 = (x_i(i) + x_0) / 2;
+	y_1 = (y_i(i) + y_0) / 2;
+end
+% Test if (x_1, y_1) is inside the polygon.
+if inpolygon(x_1, y_1, x(2:end), y(2:end))
+	% Inset is to the right.
+	A = [0, 1; -1, 0];
+else
+	% Inset is to the left.
+	A = [0, -1; 1, 0];
+end
+
+% Maximum possible number of vertices in an offset path
+i_max = 2 * n_vertex + 1;
+% Maximum possible number of separate offset paths
+k_max = ceil(n_vertex / 2);
+% Current number of paths
+k_cur = 0;
+
+% Initialize the offset paths.
+X = nan(i_max, k_max);
+Y = nan(i_max, k_max);
+
+% Current number of points in each offset path.
+m_path = zeros(1, k_max);
+
+% Endpoints of initial offsets.
+X_o = nan(3, n_vertex);
+Y_o = nan(3, n_vertex);
+
+% Vector along each segment.
+U = [diff(x)'; diff(y)'];
+% Length of each segment.
+L = sqrt(sum(U.*U));
+% Unit vectors.
+U = U ./ [L; L];
+
+% Loop through the edges to generate the possible offset paths.
+for i = 1:n_vertex
+	% Endpoints
+	r_1 = [x(i)  ; y(i)  ];
+	r_2 = [x(i+1); y(i+1)];
+	% Vector from vertex i to vertex i+1
+	u = U(:,i);
+	% Rotate.
+	n = A * u;
+	% Offset endpoints.
+	z_1 = r_1 + h*(n - u);
+	z_2 = r_2 + h*(n + u);
+	% Line coordinates
+	X_o(1:2,i) = [z_1(1), z_2(1)];
+	Y_o(1:2,i) = [z_1(2), z_2(2)];
+end
+
+% Loop through the nominal offset lines
+for i = 1:n_vertex
+	
+	% Line endpoints.
+	x_o = X_o(1:2,i);
+	y_o = Y_o(1:2,i);
+	
+	% Find the intersections with the polygon.
+	[q_p, x_p, y_p] = path_int_line(x, y, x_o, y_o);
+	% Find the intsersections with all the other segments.
+	[q_l, x_l, y_l] = path_int_line(X_o(:), Y_o(:), x_o, y_o);
+	
+	% Combine the intersection points.
+	if q_p && q_l
+		% Intersections with polygon and path
+		x_i = [x_o', x_p', x_l'];
+		y_i = [y_o', y_p', y_l'];
+	elseif q_p
+		% Intersections with polygon
+		x_i = [x_o', x_p'];
+		y_i = [y_o', y_p'];
+	elseif q_l
+		% Intersections with other nominal paths
+		x_i = [x_o', x_l'];
+		y_i = [y_o', y_l'];
+	else
+		% No intersections
+		x_i = x_o';
+		y_i = y_o';
+	end
+	
+	% Unit vector along path
+	u = U(:,i);
+	% Coordinate along the current path direction
+	l_i = u' * [x_i; y_i];
+	% Sort
+	[l_i, o_i] = sort(l_i);
+	x_i = x_i(o_i);
+	y_i = y_i(o_i);
+	% Delete duplicates.
+	i_delete = [diff(l_i) <= x_tol, false];
+	x_i = x_i(~i_delete);
+	y_i = y_i(~i_delete);
+	
+	% Find the distance from each point to the polygon.
+	d_i = point_line_distance(x_i, y_i, x, y)';
+	% Check each distance.
+	q_off = (d_i >= h - x_tol) & (d_i <= h*sqrt(2) + x_tol);
+	% Test if each point is in the polygon
+	q_poly = inpolygon(x_i, y_i, x, y);
+	% Keep the points that pass both tests.
+	x_i = x_i(q_poly & q_off);
+	y_i = y_i(q_poly & q_off);
+	
+	% Get each midpoint.
+	x_m = (x_i(1:end-1) + x_i(2:end)) / 2;
+	y_m = (y_i(1:end-1) + y_i(2:end)) / 2;
+	% Check if the midpoint is in the polygon.
+	q_poly = inpolygon(x_m, y_m, x, y);
+	% Get the distance to the polygon.
+	d_m = point_line_distance(x_m, y_m, x, y);
+	% Check the distance to the polygon.
+	q_off = abs(d_m' - h) <= x_tol;
+	% Valid segments
+	q_seg = q_poly & q_off;
+	
+	% Loop through the remaining points.
+	for j = 1:numel(x_i)-1
+		% Check if it is a valid segment.
+		if q_seg(j)
+			% Current point.
+			x_j = x_i(j);
+			y_j = y_i(j);
+			% Path index
+			k = 0;
+			% Whether or not link has been found.
+			q_link = false;
+			% Loop through the existing paths.
+			while k < k_cur && ~q_link
+				% Move to next path.
+				k = k + 1;
+				% Number of points in that path.
+				m = m_path(k);
+				% Get the midpoint of point j and the last point of path k.
+				x_k = (x_j + X(m,k)) / 2;
+				y_k = (y_j + Y(m,k)) / 2;
+				% Test the midpoint.
+				q_poly = inpolygon(x_k, y_k, x, y);
+				q_off  = point_line_distance(x_k, y_k, x, y) >= h - x_tol;
+				q_link = q_poly && q_off;
+			end
+			
+			% Test if a link was found.
+			if q_link
+				% Current point is linked to existing offset path.
+				m_cur = m_path(k) + 1;
+				% Check if we need to add both points.
+				if sum(abs([x_j-x_k, y_j-y_k])) > x_tol
+					% Store the first point.
+					X(m_cur, k) = x_i(j);
+					Y(m_cur, k) = y_i(j);
+					% Add a new point.
+					m_cur = m_cur + 1;
+				end
+				% Store the new point.
+				X(m_cur, k) = x_i(j+1);
+				Y(m_cur, k) = y_i(j+1);
+				% Update the number of points in that path.
+				m_path(k) = m_cur;
+				
+			else
+				% No link: new path
+				k_cur = k_cur + 1;
+				% Start the new path.
+				m_cur = m_path(k_cur) + 1;
+				% Store the start of the segment.
+				X(m_cur, k_cur) = x_i(j);
+				Y(m_cur, k_cur) = y_i(j);
+				% Increase the number of points in that path to two.
+				m_cur = m_cur + 1;
+				% Store the end of the segment.
+				X(m_cur, k_cur) = x_i(j+1);
+				Y(m_cur, k_cur) = y_i(j+1);
+				% Update the number of points in that path.
+				m_path(k_cur) = m_cur;
+				
+			end
+		end
+	end
+end
+
+% Remove paths that weren't used.
+X = X(:, m_path>0);
+Y = Y(:, m_path>0);
+
+% Combine to a single path.
+X = X(:); Y = Y(:);
+
+% Find all the NaNs.
+XI = isnan(X);
+% Keep the 
+XI = [~XI(2:end) | ~XI(1:end-1); false];
+% Only keep entries that are not followed by Nans.
+X = X(XI);
+Y = Y(XI);
+
+
+% --- SUBFUNCTION 2: Intesection of polygon and line segment ---
 function [intr_Q,x_intr,y_intr]=path_int_line(X,Y,x,y)
 %
 % intr_Q = path_int_line(X,Y,x,y)
@@ -724,7 +607,7 @@ x_intr(n_intr+1:end) = [];
 y_intr(n_intr+1:end) = [];
 
 
-% --- SUBFUNCTION 4: Intersection of two lines ---
+% --- SUBFUNCTION 3: Intersection of two lines ---
 function [int_Q,x,y]=line_int_line(X,Y,int_Q)
 %
 % int_Q = line_int_line(X,Y)
@@ -865,3 +748,89 @@ else
   x      = NaN;
   y      = NaN;
 end
+
+
+% --- SUBFUNCTION 4: Distance from point to path ---
+function d = point_line_distance(x, y, X, Y)
+%
+% d = point_line_distance(x, y, X, Y)
+%
+% INPUTS:
+%         x : x-coordinates of points to test
+%         y : y-coordinates of points to test
+%         X : x-coordinates of path
+%         Y : y-coordinates of path
+%
+% OUTPUTS:
+%         d : shortest distance from each point to the path
+%
+% This function calculates the distance of the shortest line connecting
+% each vertex to one of the paths.
+%
+
+% Versions:
+%   2011.03.17 @Derek Dalle   : First version
+%
+% Public domain
+
+% Ensure column
+X = X(:); Y = Y(:);
+x = x(:); y = y(:);
+
+% Check for errors.
+if numel(X) ~= numel(Y)
+	% Mismatched number of points in path
+	error('point_line_distance:MismatchPath', ...
+		'Path has uneven number of points.');
+elseif numel(x) ~= numel(y)
+	% Mismatched number of points
+	error('point_line_distance:MismatchPoitns', ...
+		'Not matching number of x- and y-coordinates.');
+end
+
+% Find duplicates.
+i_delete = [(diff(X) == 0 & diff(Y) == 0); false];
+% Eliminate them.
+X = X(~i_delete);
+Y = Y(~i_delete);
+
+% Grid of vertices
+[xp, XP] = ndgrid(x, X);
+[yp, YP] = ndgrid(y, Y);
+% Coordinates of each point relative to each vertex
+dx = xp - XP;
+dy = yp - YP;
+% Distance from each point to each vertex
+D = sqrt(dx.*dx + dy.*dy);
+
+% Vector along each segment.
+U = [diff(X)'; diff(Y)'];
+% Length of each segment.
+L = sqrt(sum(U.*U));
+% Unit vectors.
+U = U ./ [L; L];
+% Unit normals
+N = [0, -1; 1, 0] * U;
+
+% Number of points
+n_points = numel(x);
+
+% Grid for coordinates of unit vectors
+UX = repmat(U(1,:), n_points, 1);
+UY = repmat(U(2,:), n_points, 1);
+% Grid for coordinates of unit normals
+NX = repmat(N(1,:), n_points, 1);
+NY = repmat(N(2,:), n_points, 1);
+
+% Scaled streamwise coordinate of each point along each segment
+S = (UX.*dx(:,1:end-1) + UY.*dy(:,1:end-1)) ./ repmat(L, n_points, 1);
+% Normal coordinate of each point along each segment
+N = abs((NX.*dx(:,1:end-1) + NY.*dy(:,1:end-1)));
+
+% Delete normal coordinates for each segment that is not between the
+% endpoints of a given segment.
+N(S<0) = NaN;
+N(S>1) = NaN;
+
+% Calculate the minimum distance.
+d = min([D, N], [], 2);
