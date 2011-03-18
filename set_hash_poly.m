@@ -679,9 +679,15 @@ if numel(x)~=2 || numel(y)~=2
     'exactly two points']);
 end
 
+
 % First polygon edge point.
-x_2      = X(1);
-y_2      = Y(1);
+if numel(X) > 0
+	x_2 = X(1);
+	y_2 = Y(1);
+else
+	x_2 = NaN;
+	y_2 = NaN;
+end
 
 % Append first polygon vertex to end of list to get complete set of edges.
 X        = [X(:); x_2];
