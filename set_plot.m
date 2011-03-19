@@ -1395,10 +1395,19 @@ end
 h_line = h_child(cell_position_string(t_child, 'line'));
 % h_line = findall(h_a, 'Type', 'line');
 % Find the children that are text boxes.
-% h_text = h_child(cell_position_string(t_child, 'text'));
 h_text = findall(h_a, 'Type', 'text');
+% Check if there is a legend.
+if q_legend
+	% Get the children of the legend.
+	h_c_l = get(h_legend, 'Children');
+	% Get the types.
+	t_c_l = get(h_c_l, 'Type');
+	% Find the ones that are text.
+	i_c_t = strcmp(t_c_l, 'text');
+	% Add the handles to the list.
+	h_text = [h_text; h_c_l(i_c_t)];
+end
 % Get the 'hggroup' objects.
-% h_hggroup = h_child(cell_position_string(t_child, 'hggroup'));
 h_hggroup = findall(h_a, 'Type', 'hggroup');
 
 % Number of said handles
@@ -2612,6 +2621,22 @@ elseif q_loose
 end
 
 
+%% --- Font type application ---
+
+% Get font name.
+[f_name, options] = cut_option(options, 'FontName', f_name);
+% Check for 'current'.
+if strcmpi(f_name, 'current')
+	% Apply old fonts.
+	for i = 1:numel(h_font)
+		set(h_font(i), 'FontName', f_cur{i});
+	end
+else
+	% Apply changes.
+	set(h_font, 'FontName', f_name);
+end
+
+
 %% --- Interpreter management ---
 
 % Handles for all objects with an interpreter
@@ -2657,22 +2682,6 @@ for i = 1:numel(h_interpreter)
 end
 
 
-%% --- Font type application ---
-
-% Get font name.
-[f_name, options] = cut_option(options, 'FontName', f_name);
-% Check for 'current'.
-if strcmpi(f_name, 'current')
-	% Apply old fonts.
-	for i = 1:numel(h_font)
-		set(h_font(i), 'FontName', f_cur{i});
-	end
-else
-	% Apply changes.
-	set(h_font, 'FontName', f_name);
-end
-
-
 %% --- Output ---
 
 % Check for leftover options
@@ -2708,6 +2717,11 @@ if nargout > 0
 	% Check for a colorbar.
 	if q_cbar
 		h.colorbar = h_cbar;
+	end
+	
+	% Check for a legend.
+	if q_legend
+		h.legend = h_legend;
 	end
 end
 
