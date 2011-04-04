@@ -2623,14 +2623,21 @@ end
 
 %% --- Font type application ---
 
+% Update the text labels.
+h_text = findall(h_a, 'Type', 'text');
+% Reconstruct font handle.
+h_font = [h_x; h_y; h_z; h_title; h_text];
+
 % Get font name.
 [f_name, options] = cut_option(options, 'FontName', f_name);
 % Check for 'current'.
 if strcmpi(f_name, 'current')
-	% Apply old fonts.
-	for i = 1:numel(h_font)
+	% Apply old fonts to the existing handles.
+	for i = 1:4
 		set(h_font(i), 'FontName', f_cur{i});
 	end
+	% Set the other ones
+	set(h_font(5:end), 'FontName', f_cur{1});
 else
 	% Apply changes.
 	set(h_font, 'FontName', f_name);
@@ -3409,3 +3416,4 @@ end
 
 % Delete extra entries of i.
 i = i(1:n_find);
+
