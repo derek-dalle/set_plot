@@ -2626,7 +2626,7 @@ end
 % Update the text labels.
 h_text = findall(h_a, 'Type', 'text');
 % Reconstruct font handle.
-h_font = [h_x; h_y; h_z; h_title; h_text];
+h_font = [h_a; h_x; h_y; h_z; h_title; h_text];
 
 % Get font name.
 [f_name, options] = cut_option(options, 'FontName', f_name);
