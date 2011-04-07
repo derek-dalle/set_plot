@@ -598,7 +598,9 @@ elseif strcmpi(units, 'points')
 end
 
 % Axis handle
-h_a = get(h_f, 'CurrentAxes');
+h_a = findall(h_f, 'Type', 'axes', 'Tag', '');
+% Number of axes handles
+n_a = numel(h_a);
 
 % Set matching units.
 set(h_f, 'Units'     , units);
@@ -606,15 +608,23 @@ set(h_f, 'PaperUnits', units);
 set(h_a, 'Units'     , units);
 
 % Axis labels
-h_x = get(h_a, 'XLabel');
-h_y = get(h_a, 'YLabel');
-h_z = get(h_a, 'ZLabel');
+if n_a > 1
+	% Multiple-axes plot
+	h_x = cell2mat(get(h_a, 'XLabel'));
+	h_y = cell2mat(get(h_a, 'YLabel'));
+	h_z = cell2mat(get(h_a, 'ZLabel'));
+else
+	% Single-axis plot
+	h_x = get(h_a, 'XLabel');
+	h_y = get(h_a, 'YLabel');
+	h_z = get(h_a, 'ZLabel');
+end
 % Get the intepreters for each label.
 i_x = get(h_x, 'Interpreter');
 i_y = get(h_y, 'Interpreter');
 i_z = get(h_z, 'Interpreter');
 % Set them to 'none' for sizing purposes.
-set([h_x, h_y, h_z], 'Interpreter', 'none');
+set([h_x; h_y; h_z], 'Interpreter', 'none');
 
 % Positions
 pos_fig  = get(h_f, 'Position');
@@ -1377,11 +1387,16 @@ end
 
 %% --- Children processing ---
 
-% Get the handle for the title.
-h_title = get(h_a, 'Title');
-
-% Get the children of the current axes.
-h_child = get(h_a, 'Children');
+% Get the handles for the title and axes.
+if n_a > 1
+	% Multiple-axis plot
+	h_title = cell2mat(get(h_a, 'Title'));
+	h_child = cell2mat(get(h_a, 'Children'));
+else
+	% Single-axis plot
+	h_title = get(h_a, 'Title');
+	h_child = get(h_a, 'Children');
+end
 
 % List of what type each child is.
 t_child = get(h_child, 'Type');
@@ -1392,7 +1407,8 @@ if ~iscell(t_child)
 end
 
 % Find the children that are lines.
-h_line = h_child(cell_position_string(t_child, 'line'));
+i_line = strcmp(t_child, 'line');
+h_line = h_child(i_line);
 % h_line = findall(h_a, 'Type', 'line');
 % Find the children that are text boxes.
 h_text = findall(h_a, 'Type', 'text');
@@ -1928,7 +1944,7 @@ if ~strcmpi(s_box, 'current')
 	set(h_a, 'Box', s_box);
 end
 
-% Get the minor tick option
+% Get the minor tick option.
 [s_tick, options] = cut_option(options, 'MinorTick', s_tick);
 % Check for values that need processing.
 if strcmpi(s_tick, 'current')
@@ -2367,8 +2383,15 @@ if q_tight
 	% Set the figure window size.
 	set(h_f, 'Position', pos_fig);
 	
-		% Get the minimum size of the margins.
-	m_axes  = get(h_a, 'TightInset');
+	% Get the minimum size of the margins.
+	if n_a > 1
+		% Multiple-axes plot; use the maximum on each side.
+		m_axes = max(cell2mat(get(h_a, 'TightInset')));
+	else
+		% Single-axis plot
+		m_axes = get(h_a, 'TightInset');
+	end
+	% Set the offsets at 
 	m_tight = m_axes;
 	
 	% Make room for the colorbar.
@@ -2437,12 +2460,26 @@ if q_tight
 	m_tight = m_opts + m_tight;
 	
 	% Fix the axes.
-	pos_axes(1) = m_tight(1);
-	pos_axes(2) = m_tight(2);
-	pos_axes(3) = w_fig - m_tight(1) - m_tight(3);
-	pos_axes(4) = h_fig - m_tight(2) - m_tight(4);
-	% Set them.
-	set(h_a, 'Position', pos_axes);
+	if n_a > 1
+		% Multiple-axes plot
+		for i = 1:n_a
+			% Fix the axes position.
+			pos_axes{i}(1) = m_tight(1);
+			pos_axes{i}(2) = m_tight(2);
+			pos_axes{i}(3) = w_fig - m_tight(1) - m_tight(3);
+			pos_axes{i}(4) = h_fig - m_tight(2) - m_tight(4);
+			% Set them.
+			set(h_a(i), 'Position', pos_axes{i}); 
+		end
+	else
+		% Single-axis plot
+		pos_axes(1) = m_tight(1);
+		pos_axes(2) = m_tight(2);
+		pos_axes(3) = w_fig - m_tight(1) - m_tight(3);
+		pos_axes(4) = h_fig - m_tight(2) - m_tight(4);
+		% Set them.
+		set(h_a, 'Position', pos_axes);
+	end
 	
 	% Match the colorbar to the axes.
 	if q_cbar
@@ -2626,7 +2663,7 @@ end
 % Update the text labels.
 h_text = findall(h_a, 'Type', 'text');
 % Reconstruct font handle.
-h_font = [h_a; h_x; h_y; h_z; h_title; h_text];
+h_font = [h_a; h_x; h_y; h_z; h_l_text; h_title; h_text];
 
 % Get font name.
 [f_name, options] = cut_option(options, 'FontName', f_name);
