@@ -435,7 +435,7 @@ d_i = abs(x_i - x_0) + abs(y_i - y_0);
 % Deselect the x_0 point
 d_i = d_i(d_i > 0);
 % Find closest intersection point.
-if q_int && numel(d_i) > 0
+if q_int && numel(d_i) > x_tol
 	% Index of closest
 	i = find(d_i == min(d_i), 1);
 	% Select that point

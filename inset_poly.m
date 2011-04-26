@@ -84,7 +84,7 @@ y_1 = y_0 - (x(2) - x(1));
 % 1-norm to each point.
 d_i = abs(x_i - x_0) + abs(y_i - y_0);
 % Deselect the x_0 point
-d_i = d_i(d_i > 0);
+d_i = d_i(d_i > x_tol);
 % Find closest intersection point.
 if q_int && numel(d_i) > 0
 	% Index of closest
