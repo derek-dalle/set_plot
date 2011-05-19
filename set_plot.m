@@ -1778,6 +1778,9 @@ for h_c = h_contour(:)'
 			set(h_c, 'LineColor', c_c_line);
 			% In this case the labels should be on the boundary.
 			set(h_c_text, 'VerticalAlignment', 'middle')
+		elseif any(strcmpi(c_c_line, {'none', 'off'}))
+			% Turn the lines off.
+			set(h_c, 'LineColor', 'none');
 		else
 			% Attempt a conversion to a single color.
 			v_c_line = html2rgb(c_c_line);
