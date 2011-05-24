@@ -1498,7 +1498,7 @@ elseif ~strcmpi(l_pseq, 'current')
 end
 
 % Apply the conversions.
-if ~strcmpi(l_pseq, 'current') && iscell(v_pseq)
+if ~all(strcmpi(l_pseq, 'current')) && iscell(v_pseq)
 	% Number of styles.
 	n_pseq = numel(v_pseq);
 	% Number of handles
