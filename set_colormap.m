@@ -47,7 +47,7 @@ function set_colormap(varargin)
 %
 % The user may also change the values to which each color corresponds.
 %
-%     set_colormap(0, 'Navy', 0.2, 'Blue', 1, 'White')
+%     set_colormap({0, 'Navy', 0.2, 'Blue', 1, 'White'})
 %
 % The function will recognize any of the typical web browser color names.
 %
@@ -95,10 +95,8 @@ function set_colormap(varargin)
 
 % Number of varargs
 n_arg = length(varargin);
-% Set index of current input.
-i_arg = 1;
 % Check first input.
-if n_arg > 0 && isnumeric(varargin{1})
+if n_arg > 0 && isnumeric(varargin{1}) && numel(varargin{1})==1
 	% First input is figure handle.
 	h_f = varargin{1};
 	% Move to next argument.
@@ -106,6 +104,8 @@ if n_arg > 0 && isnumeric(varargin{1})
 else
 	% Just use gcf.
 	h_f = gcf;
+	% Set index of current input.
+	i_arg = 1;
 end
 
 % Check the number of remaining arguments.
@@ -351,6 +351,8 @@ elseif iscell(s_cmap)
 	
 	% Expand the colormap.
 	v_cmap = interp1(i_cmap, v_cmap, linspace(0, 1, 64));
+	% Prevent overflow.
+	v_cmap = max(0, min(1, v_cmap));
 	% Apply it.
 	set(h_f, 'ColorMap', v_cmap);
 	

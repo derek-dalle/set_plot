@@ -3202,6 +3202,8 @@ elseif iscell(s_cmap)
 	
 	% Expand the colormap.
 	v_cmap = interp1(i_cmap, v_cmap, linspace(0, 1, 64));
+	% Prevent overflow.
+	v_cmap = max(0, min(1, v_cmap));
 	% Apply it.
 	set(h_f, 'ColorMap', v_cmap);
 	
