@@ -1757,8 +1757,14 @@ for h_c = h_contour(:)'
 	[s_c_lbl, options] = cut_option(options, 'ContourFontSize', s_c_lbl);
 	% Evaluate 'auto'.
 	if strcmpi(s_c_lbl, 'auto')
-		% Give it a smaller value than the overall font size.
-		s_c_lbl = f_size - 1;
+		% Test the current font size.
+		if ischar(f_size)
+			% Use 'current'.
+			s_c_lbl = 'current';
+		else
+			% Give it a smaller value than the overall font size.
+			s_c_lbl = f_size - 1;
+		end
 	end
 	% Check for 'current'.
 	if ~strcmpi(s_c_lbl, 'current')
