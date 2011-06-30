@@ -1720,167 +1720,6 @@ f_cur = get(h_font, 'FontName');
 set(h_font, 'FontName', 'Helvetica')
 
 
-%% --- Contour formatting ---
-
-% Only bother if there are contours
-for h_c = h_contour(:)'
-	% Get the fill option.
-	[q_fill, options] = cut_option(options, 'ContourFill', q_fill);
-	% Apply it.
-	if ~strcmpi(q_fill, 'current')
-		set(h_c, 'Fill', q_fill);
-	end
-	
-	% Get the label option.
-	[q_label, options] = cut_option(options, 'ContourText', q_label);
-	% Apply it.
-	if ~strcmpi(q_label, 'current')
-		set(h_c, 'ShowText', q_label);
-	end
-	
-	% Get the labels if possible.
-	h_c_child = get(h_c, 'Children');
-	% Type of each.
-	i_c_child = get(h_c_child, 'Type');
-	% Ensure cell array.
-	if numel(h_c_child) < 2
-		i_c_child = {i_c_child};
-	end
-	% Find those that are labels.
-	h_c_text  = h_c_child(cell_position_string(i_c_child, 'text'));
-	% Find those that are lines.
-	h_c_line  = h_c_child(cell_position_string(i_c_child, 'line'));
-	% Move all labels so that they don't cross the contour lines by default.
-	set(h_c_text, 'VerticalAlignment', 'bottom');
-	
-	% Get the font size option.
-	[s_c_lbl, options] = cut_option(options, 'ContourFontSize', s_c_lbl);
-	% Evaluate 'auto'.
-	if strcmpi(s_c_lbl, 'auto')
-		% Test the current font size.
-		if ischar(f_size)
-			% Use 'current'.
-			s_c_lbl = 'current';
-		else
-			% Give it a smaller value than the overall font size.
-			s_c_lbl = f_size - 1;
-		end
-	end
-	% Check for 'current'.
-	if ~strcmpi(s_c_lbl, 'current')
-		% Apply the font size change.
-		set(h_c_text, 'FontSize', s_c_lbl);
-	end
-	
-	% Get the line coloring option.
-	[c_c_line, options] = cut_option(options, 'ContourLineColor', c_c_line);
-	% Apply it.
-	if ischar(c_c_line)
-		% Check for recognized values.
-		if strcmpi(c_c_line, 'current')
-			% Do nothing.
-		elseif strcmpi(c_c_line, 'auto')
-			% Use the given value.
-			set(h_c, 'LineColor', c_c_line);
-			% In this case the labels should be on the boundary.
-			set(h_c_text, 'VerticalAlignment', 'middle')
-		elseif any(strcmpi(c_c_line, {'none', 'off'}))
-			% Turn the lines off.
-			set(h_c, 'LineColor', 'none');
-		else
-			% Attempt a conversion to a single color.
-			v_c_line = html2rgb(c_c_line);
-			% Check for a successful conversion.
-			if any(isnan(v_c_line))
-				% Unrecognized color
-				error('set_plot:UnkonwContourColor', ['ContourLineColor ', ...
-					'%s was not recognized.'], c_c_line);
-			else
-				% Apply the rgb color
-				set(h_c, 'LineColor', v_c_line);
-			end
-		end
-	elseif isnumeric(c_c_line)
-		% Apply the color directly
-		set(h_c, 'LineColor', c_c_line);
-	else
-		% Bad input type
-		error('set_plot:ContourColor', ['ContourLineColor must be ', ...
-			'string or 1x3 double.']);
-	end
-	
-	% Get the font name option.
-	[f_c_lbl, options] = cut_option(options, 'ContourFontName', f_c_lbl);
-	% Apply it.
-	if strcmpi(f_c_lbl, 'auto')
-		% Use the overall font.
-		set(h_c_text, 'FontName', f_name);
-	elseif strcmpi(f_c_lbl, 'current')
-		% Do nothing.
-	elseif ischar(f_c_lbl)
-		% Apply the given option
-		set(h_c_text, 'FontName', f_c_lbl);
-	else
-		% Bad type
-		error('set_plot:ContourFont', ['ContourFontName must be ', ...
-			'''auto'', ''current'', or a recognized font name.']);
-	end
-	
-	% Get the font color option.
-	[c_c_lbl, options] = cut_option(options, 'ContourFontColor', c_c_lbl);
-	% Apply it.
-	if strcmpi(c_c_lbl, 'auto')
-		% Pick a color that doesn't clash (hopefully) for each label.
-		% Number of labels..
-		n_lbl = numel(h_c_text);
-		% Get the current color map.
-		v_cmap = get(h_f, 'ColorMap');
-		% Get the limits of the color map.
-		m_cmap = get(h_a, 'CLim');
-		% Get the interpolation points.
-		i_cmap = linspace(0, 1, size(v_cmap,1));
-		% Little vector for converting rgb to grayscale.
-		v_rgb  = [0.299; 0.587; 0.114];
-		% Loop through each label.
-		for i = 1:n_lbl
-			% Get the value of the contour via the label text.
-			v_lbl = str2double(get(h_c_text(i), 'String'));
-			% Find the normalized value (for the colormap).
-			x_lbl = (v_lbl - min(m_cmap)) / diff(m_cmap);
-			% Interpolate to find the corresponding color.
-			c_cur = interp1(i_cmap, v_cmap, x_lbl);
-			% Convert to grayscale.
-			c_cur = ones(1,3) * (c_cur * v_rgb);
-			% Choose between black and white accordingly.
-			set(h_c_text(i), 'Color', c_cur < 0.5);
-		end
-		
-	elseif strcmpi(c_c_lbl, 'current')
-		% Do nothing
-	elseif ischar(c_c_lbl)
-		% Try to apply a single color.
-		% Convert the color.
-		v_c_lbl = html2rgb(c_c_lbl);
-		% Check for success.
-		if any(isnan(v_c_lbl))
-			% Bad color string
-			error('set_plot:ContourFontColor', ['ContourFontColor ', ...
-				'%s is not recognized.'], c_c_lbl);
-		else
-			% Apply color.
-			set(h_c_text, 'Color', v_c_lbl);
-		end
-	elseif isnumeric(c_c_lbl) && numel(c_c_lbl) == 3
-		% Try to apply a single color.
-		set(h_c_text, 'Color', c_c_lbl(:)');
-	else
-		% Bad input
-		error('set_plot:ContourFontColor', ['ContourFontColor ', ...
-			'must be ''auto'', ''current'', or a recognized color.']);
-	end
-end
-
-
 %% --- Bargraph formatting ---
 
 % Get the option for bar colors.
@@ -2687,6 +2526,167 @@ if strcmpi(f_name, 'current')
 else
 	% Apply changes.
 	set(h_font, 'FontName', f_name);
+end
+
+
+%% --- Contour formatting ---
+
+% Only bother if there are contours
+for h_c = h_contour(:)'
+	% Get the fill option.
+	[q_fill, options] = cut_option(options, 'ContourFill', q_fill);
+	% Apply it.
+	if ~strcmpi(q_fill, 'current')
+		set(h_c, 'Fill', q_fill);
+	end
+	
+	% Get the label option.
+	[q_label, options] = cut_option(options, 'ContourText', q_label);
+	% Apply it.
+	if ~strcmpi(q_label, 'current')
+		set(h_c, 'ShowText', q_label);
+	end
+	
+	% Get the labels if possible.
+	h_c_child = get(h_c, 'Children');
+	% Type of each.
+	i_c_child = get(h_c_child, 'Type');
+	% Ensure cell array.
+	if numel(h_c_child) < 2
+		i_c_child = {i_c_child};
+	end
+	% Find those that are labels.
+	h_c_text  = h_c_child(cell_position_string(i_c_child, 'text'));
+	% Find those that are lines.
+	h_c_line  = h_c_child(cell_position_string(i_c_child, 'line'));
+	% Move all labels so that they don't cross the contour lines by default.
+	set(h_c_text, 'VerticalAlignment', 'bottom');
+	
+	% Get the font size option.
+	[s_c_lbl, options] = cut_option(options, 'ContourFontSize', s_c_lbl);
+	% Evaluate 'auto'.
+	if strcmpi(s_c_lbl, 'auto')
+		% Test the current font size.
+		if ischar(f_size)
+			% Use 'current'.
+			s_c_lbl = 'current';
+		else
+			% Give it a smaller value than the overall font size.
+			s_c_lbl = f_size - 1;
+		end
+	end
+	% Check for 'current'.
+	if ~strcmpi(s_c_lbl, 'current')
+		% Apply the font size change.
+		set(h_c_text, 'FontSize', s_c_lbl);
+	end
+	
+	% Get the line coloring option.
+	[c_c_line, options] = cut_option(options, 'ContourLineColor', c_c_line);
+	% Apply it.
+	if ischar(c_c_line)
+		% Check for recognized values.
+		if strcmpi(c_c_line, 'current')
+			% Do nothing.
+		elseif strcmpi(c_c_line, 'auto')
+			% Use the given value.
+			set(h_c, 'LineColor', c_c_line);
+			% In this case the labels should be on the boundary.
+			set(h_c_text, 'VerticalAlignment', 'middle')
+		elseif any(strcmpi(c_c_line, {'none', 'off'}))
+			% Turn the lines off.
+			set(h_c, 'LineColor', 'none');
+		else
+			% Attempt a conversion to a single color.
+			v_c_line = html2rgb(c_c_line);
+			% Check for a successful conversion.
+			if any(isnan(v_c_line))
+				% Unrecognized color
+				error('set_plot:UnkonwContourColor', ['ContourLineColor ', ...
+					'%s was not recognized.'], c_c_line);
+			else
+				% Apply the rgb color
+				set(h_c, 'LineColor', v_c_line);
+			end
+		end
+	elseif isnumeric(c_c_line)
+		% Apply the color directly
+		set(h_c, 'LineColor', c_c_line);
+	else
+		% Bad input type
+		error('set_plot:ContourColor', ['ContourLineColor must be ', ...
+			'string or 1x3 double.']);
+	end
+	
+	% Get the font name option.
+	[f_c_lbl, options] = cut_option(options, 'ContourFontName', f_c_lbl);
+	% Apply it.
+	if strcmpi(f_c_lbl, 'auto')
+		% Use the overall font.
+		set(h_c_text, 'FontName', f_name);
+	elseif strcmpi(f_c_lbl, 'current')
+		% Do nothing.
+	elseif ischar(f_c_lbl)
+		% Apply the given option
+		set(h_c_text, 'FontName', f_c_lbl);
+	else
+		% Bad type
+		error('set_plot:ContourFont', ['ContourFontName must be ', ...
+			'''auto'', ''current'', or a recognized font name.']);
+	end
+	
+	% Get the font color option.
+	[c_c_lbl, options] = cut_option(options, 'ContourFontColor', c_c_lbl);
+	% Apply it.
+	if strcmpi(c_c_lbl, 'auto')
+		% Pick a color that doesn't clash (hopefully) for each label.
+		% Number of labels..
+		n_lbl = numel(h_c_text);
+		% Get the current color map.
+		v_cmap = get(h_f, 'ColorMap');
+		% Get the limits of the color map.
+		m_cmap = get(h_a, 'CLim');
+		% Get the interpolation points.
+		i_cmap = linspace(0, 1, size(v_cmap,1));
+		% Little vector for converting rgb to grayscale.
+		v_rgb  = [0.299; 0.587; 0.114];
+		% Loop through each label.
+		for i = 1:n_lbl
+			% Get the value of the contour via the label text.
+			v_lbl = str2double(get(h_c_text(i), 'String'));
+			% Find the normalized value (for the colormap).
+			x_lbl = (v_lbl - min(m_cmap)) / diff(m_cmap);
+			% Interpolate to find the corresponding color.
+			c_cur = interp1(i_cmap, v_cmap, x_lbl);
+			% Convert to grayscale.
+			c_cur = ones(1,3) * (c_cur * v_rgb);
+			% Choose between black and white accordingly.
+			set(h_c_text(i), 'Color', c_cur < 0.5);
+		end
+		
+	elseif strcmpi(c_c_lbl, 'current')
+		% Do nothing
+	elseif ischar(c_c_lbl)
+		% Try to apply a single color.
+		% Convert the color.
+		v_c_lbl = html2rgb(c_c_lbl);
+		% Check for success.
+		if any(isnan(v_c_lbl))
+			% Bad color string
+			error('set_plot:ContourFontColor', ['ContourFontColor ', ...
+				'%s is not recognized.'], c_c_lbl);
+		else
+			% Apply color.
+			set(h_c_text, 'Color', v_c_lbl);
+		end
+	elseif isnumeric(c_c_lbl) && numel(c_c_lbl) == 3
+		% Try to apply a single color.
+		set(h_c_text, 'Color', c_c_lbl(:)');
+	else
+		% Bad input
+		error('set_plot:ContourFontColor', ['ContourFontColor ', ...
+			'must be ''auto'', ''current'', or a recognized color.']);
+	end
 end
 
 
