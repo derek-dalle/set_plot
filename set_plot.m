@@ -145,7 +145,7 @@ function h = set_plot(varargin)
 %            Whether or not to use labels in contour plots.
 %         FigureStyle
 %            [ {current} | pretty | fancy | plain | journal | twocol
-%               | onecol | present | presentation | color ]
+%               | onecol | present | presentation | color | plot ]
 %            Overall figure style.  This is a cascading style.
 %         FontName
 %            [ {current} | font name (string) ]
@@ -428,6 +428,19 @@ function h = set_plot(varargin)
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'loose'
 %           Width            -> 'auto'
+%       'plot'
+%           AspectRatio      -> 0.75
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'current'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'pretty'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotLineStyle    -> 'current'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 3.1 [inches]
 %       'present' | 'presentation'
 %           AspectRatio      -> 0.75
 %           AxesStyle        -> 'pretty'
@@ -646,6 +659,7 @@ q_pretty  = strcmpi(s_cur, 'pretty' );
 q_plain   = strcmpi(s_cur, 'plain'  );
 q_current = strcmpi(s_cur, 'current');
 q_f_color = strcmpi(s_cur, 'color'  );
+q_f_plot  = strcmpi(s_cur, 'plot'   );
 
 % Set default options based on overall style.
 if q_pretty
@@ -726,6 +740,33 @@ elseif q_twocol
 	c_style = 'gray';
 	% Plot style
 	l_style = 'pretty';
+	% Contour style
+	ctr_style = 'pretty';
+	
+elseif q_f_plot
+	% Complete style for two-column papers
+	% Default margin style
+	m_style = 'tight';
+	% Manual margins
+	m_opts  = 0.025 * ones(1,4);
+	% Approach for interpreters
+	i_style = 'auto';
+	% Default aspect ratio
+	ar_fig  = 0.75;
+	% Default width
+	w_fig   = 3.1 * r_units;
+	% Font style
+	f_style = 'pretty';
+	% Axes style
+	a_style = 'pretty';
+	% Style for the colorbar
+	cbar_style = 'pretty';
+	% Style for the legend
+	lgnd_style = 'pretty';
+	% Color theme style
+	c_style = 'current';
+	% Plot style
+	l_style = 'current';
 	% Contour style
 	ctr_style = 'pretty';
 	
