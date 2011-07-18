@@ -2695,7 +2695,7 @@ end
 % Handles for all objects with an interpreter
 h_interpreter = [h_x; h_y; h_z; h_l_text];
 % Original interpreters for all of them
-i_interpreter = {i_x; i_y; i_z; i_l_text};
+i_interpreter = [{i_x}; {i_y}; {i_z}; i_l_text];
 
 % Get interpreter option.
 [i_style, options] = cut_option(options, 'Interpreter', i_style);
