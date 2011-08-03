@@ -1514,7 +1514,7 @@ if ischar(l_pseq) && ~strcmpi(l_pseq, 'current')
 	% Look at the values of the string.
 	if strcmpi(l_pseq, 'pretty')
 		% Solid, dotted, dashed
-		v_pseq = {'-', ':', '--'};
+		v_pseq = {'-', '--', '-.'};
 	elseif strcmpi(l_pseq, 'fancy')
 		% Solid, dotted, dashed, dot-dashed
 		v_pseq = {'-', ':', '--', '-.'};
@@ -1570,16 +1570,16 @@ if ischar(t_pseq) && ~strcmpi(t_pseq, 'current')
 	% Look at the values of the string.
 	if strcmpi(t_pseq, 'pretty')
 		% Solid, dotted, dashed
-		v_pseq = [0.5, 0.5, 0.5, 2.0, 2.0, 2.0];
+		v_pseq = [1.0, 1.0, 1.0, 2.0, 2.0, 2.0];
 	elseif strcmpi(t_pseq, 'fancy')
 		% Solid, dotted, dashed, dot-dashed
-		v_pseq = [0.5, 0.5, 0.5, 0.5, 2.0, 2.0, 2.0, 2.0];
+		v_pseq = [1.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 2.0];
 	elseif strcmpi(t_pseq, 'simple')
 		% Solid, dashed
-		v_pseq = [0.5, 0.5, 2.0, 2.0];
+		v_pseq = [1.0, 1.0, 2.0, 2.0];
 	elseif strcmpi(t_pseq, 'plain')
 		% Solid only, one width
-		v_pseq = 0.5;
+		v_pseq = 1.0;
 	else
 		% Bad input
 		error('set_plot:PlotLineWidth', ['PlotLineWidth must be ', ...
@@ -1663,7 +1663,7 @@ elseif ~strcmpi(c_pseq, 'current')
 			0.25, 0.25, 0.25];
 	elseif strcmpi(c_pseq, 'gray')
 		% Short grayscale scheme
-		v_pseq = {'Black', 'DarkGray', 'Silver', 'LightGray'};		
+		v_pseq = {'Black', [0.25, 0.25, 0.25], 'DarkGray', 'Silver'};		
 	elseif strcmpi(c_pseq, 'black') || strcmpi(c_pseq, 'k')
 		% Only one color.
 		v_pseq = {'Black'};
