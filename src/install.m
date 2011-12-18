@@ -42,7 +42,6 @@ function s = install(varargin)
 %
 %     If this parameter is set, the user will be able to call set_plot at
 %     all times from MATLAB without requiring any thought or action.
-%     Otherwise, the user will have
 %
 % Q3: Should there be a simple command to start set_plot?
 %
@@ -88,7 +87,6 @@ function s = install(varargin)
 %       BetaInstall : [ {false} | true ]
 %    DefaultInstall : [ {false} | true ]
 %       DefualtPath : [ {true} | false ]
-%           Display : [ {on} | off | verbose ]
 %       InstallPath : [ {''} | string ]
 %       InstallType : [ {[]} | 1 | 2 | ... | 9 ]
 %    StartupCommand : [ {true} | false ]
@@ -156,6 +154,9 @@ end
 
 %% --- Option processing ---
 
+% Initialize struct of status messages.
+S = [];
+
 % Test for an option to go for just the default installation.
 if isfield(options, 'DefaultInstall')
 	% Get the option.
@@ -211,9 +212,45 @@ else
 end
 
 % Test for an option to go for just the default installation.
-if isfield(options, 'InstallationType')
+if isfield(options, 'StartupLoad')
 	% Get the option.
-	o_cur = options.DefaultInstallation;
+	o_cur = options.StartupLoad;
+	% Process it.
+	if (ischar(o_cur) && strcmpi(o_cur, 'true')) || ...
+			(isa(o_cur, 'logical') && numel(o_cur)==1 && o_cur)
+		% Use defaults and avoid interactive mode.
+		q_start = true;
+	else
+		% Do not use defaults.
+		q_start = false;
+	end
+else
+	% Do not use the defaults.
+	q_start = false;
+end
+
+% Test for an option to go for just the default installation.
+if isfield(options, 'DefaultPath')
+	% Get the option.
+	o_cur = options.DefaultPath;
+	% Process it.
+	if (ischar(o_cur) && strcmpi(o_cur, 'true')) || ...
+			(isa(o_cur, 'logical') && numel(o_cur)==1 && o_cur)
+		% Use defaults and avoid interactive mode.
+		q_path = true;
+	else
+		% Do not use defaults.
+		q_path = false;
+	end
+else
+	% Do not use the defaults.
+	q_path = false;
+end
+
+% Test for an option to go for just the default installation.
+if isfield(options, 'InstallType')
+	% Get the option.
+	o_cur = options.InstallType;
 	% Test for a char.
 	if ischar(o_cur)
 		% Try to convert it to a number.
@@ -233,29 +270,19 @@ else
 	q_num = false;
 end
 
-% Test for an option to go for just the default installation.
-if isfield(options, 'DefaultInstallation')
+% Get an installation path.
+if isfield(options, 'InstallPath')
 	% Get the option.
-	o_cur = options.DefaultInstallation;
-	% Process it.
-	if (ischar(o_cur) && strcmpi(o_cur, 'true')) || ...
-			(isa(o_cur, 'logical') && numel(o_cur)==1 && o_cur)
-		% Use defaults and avoid interactive mode.
-		q_default = true;
-	else
-		% Do not use defaults.
-		q_default = false;
-	end
+	i_path = options.InstallPath;
+	% Use the path.
+	q_path_d = true;
 else
-	% Do not use the defaults.
-	q_default = false;
+	% Do not use the path.
+	q_path_d = false;
 end
 
 
 %% --- System testing ---
-
-% Initialize struct of status messages.
-S = [];
 
 % This is the version of the file that I make changes to locally.
 path_dev = '/afs/umich.edu/user/d/a/dalle/Public/set_plot/src/set_plot.m';
@@ -266,14 +293,16 @@ q_dev = exist(path_dev, 'file') == 2;
 % This construct is a little strange.
 % The point is to generate an error message that goes into the output but
 % does not bother the user with an stderr type of message.
-try
-	% Generate an error message.
-	error('install:NoAFSPath', ['The developmental file could not ', ...
-		'be found.\nThis could be because AFS is not installed ', ...
-		'or the path to the file has changed.']);
-catch msg
-	% Save the message
-	S.dev = msg;
+if ~q_dev
+	try
+		% Generate an error message.
+		error('install:NoAFSPath', ['The developmental file could not ', ...
+			'be found.\nThis could be because AFS is not installed ', ...
+			'or the path to the file has changed.']);
+	catch msg
+		% Save the message
+		S.dev = msg;
+	end
 end
 
 % Try to get the userpath.
@@ -308,7 +337,7 @@ try
 			path_startup = [upath, '/startup.m'];
 		end
 		% Try to open statup.m
-		fid_startup = fopen(path_startup, 'r+');
+		fid_startup = fopen(path_startup, 'a+');
 		% Test if it worked.
 		if fid_startup < 3
 			% File cannot be written to.
@@ -343,14 +372,270 @@ elseif ~q_dev
 end
 
 
+%% --- Interface ---
+
+% Test if there are any options available.
+if sum(q) == 1
+	% The only option is (9).
+	n_q = 9;
+	% No more questions.
+	q_cont = false;
+else
+	% More questions.
+	q_cont = true;
+end
+
+% First process if a default installation was requested.
+if q_cont && q_default
+	% Use option (5); install it for all MATLAB versions directly.
+	n_q = 5;
+	% No more questions.
+	q_cont = false;
+elseif q_cont && q_num
+	% Test if the value is available.
+	if q(q_val)
+		% Use the user-specified value.
+		n_q = q_val;
+		% No more questions.
+		q_cont = false;
+	end
+end
+
+
+%% --- Question 1 ---
+
+% Test if question (1) should be asked.
+if q_dev && q_cont && ~isfield(options, 'BetaInstall')
+	% Ask question (1).
+	fprintf(['Would you like to use the author''s (unstable) ', ...
+		'version of set_plot?\n']);
+	% Give three tries to answer.
+	for i = 1:3
+		% Response.
+		o_cur = input('   [ y / {n} / help ]   ', 's');
+		% Process
+		switch lower(o_cur)
+			case {'y', 'yes'}
+				% Positive result.
+				q_1 = true;
+				% Exit
+				break
+			case {'n', 'no', ''}
+				% Negative result.
+				q_1 = false;
+				% Exit
+				break
+			case {'h', 'help', 'more'}
+				% Print out more info.
+				fprintf(['\nThis option allows the user to forget ', ...
+					'about downloading new\nversions of set_plot and ', ...
+					'instead use the author''s copy at all\ntimes.  ', ...
+					'This means that the user will get both the ', ...
+					'newest\nfeatures and the newest bugs.  There ', ...
+					'will be no guarantee that the\nfunction will have ', ...
+					'the same results if it is called at some point\n', ...
+					'in the future.  In addition, this requires that ', ...
+					'AFS is installed.\n\n']);
+		end
+	end
+elseif q_cont && q_dev
+	% Use the value specified in the option.
+	q_1 = q_beta;
+end
+
+
+%% --- Question 2 ---
+
+% Test if question (2) should be asked.
+if q_u && q_cont && ~isfield(options, 'StartupLoad')
+	% Ask question (1).
+	fprintf(['Should MATLAB automatically load set_plot ', ...
+		'each time it starts?\n']);
+	% Give three tries to answer.
+	for i = 1:3
+		% Response.
+		o_cur = input('   [ y / {n} / help ]   ', 's');
+		% Process
+		switch lower(o_cur)
+			case {'y', 'yes'}
+				% Positive result.
+				q_2 = true;
+				% Exit
+				break
+			case {'n', 'no', ''}
+				% Negative result.
+				q_2 = false;
+				% Exit
+				break
+			case {'h', 'help', 'more'}
+				% Print out more info.
+				fprintf(['\nIf this parameter is set, the user will ', ...
+					'be able to call set_plot\nat all times from ', ...
+					'MATLAB without requiring any thought or action.\n\n']);
+		end
+	end
+elseif q_cont && q_u
+	% Use the value specified in the option.
+	q_2 = q_start;
+end
+
+
+%% --- Question 3 ---
+
+% Test if question (3) should be asked.
+if q_u && q_cont && ~q_1 && ~q_2 && ~isfield(options, 'StartupCommand')
+	% Ask question (3).
+	fprintf('Should there be a simple command to start set_plot?\n');
+	% Give three tries to answer.
+	for i = 1:3
+		% Response.
+		o_cur = input('   [ y / {n} / help ]   ', 's');
+		% Process
+		switch lower(o_cur)
+			case {'y', 'yes'}
+				% Positive result.
+				q_3 = true;
+				% Exit
+				break
+			case {'n', 'no', ''}
+				% Negative result.
+				q_3 = false;
+				% Exit
+				break
+			case {'h', 'help', 'more'}
+				% Print out more info.
+				fprintf(['\nSelecting this option will put a single ', ...
+					'command,\n''startup_set_plot'' into the MATLAB ', ...
+					'path, which the user can call\nat any time to ', ...
+					'make the set_plot commands available.\n\n']);
+		end
+	end
+elseif q_cont && (q_1 || q_d)
+	% Turn this option off.
+	q_3 = false;
+elseif q_cont && q_u
+	% Use the value specified in the option.
+	q_3 = q_com;
+end
+
+
+%% --- Question 4 ---
+
+% Test if question (4) should be asked.
+if q_u && q_cont && q_3 && ~isfield(options, 'DefaultPath')
+	% Ask question (4).
+	fprintf(['Should all versions of MATLAB on this computer ', ...
+		'use set_plot?\n']);
+	% Give three tries to answer.
+	for i = 1:3
+		% Response.
+		o_cur = input('   [ y / {n} / help ]   ', 's');
+		% Process
+		switch lower(o_cur)
+			case {'y', 'yes'}
+				% Positive result.
+				q_4 = true;
+				% Exit
+				break
+			case {'n', 'no', ''}
+				% Negative result.
+				q_4 = false;
+				% Exit
+				break
+			case {'h', 'help', 'more'}
+				% Print out more info.
+				fprintf(['\nThis option will install the set_plot ', ...
+					'files in a location such\mthat all other ', ...
+					'versions of MATLAB on the computer (including\n', ...
+					'future versions) should be able to use ', ...
+					'set_plot with no further\ninstallation.  This ', ...
+					'will usually work, but it may not have the\n', ...
+					'expected result if the user has previously ', ...
+					'changed the value of the MATLAB variable\n', ...
+					'called ''userpath''.\n\n']);
+		end
+	end
+elseif q_cont && q_u
+	% Use the value specified in the option.
+	q_4 = q_path;
+end
+
+
+%% --- Question 5 ---
+
+% Test if question (4) should be asked.
+if q_u && q_cont && ~q_3 && ~isfield(options, 'InstallPath')
+	% Ask question (4).
+	fprintf(['Where should MATLAB install the files?\n']);
+	% Response.
+	i_path = input('   ', 's');
+elseif q_cont && q_u && ~q_path_d
+	% Use the value specified in the option.
+	i_path = pwd;
+end
+
+% Test if the path works.
+try
+	% Use the MATLAB 'ls' command.
+	ls(i_path)
+catch msg
+	% Use the default value.
+	i_path = pwd;
+	% Save the error message.
+	S.InstallPath = msg;
+end
+
+
+%% --- Process the interface results ---
+
+% Test if it's necessary.
+if q_cont
+	% Test the questions.
+	if q_1 && q_2 && q_4
+		% Unstable version for all MATLABs
+		n_q = 1;
+	elseif q_1 && q_2 && ~q_4
+		% Unstable version for this MATLAB
+		n_q = 2;
+	elseif q_1 && ~q_2 && q_4
+		% Unstable for all MATLABs with no startup
+		n_q = 3;
+	elseif q_1 && ~q_2 && ~q_4
+		% Unstable for this MATLAB with no startup
+		n_q = 4;
+	elseif ~q_2 && ~q_3
+		% Just copy files.
+		n_q = 9;
+	elseif q_2 && q_4
+		% Stable version for all MATLABs
+		n_q = 5;
+	elseif q_2 && ~q_4
+		% Stable version for this MATLAB
+		n_q = 6;
+	elseif q_4
+		% Stable version for all MATLABs with no startup
+		n_q = 7;
+	elseif ~q_4
+		% Stable version for this MATLAB with no startup
+		n_q = 8;
+	end
+end
+
+
 
 
 %% --- Output ---
+
+% Close the startup file.
+try
+	% Close it if possible.
+	fclose(fid_startup);
+catch msg
+	% No file to close.
+	S.StartupFileIdentifier = msg;
+end
 
 % Output
 if nargout > 0
 	s = S;
 end
-
-% Close the startup file.
-fclose(fid_startup);
