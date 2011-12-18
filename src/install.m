@@ -331,11 +331,18 @@ end
 try
 	% Call upath
 	upath = userpath;
-	% Split the userpath by ':'.
+	% Split the userpath by ':' on Unix-lke and ';' on Windows.
+	if ispc
+		% Windows
+		c_char = ';';
+	else
+		% Non-Windows
+		c_char = ':';
+	end
 	% Find the ':' characters.
 	% NOTE: This is not too simple to work because MATLAB does not support
 	% directory names with colons even though the operating system might.
-	n = find(upath == ':');
+	n = find(upath == c_char);
 	% Number of characters to take
 	if isempty(n)
 		% Use all characters.
@@ -663,6 +670,8 @@ switch n_q
 			% Use the MATLAB command.
 			mkdir(ipath);
 		end
+		% Save it.
+		savepath(ipath);
 end
 
 % Check the installation identifier.
