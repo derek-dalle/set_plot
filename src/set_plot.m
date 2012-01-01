@@ -531,8 +531,8 @@ function h = set_plot(varargin)
 %  2010/11/06 @Derek Dalle    : First version
 %  2011/02/09 @Derek Dalle    : Added legend handling
 %
-% Copyright 2010, 2011 Derek Dalle and Sean Torrez
-% Public domain
+% Copyright (c) 2011 by Derek Dalle
+% BSD License
 
 %% --- Input processing ---
 
