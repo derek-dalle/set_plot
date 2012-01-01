@@ -307,10 +307,21 @@ end
 %% --- System testing ---
 
 % This is the version of the file that I make changes to locally.
-path_dev = '/afs/umich.edu/user/d/a/dalle/Public/set_plot/src/set_plot.m';
+% Windows
+path_dev_w = ...
+	'\\afs\umich.edu\user\d\a\dalle\Public\matlab\set_plot\src\set_plot.m';
+% Unix-like
+path_dev_u = ...
+	'/afs/umich.edu/user/d/a/dalle/Public/matlab/set_plot/src/set_plot.m';
 
 % This tests if the user has access to that file.
-q_dev = exist(path_dev, 'file') == 2;
+if ispc
+	% Windows
+	q_dev = exist(path_dev_w, 'file') == 2;
+else
+	% Unix-like
+	q_dev = exist(path_dev_u, 'file') == 2;
+end
 
 % This construct is a little strange.
 % The point is to generate an error message that goes into the output but
@@ -600,20 +611,19 @@ if q_u && q_cont && ~q_3 && ~isfield(options, 'InstallPath')
 	fprintf('Where should MATLAB install the files?\n');
 	% Response.
 	ipath = input('   (Leave blank to use default.)   ', 's');
+	% Test if the path works.
+	try
+		% Use the MATLAB 'ls' command.
+		ls(ipath);
+	catch msg
+		% Use the default value.
+		ipath = mpath;
+		% Save the error message.
+		S.InstallPath = msg;
+	end
 elseif q_cont && q_u && ~q_path_d
 	% Use the value specified in the option.
 	ipath = mpath;
-end
-
-% Test if the path works.
-try
-	% Use the MATLAB 'ls' command.
-	ls(ipath)
-catch msg
-	% Use the default value.
-	ipath = mpath;
-	% Save the error message.
-	S.InstallPath = msg;
 end
 
 
@@ -625,14 +635,14 @@ if q_cont
 	if q_1 && q_2 && q_4
 		% Unstable version for all MATLABs
 		n_q = 1;
+	elseif q_1 && ~q_2 && q_4
+		% Unstable version for all MATLABs with no startup
+		n_q = 2;
 	elseif q_1 && q_2 && ~q_4
 		% Unstable version for this MATLAB
-		n_q = 2;
-	elseif q_1 && ~q_2 && q_4
-		% Unstable for all MATLABs with no startup
 		n_q = 3;
 	elseif q_1 && ~q_2 && ~q_4
-		% Unstable for this MATLAB with no startup
+		% Unstable version for this MATLAB with no startup
 		n_q = 4;
 	elseif ~q_2 && ~q_3
 		% Just copy files.
@@ -642,10 +652,10 @@ if q_cont
 		n_q = 5;
 	elseif q_2 && ~q_4
 		% Stable version for this MATLAB
-		n_q = 6;
+		n_q = 7;
 	elseif q_4
 		% Stable version for all MATLABs with no startup
-		n_q = 7;
+		n_q = 6;
 	elseif ~q_4
 		% Stable version for this MATLAB with no startup
 		n_q = 8;
@@ -657,10 +667,7 @@ end
 
 % Determine the folder to put new files.
 switch n_q
-	case {2, 5, 6}
-		% Use the default userpath.
-		ipath = upath;
-	case {4, 7, 8}
+	case {5, 6, 7, 8}
 		% Make a new folder within the userpath.
 		ipath = [upath, 'set_plot/'];
 		% Check if the directory exists.
@@ -670,27 +677,45 @@ switch n_q
 			% Use the MATLAB command.
 			mkdir(ipath);
 		end
-		% Save it.
-		savepath(ipath);
 end
 
 % Check the installation identifier.
 switch n_q
-	case 1
-		% Append to the startup command.
-		S = append_startup(S, fid_startup);
-	case {2, 4}
-		% Write the new startup command.
-		S = append_startup_set_plot(S, ipath);
-	case 3
-		% Append a version-specific command to startup.m.
-		S = append_startup_version(S, fid_startup);
-	case {5, 6, 7, 8, 9}
-		% Check for installation being the same as the current directory.
-		if ~strcmp(mpath, ipath)
-			% Copy the files to the correct place.
-			S = copy_files(S, mpath, ipath);
-		end
+	case {1, 5}
+		% Version-independent
+		q_v = false;
+	case {2, 6}
+		% Close the startup file.
+		fclose(fid_startup);
+		% Open a new startup file.
+		fid_startup = fopen([upath, 'startup_set_plot.m'], 'a+');
+		% Version-independent
+		q_v = false;
+	case {4, 8}
+		% Close the startup file.
+		fclose(fid_startup);
+		% Open a new startup file.
+		fid_startup = fopen([upath, 'startup_set_plot.m'], 'a+');
+		% Version-dependent
+		q_v = true;
+	case {3, 7}
+		% Version-dependent
+		q_v = true;
+end
+
+% Add the references to the AFS path.
+if n_q < 5
+	% Append to the startup command.
+	S = append_startup_afs(S, fid_startup, q_v);
+elseif n_q < 9
+	% Append to the startup command.
+	S = append_startup_upath(S, fid_startup, q_v);
+end
+
+% Copy the files.
+if n_q > 4
+	% Copy the files to the correct place.
+	S = copy_files(S, mpath, ipath);
 end
 
 
@@ -711,154 +736,283 @@ if nargout > 0
 end
 
 
-% --- FUNCTION 1: Append to startup.m ---
-function S = append_startup(S, fid)
+% --- FUNCTION 1: Check startup file for AFS addpath commands ---
+function [q_w, q_u] = check_startup_afs(fid)
 %
-% S = append_startup(S, fid_startup)
+% [q_w, q_u] = check_startup_afs(fid)
 %
 % INPUTS:
-%         S   : current list of errors
 %         fid : file handle for startup.m
 %
 % OUTPUTS:
-%         S   : updated list of errors
+%         q_w : true if set_plot is added for Windows
+%         q_u : true if set_plot is added for Unix
 %
 
 % Go back to beginning of the file.
 fseek(fid, 0, -1);
 
 % Test if correct value is already added.
-q_start = false;
+q_w = false;
+q_u = false;
 
-% Test the OS.
-if ispc
-	% Windows
-	l_target = 'addpath \\afs\umich.edu\user\d\a\dalle\Public\src\';
-else
-	% Non-Windows
-	l_target = 'addpath /afs/umich.edu/user/d/a/dalle/Public/src/';
-end
+% Regular expressions (no parentheses)
+% Windows
+reg_w = ['^[\s]*addpath[\s]+\\\\afs[\w/\\]*', ...
+	'umich\.edu[\w/\\]*dalle[\w/\\]*set_plot[\\/]src'];
+% Unix
+reg_u = ['^[\s]*addpath[\s]+/afs[\w/\\]*', ...
+	'umich\.edu[\w/\\]*dalle[\w/\\]*set_plot[\\/]src'];
+
+% Regular expressions (parentheses)
+% Windows
+reg_wp = ['^[\s]*addpath[\s]*\([\s]*''\\\\afs[\w/\\]*', ...
+	'umich\.edu[\w/\\]*dalle[\w/\\]*set_plot[\\/]src[\\/]+''\)'];
+% Unix
+reg_up = ['^[\s]*addpath[\s]*\([\s]*''/afs[\w/\\]*', ...
+	'umich\.edu[\w/\\]*dalle[\w/\\]*set_plot[\\/]src[\\/]+''\)'];
 
 % Loop through the lines.
 while ~feof(fid)
 	% Get the line
 	l_cur = fgetl(fid);
-	% Check if it is the correct value.
-	if strcmp(l_cur, l_target)
+	% Check for error.
+	if l_cur == -1
+		break
+	end
+	% Check if it matches Windows.
+	if ~q_w && (~isempty(regexp(l_cur, reg_w, 'once')) || ...
+			~isempty(regexp(l_cur, reg_wp, 'once')))
 		% Match found.
-		q_start = true;
-		% Quit looking.
-		break;
+		q_w = true;
+	end
+	% Check if it matches Unix.
+	if ~q_u && (~isempty(regexp(l_cur, reg_u, 'once')) || ...
+			~isempty(regexp(l_cur, reg_up, 'once')))
+		% Match found.
+		q_u = true;
+	end
+	% Check if both are found.
+	if q_w && q_u
+		break
 	end
 end
 
-% Make sure the end of the file has been reached.
-fseek(fid, 0, 1);
 
-% Test if a new line should be added.
-if ~q_start
-	% Print a comment.
-	fprintf(fid, 'set_plot.comment: Add path to set_plot source.\n');
-	% Print the line.
-	fprintf(fid, '%s\n', l_target);
-end
-
-
-% --- FUNCTION 2: Append to startup.m ---
-function S = append_startup_version(S, fid)
+% --- FUNCTION 2: Append to startup file addpath AFS commands ---
+function S = append_startup_afs(S, fid, q_v)
 %
-% S = append_startup(S, fid_startup)
+% S = append_startup_afs(S, fid, q_v)
 %
 % INPUTS:
 %         S   : current list of errors
 %         fid : file handle for startup.m
+%         q_v : whether or not it should be version-specific
 %
 % OUTPUTS:
 %         S   : updated list of errors
 %
 
-% Test the OS.
-if ispc
-	% Windows
-	l_target = 'addpath \\afs\umich.edu\user\d\a\dalle\Public\src\';
-else
-	% Non-Windows
-	l_target = 'addpath /afs/umich.edu/user/d/a/dalle/Public/src/';
+% Check if the command should be version-specific.
+if ~q_v
+	% Check if startup already contains the lines.
+	[q_w, q_u] = check_startup_afs(fid);
 end
 
 % Make sure the end of the file has been reached.
 fseek(fid, 0, 1);
 
-% Get the version number.
-s_version = version('-release');
+% Check if the command should be version-specific.
+if q_v
+	% - Version-specific -
+	% Get the version number.
+	s_version = version('-release');
+	
+	% Print a comment.
+	fprintf(fid, '\n%% set_plot.comment: Check version.\n');
+	% Command to check the version
+	fprintf(fid, 'if strcmp(version(''-release''), ''%s'')\n', s_version);
+	% OS Check
+	fprintf(fid, ...
+		'\t%% set_plot.comment: Check operating system.\n');
+	% Print the OS check command
+	fprintf(fid, '\tif ispc\n\t\t%% set_plot.comment: Windows\n');
+	% Line to add to the path for Windows.
+	l_target = ['addpath ', ...
+		'\\afs\umich.edu\user\d\a\dalle\Public\matlab\set_plot\src\'];
+	% Print the addpath line.
+	fprintf(fid, '\t\t%s\n', l_target);
+	% Print the OS check command
+	fprintf(fid, '\telse\n\t\t%% set_plot.comment: Unix\n');
+	% Line to add to the path for UNIX.
+	l_target = ['addpath ', ...
+		'/afs/umich.edu/user/d/a/dalle/Public/matlab/set_plot/src/'];
+	% Print the addpath line.
+	fprintf(fid, '\t\t%s\n', l_target);
+	% End the sequence.
+	fprintf(fid, '\tend\nend\n');
+	
+else
+	% - All versions -
+	% Test if a new line should be added for Windows.
+	if ~q_u
+		% Line to add to the path.
+		l_target = ['addpath ', ...
+			'\\afs\umich.edu\user\d\a\dalle\Public\matlab\set_plot\src\'];
+		% Print a comment.
+		fprintf(fid, ...
+			'\n%% set_plot.comment: Add path to set_plot source (Windows).\n');
+		% Print an OS check.
+		fprintf(fid, 'if ispc\n');
+		% Print the line.
+		fprintf(fid, '\t%s\n', l_target);
+		% Print a closing.
+		fprintf(fid, 'end\n');
+	end
+	
+	% Test if a new line should be added for Unix-like systems.
+	if ~q_w
+		% Line to add to the path.
+		l_target = ['addpath ', ...
+			'/afs/umich.edu/user/d/a/dalle/Public/matlab/set_plot/src/'];
+		% Print a comment.
+		fprintf(fid, ...
+			'\n%% set_plot.comment: Add path to set_plot source (Unix).\n');
+		% Print an OS check.
+		fprintf(fid, 'if isunix\n');
+		% Print the line.
+		fprintf(fid, '\t%s\n', l_target);
+		% Print a closing.
+		fprintf(fid, 'end\n');
+	end
+end
 
-% Print a comment.
-fprintf(fid, 'set_plot.comment: Add path to set_plot source.\n');
-% Command to check the version
-fprintf(fid, 'if strcmp(version(''-release''), %s)\n', s_version);
-% Print the addpath line.
-fprintf(fid, '\t%s\n', l_target);
-% End the sequence.
-fprintf(fid, 'end\n');
 
-
-% --- FUNCTION 3: Append to startup.m ---
-function S = append_startup_set_plot(S, ipath)
+% --- FUNCTION 3: Check startup file for addpath commands ---
+function q = check_startup_upath(fid)
 %
-% S = write_startup(S, ipath)
+% q = check_startup_upath(fid)
 %
 % INPUTS:
-%         S     : current list of errors
-%         ipath : target installation folder
+%         fid : file handle for startup.m
 %
 % OUTPUTS:
-%         S     : updated list of errors
+%         q : true if set_plot is added
 %
-
-% Open the file.
-fid = fopen([ipath, 'startup_set_plot.m'], 'a+');
 
 % Go back to beginning of the file.
 fseek(fid, 0, -1);
 
 % Test if correct value is already added.
-q_start = false;
+q = false;
 
-% Test the OS.
-if ispc
-	% Windows
-	l_target = 'addpath \\afs\umich.edu\user\d\a\dalle\Public\src\';
-else
-	% Non-Windows
-	l_target = 'addpath /afs/umich.edu/user/d/a/dalle/Public/src/';
-end
+% Regular expressions (no parentheses)
+reg_w = '^[\s]*addpath[\s\(\w\.\\/]*set_plot';
 
 % Loop through the lines.
 while ~feof(fid)
 	% Get the line
 	l_cur = fgetl(fid);
-	% Check if it is the correct value.
-	if strcmp(l_cur, l_target)
-		% Match found.
-		q_start = true;
-		% Quit looking.
-		break;
+	% Check for error.
+	if l_cur == -1
+		break
 	end
+	% Check if it matches Windows.
+	if ~q && ~isempty(regexp(l_cur, reg_w, 'once'))
+		% Match found.
+		q = true;
+		% Quit.
+		break
+	end
+end
+
+
+% --- FUNCTION 4: Append to startup file addpath AFS commands ---
+function S = append_startup_upath(S, fid, q_v)
+%
+% S = append_startup_upath(S, fid, q_v)
+%
+% INPUTS:
+%         S   : current list of errors
+%         fid : file handle for startup.m
+%         q_v : whether or not it should be version-specific
+%
+% OUTPUTS:
+%         S   : updated list of errors
+%
+
+% Check if the command should be version-specific.
+if ~q_v
+	% Check if startup already contains the lines.
+	q = check_startup_upath(fid);
 end
 
 % Make sure the end of the file has been reached.
 fseek(fid, 0, 1);
 
-% Test if a new line should be added.
-if ~q_start
+% Check if the command should be version-specific.
+if q_v
+	% - Version-specific -
+	% Get the version number.
+	s_version = version('-release');
+	
 	% Print a comment.
-	fprintf(fid, 'set_plot.comment: Add path to set_plot source.\n');
-	% Print the line.
-	fprintf(fid, '%s\n', l_target);
+	fprintf(fid, '\n%% set_plot.comment: Check version.\n');
+	% Command to check the version
+	fprintf(fid, 'if strcmp(version(''-release''), ''%s'')\n', s_version);
+	% Comment to introduce what's going on.
+	fprintf(fid, '\t%% set_plot.comment: Get path to set_plot.\n');
+	% Get the name of the startup file.
+	fprintf(fid, '\tmfile_sp = mfilename;\n');
+	% Get the folder.
+	fprintf(fid, '\tmfile_sp = which(mfile_sp);\n');
+	% Get the folder delimiters.
+	fprintf(fid, '\ti_sp     = regexp(mfile_sp, ''[\\\\/]'');\n');
+	% Trim the current file.
+	fprintf(fid, '\tmfile_sp = mfile_sp(1:i_sp(end));\n');
+	% Append the path to set_plot.
+	fprintf(fid, '\tmfile_sp = [mfile_sp, ''set_plot''];\n');
+	
+	% Add another comment.
+	fprintf(fid, '\n\t%% set_plot.comment: Add the path.\n');
+	% The addpath command
+	fprintf(fid, '\taddpath(mfile_sp);\n');
+	
+	% Add another comment.
+	fprintf(fid, '\n\t%% set_plot.comment: Cleanup\n');
+	% Clear the variables that were used.
+	fprintf(fid, '\tclear mfile_sp i_sp\n');
+	% End the sequence.
+	fprintf(fid, 'end\n');
+	
+elseif ~q
+	% - All versions -
+	% Comment to introduce what's going on.
+	fprintf(fid, '\n%% set_plot.comment: Get path to set_plot.\n');
+	% Get the name of the startup file.
+	fprintf(fid, 'mfile_sp = mfilename;\n');
+	% Get the folder.
+	fprintf(fid, 'mfile_sp = which(mfile_sp);\n');
+	% Get the folder delimiters.
+	fprintf(fid, 'i_sp     = regexp(mfile_sp, ''[\\\\/]'');\n');
+	% Trim the current file.
+	fprintf(fid, 'mfile_sp = mfile_sp(1:i_sp(end));\n');
+	% Append the path to set_plot.
+	fprintf(fid, 'mfile_sp = [mfile_sp, ''set_plot''];\n');
+	
+	% Add another comment.
+	fprintf(fid, '\n%% set_plot.comment: Add the path.\n');
+	% The addpath command
+	fprintf(fid, 'addpath(mfile_sp);\n');
+	
+	% Add another comment.
+	fprintf(fid, '\n%% set_plot.comment: Cleanup\n');
+	% Clear the variables that were used.
+	fprintf(fid, 'clear mfile_sp i_sp\n');
 end
 
 
-% --- FUNCTION 4: Copy all the files ---
+% --- FUNCTION 5: Copy all the files ---
 function S = copy_files(S, mpath, ipath)
 %
 % S = copy_files(S, mpath, ipath)
@@ -872,26 +1026,29 @@ function S = copy_files(S, mpath, ipath)
 %         S     : updated error list
 %
 
-% Get the files in the current directory.
-mdir = dir(mpath);
-
-% Extract cell array of names.
-fdir = { mdir.name };
-
-% Loop through the files.
-for i = 1:numel(fdir)
-	% Get the current file.
-	f_cur = fdir{i};
-	% Check if it's a file that needs to be copied.
-	if numel(f_cur)>2 && strcmp(f_cur(end-1:end),'.m') && ...
-			~strcmp(f_cur, [mfilename, '.m'])
-		% Match.
-		try
-			% Copy the file.
-			copyfile([mpath, f_cur], [ipath, f_cur], 'f');
-		catch msg
-			% Something went wrong.
-			S.CopyFile = msg;
+% Check if the source and destination are the same.
+if ~strcmp(mpath, ipath)
+	% Get the files in the current directory.
+	mdir = dir(mpath);
+	
+	% Extract cell array of names.
+	fdir = { mdir.name };
+	
+	% Loop through the files.
+	for i = 1:numel(fdir)
+		% Get the current file.
+		f_cur = fdir{i};
+		% Check if it's a file that needs to be copied.
+		if numel(f_cur)>2 && strcmp(f_cur(end-1:end),'.m') && ...
+				~strcmp(f_cur, [mfilename, '.m'])
+			% Match.
+			try
+				% Copy the file.
+				copyfile([mpath, f_cur], [ipath, f_cur], 'f');
+			catch msg
+				% Something went wrong.
+				S.CopyFile = msg;
+			end
 		end
 	end
 end
