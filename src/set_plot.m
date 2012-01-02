@@ -295,27 +295,21 @@ function h = set_plot(varargin)
 %   ColorStyle
 %       'bright'
 %           ColorMap      -> 'cyan'
-%           ColorSequence -> 'bright'
 %           BarColorStyle -> 'sequence'
 %       'current'
 %           ColorMap      -> 'current'
-%           ColorSequence -> 'current'
 %           BarColorStyle -> 'current'
 %       'dark'
 %           ColorMap      -> 'blue'
-%           ColorSequence -> 'dark'
 %           BarColorStyle -> 'sequence'
 %       'gray' | 'grayscale'
 %           ColorMap      -> 'gray'
-%           ColorSequence -> 'gray'
 %           BarColorStyle -> 'contour'
 %       'plain'
 %           ColorMap      -> 'jet'
-%           ColorSequence -> 'plain'
 %           BarColorStyle -> 'contour'
 %       'pretty'
 %           ColorMap      -> 'blue'
-%           ColorSequence -> 'gray'
 %           BarColorStyle -> 'contour'
 %
 %   ContourStyle
@@ -511,15 +505,19 @@ function h = set_plot(varargin)
 %
 %   PlotStyle
 %       'current'
+%           ColorSequence -> 'current'
 %           PlotLineStyle -> 'current'
 %           PlotLineWidth -> 'current'
 %       'fancy'
+%           ColorSequence -> 'dark'
 %           PlotLineStyle -> 'fancy'
 %           PlotLineWidth -> 'fancy'
 %       'plain'
+%           ColorSequence -> 'plain'
 %           PlotLineStyle -> 'plain'
 %           PlotLineWidth -> 'plain'
 %       'pretty'
+%           ColorSequence -> 'blue'
 %           PlotLineStyle -> 'pretty'
 %           PlotLineWidth -> 'pretty'
 %
@@ -1222,48 +1220,36 @@ end
 if strcmpi(c_style, 'pretty')
 	% Color map
 	s_cmap = 'blue';
-	% Color sequence for plots
-	c_pseq = 'gray';
 	% Color style for bar
 	c_bar  = 'contour';
 	
 elseif strcmpi(c_style, 'plain')
 	% Color map
 	s_cmap = 'jet';
-	% Color sequence for plots
-	c_pseq = 'plain';
 	% Color style for bar
 	c_bar  = 'contour';
 	
 elseif strcmpi(c_style, 'gray') || strcmpi(c_style, 'grayscale')
 	% Color map
 	s_cmap = 'gray';
-	% Color sequence for plots
-	c_pseq = 'gray';
 	% Color style for bar
 	c_bar  = 'contour';
 	
 elseif strcmpi(c_style, 'bright')
 	% Color map
 	s_cmap = 'cyan';
-	% Color sequence for plots
-	c_pseq = 'bright';
 	% Color style for bar
 	c_bar  = 'sequence';
 	
 elseif strcmpi(c_style, 'dark')
 	% Color map
 	s_cmap = 'blue';
-	% Color sequence for plots
-	c_pseq = 'dark';
 	% Color style for bar
 	c_bar  = 'sequence';
 	
 elseif strcmpi(c_style, 'current')
 	% Color map
 	s_cmap = 'current';
-	% Color sequence for plots
-	c_pseq = 'current';
 	% Color style for bar
 	c_bar  = 'current';
 	
@@ -1287,24 +1273,32 @@ if strcmpi(l_style, 'pretty')
 	l_pseq = 'pretty';
 	% Line thickness sequence
 	t_pseq = 'pretty';
+	% Color sequence for plots
+	c_pseq = 'blue';
 	
 elseif strcmpi(l_style, 'fancy')
 	% Line style sequence
 	l_pseq = 'fancy';
 	% Line thickness sequence
 	t_pseq = 'fancy';
+	% Color sequence for plots
+	c_pseq = 'dark';
 	
 elseif strcmpi(l_style, 'plain')
 	% Line style sequence
 	l_pseq = 'plain';
 	% Line thickness sequence
 	t_pseq = 'plain';
+	% Color sequence for plots
+	c_pseq = 'plain';
 	
 elseif strcmpi(l_style, 'current')
 	% Line style sequence
 	l_pseq = 'current';
 	% Line thickness sequence
 	t_pseq = 'current';
+	% Color sequence for plots
+	c_pseq = 'current';
 	
 else
 	% Bad input
