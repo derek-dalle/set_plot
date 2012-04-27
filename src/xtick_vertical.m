@@ -70,7 +70,13 @@ o_text = struct( ...
 y_lim = get(h_a, 'YLim');
 
 % Position of upper limit of the labels
-y_p = y_lim(1) - 0.025*(y_lim(2)-y_lim(1));
+if strcmp(get(h_a, 'YScale'), 'log')
+	% Logarithmic y-axis
+	y_p = y_lim(1)*10^(-0.025*diff(log10(y_lim)));
+else
+	% Linear y-axis
+	y_p = y_lim(1) - 0.025*diff(y_lim);
+end
 
 % Check for matching number of ticks
 if n_t == n_s
