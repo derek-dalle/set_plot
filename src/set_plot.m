@@ -181,12 +181,24 @@ function h = set_plot(varargin)
 %         Margin
 %            [ 0.025 | scalar vector with up to four entries ]
 %            Extra margin to add for 'tight' MarginStyle.
+%         MarginBottom
+%            [ 0.025 | positive scalar ]
+%            Extra bottom margin to add for 'tight' MarginStyle.
+%         MarginLeft
+%            [ 0.025 | positive scalar ]
+%            Extra left margin to add for 'tight' MarginStyle.
+%         MarginRight
+%            [ 0.025 | positive scalar ]
+%            Extra right margin to add for 'tight' MarginStyle.
 %         MarginStyle
 %            [ {tight} | loose | image ]
 %            Style for the margins.  The 'tight' option cuts off all
 %            margins, and the 'loose' option restores the defaults.  Both
 %            options change the paper size so that the figure has the
 %            proper dimensions when the 'SaveAs' command is used.
+%         MarginTop
+%            [ 0.025 | positive scalar ]
+%            Extra top margin to add for 'tight' MarginStyle.
 %         MinorTick
 %            [ {current} | all | none | on | off | smart 
 %               | x | y | z | xy | xz | xy | xyz ]
@@ -2248,6 +2260,12 @@ switch numel(m_cur)
 	otherwise
 		m_opts = m_cur(1:4);
 end
+
+% Check for specific margins.
+[m_opts(1), options] = cut_option(options, 'MarginLeft'  , m_opts(1));
+[m_opts(2), options] = cut_option(options, 'MarginBottom', m_opts(2));
+[m_opts(3), options] = cut_option(options, 'MarginRight' , m_opts(3));
+[m_opts(4), options] = cut_option(options, 'MarginTop'   , m_opts(4));
 
 
 % Height of figure
