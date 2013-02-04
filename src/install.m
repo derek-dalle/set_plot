@@ -483,6 +483,9 @@ if q_dev && q_cont && ~isfield(options, 'BetaInstall')
 elseif q_cont && q_dev
 	% Use the value specified in the option.
 	q_1 = q_beta;
+else
+	% Assign a value to q_1.
+	q_1 = false;
 end
 
 
