@@ -5,3 +5,7 @@
 *.asv
 *.swp
 *.zip
+
+# Documentation ignores
+doc/_*/
+
