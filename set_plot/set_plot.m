@@ -1,3 +1,14 @@
+%------------------------------------------------------------------------------
+% Copyright (c) 2011-2013
+%   Derek J. Dalle <derek.dalle@gmail.com> and
+%   Sean M. Torrez <smtorrez@umich.edu>
+%
+% Distributed under the terms of the Modified BSD License.
+%
+% The full license is available in the file LICENSE, distributed with this
+% software package in the top-level directory.
+%------------------------------------------------------------------------------
+
 function h = set_plot(varargin)
 %
 % set_plot
