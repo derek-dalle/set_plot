@@ -9,5 +9,5 @@ rem will work on your computer.
 rem
 
 rem Load MATLAB with no desktop and tell it to run the installer and exit.
-matlab -nodesktop -nojvm -nosplash -r "install; exit;"
+matlab -nodesktop -nojvm -nosplash -r "ierr=sp_Install, exit;"
 

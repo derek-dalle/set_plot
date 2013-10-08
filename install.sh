@@ -11,5 +11,5 @@
 #
 
 # Load MATLAB with no desktop and tell it to run the installer and exit.
-sudo matlab -nodesktop -nojvm -nosplash -r "try, sp_Install;end; exit;"
+matlab -nodesktop -nojvm -nosplash -r "ierr=sp_Install, exit;"
 
