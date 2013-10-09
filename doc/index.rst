@@ -66,6 +66,7 @@ Contents
    :maxdepth: 2
    
    intro
+   html2rgb
 
 
 
