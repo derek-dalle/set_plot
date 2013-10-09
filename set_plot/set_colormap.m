@@ -87,6 +87,17 @@ function set_colormap(varargin)
 %           colors or a row of values and a row of colors.
 %
 
+%------------------------------------------------------------------------------
+% Copyright (c) 2011-2013
+%   Derek J. Dalle <derek.dalle@gmail.com> and
+%   Sean M. Torrez <smtorrez@umich.edu>
+%
+% Distributed under the terms of the Modified BSD License.
+%
+% The full license is available in the file LICENSE, distributed with this
+% software package in the top-level directory.
+%------------------------------------------------------------------------------
+
 % Versions:
 %  2010/11/04 @Derek Dalle    : Branched from set_plot
 %  2010/11/05 @Derek Dalle    : First version

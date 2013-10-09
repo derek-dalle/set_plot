@@ -24,14 +24,14 @@ do
 	# Say what file is being prepended.
 	echo $file
 	# Write the file from 'function' on to the temp file.
-	cat $file | sed -n -e '/^function/,/^\s*$/p' > $head
+	cat $file | sed '/^\s*$/q' > $head
 	cat $file | sed -n '/^% Version/,$p' > $temp
 	# Write the file anew, starting with the header.
 	cat $head > $file
 	# Write he license blurb.
 	cat $blurb >> $file
 	# Write the rest of the file from the tmp.
-	cat $temp > $file
+	cat $temp >> $file
 	# Remove the temp files.
 	rm $head
 	rm $temp
