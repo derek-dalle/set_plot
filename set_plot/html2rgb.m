@@ -12,6 +12,47 @@ function v_rgb = html2rgb(s_html)
 % is not recognized, the returned color is nan(1,3).
 %
 
+function i=cell_position_string(S,str)
+%
+% i=position(S,x,tol)
+%
+% INPUTS:
+%         S   : cell array of strings
+%         str : targeted string
+%
+% OUTPUTS:
+%         i   : indices of locations of str in S
+%
+% This function finds the location of entries in S that match the string
+% str.  The function assumes S is a cell array of strings.
+%
+
+function i=cell_position_string(S,str)
+%
+% i=position(S,x,tol)
+%
+% INPUTS:
+%         S   : cell array of strings
+%         str : targeted string
+%
+% OUTPUTS:
+%         i   : indices of locations of str in S
+%
+% This function finds the location of entries in S that match the string
+% str.  The function assumes S is a cell array of strings.
+%
+
+%------------------------------------------------------------------------------
+% Copyright (c) 2011-2013
+%   Derek J. Dalle <derek.dalle@gmail.com> and
+%   Sean M. Torrez <smtorrez@umich.edu>
+%
+% Distributed under the terms of the Modified BSD License.
+%
+% The full license is available in the file LICENSE, distributed with this
+% software package in the top-level directory.
+%------------------------------------------------------------------------------
+
 % Versions:
 %  2010/11/04 @Derek Dalle    : First version
 %

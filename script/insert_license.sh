@@ -31,7 +31,7 @@ do
 	# Write he license blurb.
 	cat $blurb >> $file
 	# Write the rest of the file from the tmp.
-	cat $temp > $file
+	cat $temp >> $file
 	# Remove the temp files.
 	rm $head
 	rm $temp

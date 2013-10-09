@@ -534,6 +534,115 @@ function h = set_plot(varargin)
 %           PlotLineWidth -> 'pretty'
 %
 
+function [val, options] = cut_option(options, name, default)
+%
+% [val, options] = cut_option(options, name, default)
+%
+% INPUTS:
+%         options : struct of options
+%         name    : name of option to retrieve
+%         default : (optional) default value, [] if not specified
+%
+% OUTPUTS:
+%         val     : option value
+%         options : input struct with (name) field removed
+%
+% This function is intended to extract an option from a struct called
+% options.  In most circumstances calling this function will be equivalent
+% to
+%
+%         val = options.name
+%
+% unless the struct options does not have a field that matches name.  In
+% that case the function will return
+%
+%         val = default
+%
+% if the 'default' argument is specified and
+%
+%         val = []
+%
+% otherwise.  If there are two outputs, the second output will be the input
+% struct 'options', only with the relevant field removed if it was present
+% in the input.  This enables the user to determine which options have been
+% used and which have not.
+%
+
+function i=cell_position_string(S,str)
+%
+% i=position(S,x,tol)
+%
+% INPUTS:
+%         S   : cell array of strings
+%         str : targeted string
+%
+% OUTPUTS:
+%         i   : indices of locations of str in S
+%
+% This function finds the location of entries in S that match the string
+% str.  The function assumes S is a cell array of strings.
+%
+
+function [val, options] = cut_option(options, name, default)
+%
+% [val, options] = cut_option(options, name, default)
+%
+% INPUTS:
+%         options : struct of options
+%         name    : name of option to retrieve
+%         default : (optional) default value, [] if not specified
+%
+% OUTPUTS:
+%         val     : option value
+%         options : input struct with (name) field removed
+%
+% This function is intended to extract an option from a struct called
+% options.  In most circumstances calling this function will be equivalent
+% to
+%
+%         val = options.name
+%
+% unless the struct options does not have a field that matches name.  In
+% that case the function will return
+%
+%         val = default
+%
+% if the 'default' argument is specified and
+%
+%         val = []
+%
+% otherwise.  If there are two outputs, the second output will be the input
+% struct 'options', only with the relevant field removed if it was present
+% in the input.  This enables the user to determine which options have been
+% used and which have not.
+%
+
+function i=cell_position_string(S,str)
+%
+% i=position(S,x,tol)
+%
+% INPUTS:
+%         S   : cell array of strings
+%         str : targeted string
+%
+% OUTPUTS:
+%         i   : indices of locations of str in S
+%
+% This function finds the location of entries in S that match the string
+% str.  The function assumes S is a cell array of strings.
+%
+
+%------------------------------------------------------------------------------
+% Copyright (c) 2011-2013
+%   Derek J. Dalle <derek.dalle@gmail.com> and
+%   Sean M. Torrez <smtorrez@umich.edu>
+%
+% Distributed under the terms of the Modified BSD License.
+%
+% The full license is available in the file LICENSE, distributed with this
+% software package in the top-level directory.
+%------------------------------------------------------------------------------
+
 % Versions:
 %  2010/02/15 @Sean Torrez    : First version
 %  2010/03/09 @Sean Torrez    : Modified to use fig handles only
