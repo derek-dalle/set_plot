@@ -1,8 +1,8 @@
 
 
-Named Colors: :code:`html2rgb`
+Testing for the testing system
 ==============================
-    
+
 .. testsetup::
     
     # Prep modules
@@ -16,16 +16,12 @@ Named Colors: :code:`html2rgb`
     # Load the module.
     from matlabtest import *
     
-Here is some text.
-
-.. doctest::
-
-    >>> matlab("test_Navy")
-    '0.5020'
+This test simply determines if the testing module, :code:`matlabtest`\ , is
+function properly.
 
 .. doctest::
 
     >>> matlab("fprintf('3')")
     '3'
 
-Did it work?
+

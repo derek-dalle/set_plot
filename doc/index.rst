@@ -65,9 +65,8 @@ Contents
 .. toctree::
    :maxdepth: 2
    
-   intro
    html2rgb
-   testing
+   doctest
 
 
 

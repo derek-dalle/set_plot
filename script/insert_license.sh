@@ -32,7 +32,7 @@ do
 	# Write the file anew, starting with the license.
 	cat $blurb > $file
 	# Write the rest of the file from the tmp.
-	cat $temp >> $file
+	cat $temp > $file
 	# Remove the temp file.
 	rm $temp
 done

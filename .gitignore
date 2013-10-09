@@ -5,7 +5,11 @@
 *.asv
 *.swp
 *.zip
+*.py[c,o]
 
 # Documentation ignores
 doc/_*/
 
+# Images
+*.png
+*.pdf
