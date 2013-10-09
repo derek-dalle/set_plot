@@ -3,13 +3,35 @@ function v_rgb = html2rgb(s_html)
 % v_rgb = html2rgb(s_html)
 %
 % INPUTS:
-%         s_html : name of an HTML color (string)
+%    s_html : name of an HTML color [char]
 %
 % OUTPUTS:
-%         v_rgb  : 1x3 vector corresponding to red, green, and blue
+%    v_rgb  : vector of red, green, and blue values [1x3 double]
 %
 % This function converts an HTML color name to a RGB color.  If the input
 % is not recognized, the returned color is nan(1,3).
+%
+% EXAMPLES:
+% The usage is usually straightforward.
+% 
+%     >> html2rgb('Navy')
+%     ans =
+%              0         0    0.5020
+%
+% The few built-in MATLAB colors are appended to the list of standard HTML
+% colors.  For example, this gives a cyan color.
+%
+%     >> html2rgb('c')
+%     ans =
+%          0     1     1
+%
+% If a 1x3 color is given as input to `html2rgb`, it simply returns the
+% color.  This prevents inconvenient errors from trying to convert a color
+% that has already been converted.
+%
+%     >> html2rgb([0,0,1])
+%     ans =
+%          0     0     1
 %
 
 %------------------------------------------------------------------------------
@@ -30,12 +52,19 @@ function v_rgb = html2rgb(s_html)
 
 % Check for sufficient inputs.
 if nargin < 1
-	error('html2rgb:NotEnoughInputs', 'Not enough inputs');
+	error('set_plot:NotEnoughInputs', 'Not enough inputs');
+end
+
+% Check for an input color.
+if isnumeric(s_html) && numel(s_html)==3
+	% Just return the color.
+	v_rgb = s_html;
+	return
 end
 
 % Check that the input is a string.
 if ~ischar(s_html)
-	error('html2rgb:NotString', 'Input must be a string.');
+	error('set_plot:NonChar', 'Input must be a char.');
 end
 
 % Color table
@@ -194,7 +223,7 @@ s_colors = {
 	};
 
 % Find the location of the string in the first column.
-i_html = cell_position_string(s_colors(:,1), s_html);
+i_html = find(strcmpi(s_colors(:,1), s_html));
 
 % Check if a match was found.
 if numel(i_html) == 1
@@ -204,39 +233,3 @@ else
 	% No color was found.
 	v_rgb = nan(1,3);
 end
-
-
-% --- SUBFUNCTION: Find the location of the matching string ---
-function i=cell_position_string(S,str)
-%
-% i=position(S,x,tol)
-%
-% INPUTS:
-%         S   : cell array of strings
-%         str : targeted string
-%
-% OUTPUTS:
-%         i   : indices of locations of str in S
-%
-% This function finds the location of entries in S that match the string
-% str.  The function assumes S is a cell array of strings.
-%
-
-% Initialize output.
-n_cell = numel(S);                              % number of strings in S
-i      = zeros(1,n_cell);                       % maximum size of i
-n_find = 0;                                     % number of matches
-
-% Loop through S.
-for j=1:n_cell
-  % Check for match of jth cell with str
-  if strcmpi(S{j},str) 
-    % Increase number of finds.
-    n_find    = n_find + 1;
-    % Save index.
-    i(n_find) = j;
-  end
-end
-
-% Delete extra entries of i.
-i = i(1:n_find);
