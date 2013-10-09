@@ -24,6 +24,11 @@ do
 	echo $file
 	# Write the file from 'function' on to the temp file.
 	cat $file | sed -n '/^function/,$p' > $temp
+	# If the pattern was not found, keep the whole file.
+	if [[ ! -s $temp ]]; then
+		echo "  Pattern not found, prepending entire file."
+		cat $file > $temp
+	fi
 	# Write the file anew, starting with the license.
 	cat $blurb > $file
 	# Write the rest of the file from the tmp.
@@ -31,3 +36,4 @@ do
 	# Remove the temp file.
 	rm $temp
 done
+
