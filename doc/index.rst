@@ -67,6 +67,7 @@ Contents
    
    intro
    html2rgb
+   testing
 
 
 
