@@ -531,16 +531,16 @@ function h = set_plot(varargin)
 %           PlotLineWidth -> 'pretty'
 %
 
-%------------------------------------------------------------------------------
+%----------------------------------------------------------------------
 % Copyright (c) 2011-2013
 %   Derek J. Dalle <derek.dalle@gmail.com> and
 %   Sean M. Torrez <smtorrez@umich.edu>
 %
 % Distributed under the terms of the Modified BSD License.
 %
-% The full license is available in the file LICENSE, distributed with this
-% software package in the top-level directory.
-%------------------------------------------------------------------------------
+% The full license is available in the file LICENSE, distributed with
+% this software package in the top-level directory.
+%----------------------------------------------------------------------
 
 % Versions:
 %  2010/02/15 @Sean Torrez    : First version
