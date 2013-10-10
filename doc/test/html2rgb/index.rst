@@ -1,6 +1,6 @@
 
 
-Named Colors: :code:`html2rgb`
+Named Colors: :func:`html2rgb`
 ==============================
 
 .. testsetup::

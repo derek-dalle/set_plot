@@ -1,6 +1,4 @@
 
-.. role:: input(mod)
-
 **********************
 Color Conversion Tools
 **********************
@@ -9,17 +7,17 @@ MATLAB comes with very few named colors.  Although any color that you can figure
 out the RGB (red-green-blue) color values for can be used, it's not always
 convenient to figure these out.  For example, 
 
-.. code-block:: matlab
-
-    >> x = linspace(0, 5, 101);
-    >> plot(x, sin(x), 'Color', [1,0.65,0])
+    .. code-block:: matlab
+    
+        >> x = linspace(0, 5, 101);
+        >> plot(x, sin(x), 'Color', [1,0.65,0])
     
 plots a sine curve with an orange color.  An alternative using the function
 :func:`html2rgb` is to use the following command.
 
-.. code-block:: matlab
-
-    >> plot(x, sin(s), 'Color', html2rgb('Orange'))
+    .. code-block:: matlab
+    
+        >> plot(x, sin(s), 'Color', html2rgb('Orange'))
     
 This version of the code is somewhat longer, but easier to remember and much
 easier to read.  In addition, wherever colors can be specified in
@@ -27,10 +25,10 @@ easier to read.  In addition, wherever colors can be specified in
 example, the ``colormap`` can be changed to an indigo-themed monochrome map
 using the following command.
 
-.. code-block:: matlab
-
-    >> contourf(peaks(50))
-    >> set_colormap({'w', 'Indigo', 'k'})
+    .. code-block:: matlab
+    
+        >> contourf(peaks(50))
+        >> set_colormap({'w', 'Indigo', 'k'})
     
 See :func:`set_colormap` for more information about that command.
 
@@ -41,10 +39,10 @@ Functions
 
     Convert a named color *cname* (``char``) to an RGB code.
     
-    .. code-block:: matlab
-        
-        rgb = html2rgb(cname)
-        rgb = html2rgb(crgb)
+        .. code-block:: matlab
+            
+            rgb = html2rgb(cname)
+            rgb = html2rgb(crgb)
     
     +---------+-------------------+------------------+
     | Input   | Purpose           | Type             |
