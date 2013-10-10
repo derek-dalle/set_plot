@@ -175,6 +175,13 @@ function h = set_plot(varargin)
 %    LegendStyle
 %          [ {current} | plain | pretty ]
 %       Style to use for the legend.  This is a cascading style.
+%    LineStyle
+%          [ {current} | pretty | fancy | simple | plain | cell array ]
+%       Sequence of plot styles.
+%    LineWidth
+%          [ {current} | pretty | fancy | simple | plain | cell array
+%             | double array ]
+%       Sequence of widths for plot lines.
 %    Margin
 %          [ 0.025 | scalar vector with up to four entries ]
 %       Extra margin to add for 'tight' MarginStyle.
@@ -201,13 +208,6 @@ function h = set_plot(varargin)
 %             | x | y | z | xy | xz | xy | xyz ]
 %       Whether or not to use minor ticks on the axes.  The 'smart'
 %       value turns on minor ticks for all non-logarithmic axes.
-%    PlotLineStyle
-%          [ {current} | pretty | fancy | simple | plain | cell array ]
-%       Sequence of plot styles.
-%    PlotLineWidth
-%          [ {current} | pretty | fancy | simple | plain | cell array
-%             | double array ]
-%       Sequence of widths for plot lines.
 %    PlotStyle
 %          [ {current} | pretty | fancy | plain ]
 %       Style to use for plot lines.  This is a cascading style.
@@ -303,21 +303,27 @@ function h = set_plot(varargin)
 %
 %   ColorStyle
 %       'bright'
+%           ColorSequence -> 'bright'
 %           ColorMap      -> 'cyan'
 %           BarColorStyle -> 'sequence'
 %       'current'
+%           ColorSequence -> 'current'
 %           ColorMap      -> 'current'
 %           BarColorStyle -> 'current'
 %       'dark'
+%           ColorSequence -> 'dark'
 %           ColorMap      -> 'blue'
 %           BarColorStyle -> 'sequence'
 %       'gray' | 'grayscale'
+%           ColorSequence -> 'gray'
 %           ColorMap      -> 'gray'
 %           BarColorStyle -> 'contour'
 %       'plain'
+%           ColorSequence -> 'plain'
 %           ColorMap      -> 'jet'
 %           BarColorStyle -> 'contour'
 %       'pretty'
+%           ColorSequence -> 'blue'
 %           ColorMap      -> 'blue'
 %           BarColorStyle -> 'contour'
 %
@@ -514,21 +520,17 @@ function h = set_plot(varargin)
 %
 %   PlotStyle
 %       'current'
-%           ColorSequence -> 'current'
-%           PlotLineStyle -> 'current'
-%           PlotLineWidth -> 'current'
+%           LineStyle -> 'current'
+%           LineWidth -> 'current'
 %       'fancy'
-%           ColorSequence -> 'dark'
-%           PlotLineStyle -> 'fancy'
-%           PlotLineWidth -> 'fancy'
+%           LineStyle -> 'fancy'
+%           LineWidth -> 'fancy'
 %       'plain'
-%           ColorSequence -> 'plain'
-%           PlotLineStyle -> 'plain'
-%           PlotLineWidth -> 'plain'
+%           LineStyle -> 'plain'
+%           LineWidth -> 'plain'
 %       'pretty'
-%           ColorSequence -> 'blue'
-%           PlotLineStyle -> 'pretty'
-%           PlotLineWidth -> 'pretty'
+%           LineStyle -> 'pretty'
+%           LineWidth -> 'pretty'
 %
 
 %----------------------------------------------------------------------
@@ -548,6 +550,7 @@ function h = set_plot(varargin)
 %  2010-11-02 @dalle   : Changed to set_plot
 %  2010-11-06 @dalle   : First version
 %  2011-02-09 @dalle   : Added legend handling
+%  2013-10-10 @dalle   : Feedback from users applied
 
 
 %% --- Input processing ---
@@ -1522,8 +1525,9 @@ end
 
 %% --- Line style sequence ---
 
-% Get the PlotLineStyle option.
+% Get the LineStyle option.
 [l_pseq, options] = cut_option(options, 'PlotLineStyle', l_pseq);
+[l_pseq, options] = cut_option(options, 'LineStyle', l_pseq);
 
 % Test for a recognized string.
 if ischar(l_pseq) && ~strcmpi(l_pseq, 'current')
@@ -1580,6 +1584,8 @@ end
 
 % Get the PlotLineStyle option.
 [t_pseq, options] = cut_option(options, 'PlotLineWidth', t_pseq);
+[t_pseq, options] = cut_option(options, 'lw', t_pseq);
+[t_pseq, options] = cut_option(options, 'LineWidth', t_pseq);
 
 % Test for a recognized string.
 if ischar(t_pseq) && ~strcmpi(t_pseq, 'current')
