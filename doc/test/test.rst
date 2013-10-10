@@ -8,11 +8,11 @@ Testing for the testing system
     # Prep modules
     import sys, os
     # Full path to the test folder
-    docpath = os.path.join(os.getcwd(), "test")
+    #docpath = os.path.join(os.getcwd(), "test")
     # Add that path.
-    sys.path.append(docpath)
+    #sys.path.append(docpath)
     # Now actually go there.
-    os.chdir(docpath)
+    os.chdir("..")
     # Load the module.
     from matlabtest import *
     

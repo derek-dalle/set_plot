@@ -8,11 +8,12 @@ Named Colors: :code:`html2rgb`
     # Prep modules
     import sys, os
     # Full path to the test folder
-    # docpath = os.path.join(os.getcwd(), "test")
+    docpath = os.path.join(os.getcwd(), "test")
     # Add that path.
-    # sys.path.append(docpath)
-    # Now actually go there.
-    # os.chdir(docpath)
+    sys.path.append(docpath)
+    # Now actually go the current folder.
+    os.chdir(docpath)
+    os.chdir("html2rgb")
     # Load the module.
     from matlabtest import *
     

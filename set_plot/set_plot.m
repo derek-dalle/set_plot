@@ -390,7 +390,7 @@ function h = set_plot(varargin)
 %           LegendStyle      -> 'current'
 %           PlotLineStyle    -> 'current'
 %           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'tight'
+%           MarginStyle      -> 'loose'
 %           Width            -> 'auto'
 %       'fancy'
 %           AspectRatio      -> 'auto'
@@ -543,14 +543,12 @@ function h = set_plot(varargin)
 %----------------------------------------------------------------------
 
 % Versions:
-%  2010/02/15 @Sean Torrez    : First version
-%  2010/03/09 @Sean Torrez    : Modified to use fig handles only
-%  2010/11/02 @Derek Dalle    : Changed to set_plot
-%  2010/11/06 @Derek Dalle    : First version
-%  2011/02/09 @Derek Dalle    : Added legend handling
-%
-% Copyright (c) 2011 by Derek Dalle and Sean Torrez
-% BSD License
+%  2010.02.15 @smtorrez: First version
+%  2010.03.09 @smtorrez: Modified to use fig handles only
+%  2010.11.02 @dalle   : Changed to set_plot
+%  2010.11.06 @dalle   : First version
+%  2011.02.09 @dalle   : Added legend handling
+
 
 %% --- Input processing ---
 
@@ -899,7 +897,7 @@ elseif q_plain
 elseif q_current
 	% Plain style
 	% Default margin style
-	m_style = 'tight';
+	m_style = 'loose';
 	% Manual margins
 	m_opts  = 0.025 * ones(1,4);
 	% Use current interpreters.
@@ -2875,12 +2873,6 @@ function [val, options] = cut_option(options, name, default)
 % used and which have not.
 %
 
-% VERSIONS:
-%  2010/03/23: Derek Dalle     : First version
-%  2010/09/07: Derek Dalle     : Optional second output
-%  2010/11/01: Derek Dalle     : Derived from get_option
-%
-% Public Domain
 
 % Check for sufficient inputs.
 if nargin < 2
@@ -2928,6 +2920,7 @@ function i=cell_position_string(S,str)
 % This function finds the location of entries in S that match the string
 % str.  The function assumes S is a cell array of strings.
 %
+
 
 % Initialize output.
 n_cell = numel(S);                              % number of strings in S

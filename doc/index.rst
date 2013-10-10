@@ -28,14 +28,14 @@ Consider the following MATLAB commands to create a simple contour plot.
 	
 The resulting graphic, saved as a PNG, is below.
 
-.. image:: ./pics/peaks-plain.png
+.. image:: ./test/set_plot/peaks-plain.png
     :width: 300pt
     
 Displayed as such a small graphic, the graphic is almost unreadable.
 Furthermore, saving to PDF produces the following (including whitespace), which
 is not at all the expected result.
 
-.. image:: ./pics/peaks-page.*
+.. image:: ./test/set_plot/peaks-page.*
     :width: 300pt
 
 Running :code:`set_plot` on this figure with no options produces no visible
@@ -46,7 +46,7 @@ changes to the MATLAB figure window, but results in properly saved PDF files.
 
 The following is the resulting image if saved as a PDF.
 
-.. image:: ./pics/peaks-simple.*
+.. image:: ./test/set_plot/peaks-simple.*
     :width: 300pt
 
 If we specify some non-default options to :code:`set_plot`, there is lots of
@@ -55,7 +55,7 @@ automatic formatting that is done.
 	
 	>> set_plot(gcf, 'FigureStyle', 'journal')
 	
-.. image:: ./pics/peaks-journal.*
+.. image:: ./test/set_plot/peaks-journal.*
     :width: 300pt
 
     
@@ -67,7 +67,7 @@ Contents
    :numbered:
    
    html2rgb
-   doctest
+   test/index
 
 
 
@@ -75,6 +75,5 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
