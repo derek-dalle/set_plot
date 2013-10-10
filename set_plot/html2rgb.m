@@ -46,8 +46,8 @@ function v_rgb = html2rgb(s_html)
 %----------------------------------------------------------------------
 
 % Versions:
-%  2010.11.04 @dalle    : First version
-%  2013.10.09 @dalle    : Cleaned up and expanded help
+%  2010-11-04 @dalle    : First version
+%  2013-10-09 @dalle    : Cleaned up and expanded help
 
 % Check for sufficient inputs.
 if nargin < 1

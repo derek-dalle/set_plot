@@ -375,7 +375,7 @@ function h = set_plot(varargin)
 %           FontStyle        -> 'pretty'
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
-%           PlotLineStyle    -> 'pretty'
+%           PlotStyle        -> 'plain'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 3.1 [inches]
@@ -388,7 +388,7 @@ function h = set_plot(varargin)
 %           FontStyle        -> 'current'
 %           Interpreter      -> 'current'
 %           LegendStyle      -> 'current'
-%           PlotLineStyle    -> 'current'
+%           PlotStyle        -> 'current'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'loose'
 %           Width            -> 'auto'
@@ -414,7 +414,7 @@ function h = set_plot(varargin)
 %           FontStyle        -> 'pretty'
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
-%           PlotLineStyle    -> 'fancy'
+%           PlotStyle        -> 'current'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 6 [inches]
@@ -427,7 +427,7 @@ function h = set_plot(varargin)
 %           FontStyle        -> 'plain'
 %           Interpreter      -> 'current'
 %           LegendStyle      -> 'plain'
-%           PlotLineStyle    -> 'plain'
+%           PlotStyle        -> 'plain'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'loose'
 %           Width            -> 'auto'
@@ -440,7 +440,7 @@ function h = set_plot(varargin)
 %           FontStyle        -> 'pretty'
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
-%           PlotLineStyle    -> 'current'
+%           PlotStyle        -> 'current'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 3.1 [inches]
@@ -453,7 +453,7 @@ function h = set_plot(varargin)
 %           FontStyle        -> 'present'
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
-%           PlotLineStyle    -> 'pretty'
+%           PlotStyle        -> 'current'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 2.125 [inches]
@@ -466,7 +466,7 @@ function h = set_plot(varargin)
 %           FontStyle        -> 'pretty'
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
-%           PlotLineStyle    -> 'fancy'
+%           PlotStyle        -> 'simple'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 'auto'
@@ -479,7 +479,7 @@ function h = set_plot(varargin)
 %           FontStyle        -> 'pretty'
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
-%           PlotLineStyle    -> 'pretty'
+%           PlotStyle        -> 'current'
 %           Margin           -> 0.025 * ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 3.1 [inches]
@@ -543,11 +543,11 @@ function h = set_plot(varargin)
 %----------------------------------------------------------------------
 
 % Versions:
-%  2010.02.15 @smtorrez: First version
-%  2010.03.09 @smtorrez: Modified to use fig handles only
-%  2010.11.02 @dalle   : Changed to set_plot
-%  2010.11.06 @dalle   : First version
-%  2011.02.09 @dalle   : Added legend handling
+%  2010-02-15 @smtorrez: First version
+%  2010-03-09 @smtorrez: Modified to use fig handles only
+%  2010-11-02 @dalle   : Changed to set_plot
+%  2010-11-06 @dalle   : First version
+%  2011-02-09 @dalle   : Added legend handling
 
 
 %% --- Input processing ---
@@ -607,7 +607,7 @@ while n_arg > i_arg
 		end
 	else
 		% Bad input
-		error('masiv:BadInput', ['Each optional input must be ', ...
+		error('set_plot:InputType', ['Each optional input must be ', ...
 			'either empty, a struct, or an option name/value pair.']);
 		
 	end
@@ -701,7 +701,7 @@ if q_pretty
 	% Color theme style
 	c_style = 'pretty';
 	% Plot style
-	l_style = 'pretty';
+	l_style = 'simple';
 	% Contour style
 	ctr_style = 'pretty';
 	
@@ -728,7 +728,7 @@ elseif q_fancy
 	% Color theme style
 	c_style = 'pretty';
 	% Plot style
-	l_style = 'fancy';
+	l_style = 'pretty';
 	% Contour style
 	ctr_style = 'fancy';
 	
@@ -755,7 +755,7 @@ elseif q_twocol
 	% Color theme style
 	c_style = 'gray';
 	% Plot style
-	l_style = 'pretty';
+	l_style = 'current';
 	% Contour style
 	ctr_style = 'pretty';
 	
@@ -809,7 +809,7 @@ elseif q_f_color
 	% Color theme style
 	c_style = 'dark';
 	% Plot style
-	l_style = 'pretty';
+	l_style = 'plain';
 	% Contour style
 	ctr_style = 'pretty';
 	
@@ -836,7 +836,7 @@ elseif q_onecol
 	% Color theme style
 	c_style = 'pretty';
 	% Plot style
-	l_style = 'fancy';
+	l_style = 'current';
 	% Contour style
 	ctr_style = 'fancy';
 	
@@ -863,7 +863,7 @@ elseif q_present
 	% Color theme style
 	c_style = 'pretty';
 	% Plot style
-	l_style = 'pretty';
+	l_style = 'current';
 	% Contour style
 	ctr_style = 'pretty';
 	
@@ -1529,7 +1529,7 @@ if ischar(l_pseq) && ~strcmpi(l_pseq, 'current')
 		v_pseq = {'-', '--', '-.'};
 	elseif strcmpi(l_pseq, 'fancy')
 		% Solid, dotted, dashed, dot-dashed
-		v_pseq = {'-', ':', '--', '-.'};
+		v_pseq = {'-', '--', '-.', ':'};
 	elseif strcmpi(l_pseq, 'simple')
 		% Solid, dashed
 		v_pseq = {'-', '--'};

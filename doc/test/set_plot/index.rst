@@ -22,4 +22,10 @@ contour plots.
     >>> matlab("test_peaks")
     "...PASSED\n"
 
+This tests formatting for a normal plot.
+
+.. doctest::
+
+    >> matlab("test_plot")
+    "...PASSED\n"
 
