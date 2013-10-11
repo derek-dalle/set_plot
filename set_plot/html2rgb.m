@@ -2,21 +2,21 @@ function v_rgb = html2rgb(s_html)
 %HTML2RGB Convert color specification to RGB values
 %
 % CALL:
-%    rgb = html2rgb(colName)
-%    rgb = html2rgb(numRGB)
-%    rgb = html2rgb(intRGB)
-%    rgb = html2rgb(numGray)
-%    rgb = html2rgb(intGray)
+%    rgb = html2rgb(cName)
+%    rgb = html2rgb(fRGB)
+%    rgb = html2rgb(iRGB)
+%    rgb = html2rgb(fGray)
+%    rgb = html2rgb(iGray)
 %
 % INPUTS:
-%    colName : name of an HTML color                         [char]
-%    numRGB  : red, green, blue components between 0 and 1   [1x3 double]
-%    intRGB  : red, green, blue components between 0 and 255 [1x3 double]
-%    numGray : grayscale component between 0 and 1           [1x1 double]
-%    intGray : grayscale component between 0 and 255         [1x1 double]
+%    cName : name of an HTML color                         [char]
+%    fRGB  : red, green, blue components between 0 and 1   [1x3 double]
+%    iRGB  : red, green, blue components between 0 and 255 [1x3 double]
+%    fGray : grayscale component between 0 and 1           [1x1 double]
+%    iGray : grayscale component between 0 and 255         [1x1 double]
 %
 % OUTPUTS:
-%    rgb     : red, green, blue components between 0 and 1   [1x3 double]
+%    rgb   : red, green, blue components between 0 and 1   [1x3 double]
 %
 % This function converts an HTML color name to a RGB color.  If the input
 % an error is produced.

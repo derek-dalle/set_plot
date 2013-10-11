@@ -10,7 +10,7 @@ function h = set_plot(varargin)
 %
 % INPUTS:
 %    h_f      : figure handle
-%    keyName  : string, name of option
+%    keyName  : char, name of option
 %    keyValue : value of corresponding option
 %    keys     : struct containing options
 %
@@ -488,9 +488,9 @@ if strcmpi(f_style, 'pretty') || strcmpi(f_style, 'fancy')
 elseif strcmpi(f_style, 'present') || strcmpi(f_style, 'presentation')
     % Special style for presentations
     % Font name
-    f_name = 'Times New Roman';
+    f_name = 'Helvetica';
     % Font size
-    f_size = 9;
+    f_size = 10;
     
 elseif strcmpi(f_style, 'serif')
     % Just change the font type.
@@ -2496,7 +2496,7 @@ function help_options
 %          [ {0.1} | positive scalar ]
 %       Distance between box containing plot and box containing colorbar.
 %    <strong>ColorMap</strong>
-%          [ {current} | string | Nx3 double | Nx4 double | cell array ]
+%          [ {current} | char | Nx3 double | Nx4 double | cell array ]
 %       The colormap can consist of either a label to a standard MATLAB
 %       colormap or use a matrix of colors.  An additional option is to use
 %       a cell array of colors.  Each color can be either a 1x3 RGB color or
@@ -2513,12 +2513,12 @@ function help_options
 %          [ {current} | on | off ]
 %       Whether or not contours plots should be filled in.
 %    <strong>ContourFontColor</strong>
-%          [ {current} | auto | string | 1x3 double ]
+%          [ {current} | auto | char | 1x3 double ]
 %       Color to use for contour text labels.  The 'auto' value chooses
 %       either black or white for each label in an attempt to pick a color
 %       that is readable against the background.
 %    <strong>ContourFontName</strong>
-%          [ {current} | auto | string]
+%          [ {current} | auto | char]
 %       Font to use for contour text labels.  The 'auto' value
 %       inherits the overall font specified using FontName.
 %    <strong>ContourFontSize</strong>
@@ -2527,7 +2527,7 @@ function help_options
 %       corresponds to a size one point smaller than the overall font
 %       size specified using FontSize.
 %    <strong>ContourLineColor</strong>
-%          [ {current} | auto | string | 1x3 double ]
+%          [ {current} | auto | char | 1x3 double ]
 %       Color to use for contour lines.  The 'auto' value tells the
 %       function to match the contour lines to the colormap values.
 %    <strong>ContourStyle</strong>
@@ -2542,7 +2542,7 @@ function help_options
 %             | onecol | present | presentation | color | plot ]
 %       Overall figure style.  This is a cascading style.
 %    <strong>FontName</strong>
-%          [ {current} | font name (string) ]
+%          [ {current} | font name (char) ]
 %       Name of font to use for most text
 %    <strong>FontSize</strong>
 %          [ {current} | positive scalar ]

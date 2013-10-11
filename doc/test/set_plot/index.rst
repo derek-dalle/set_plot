@@ -28,4 +28,12 @@ This tests formatting for a normal plot.
 
     >> matlab("test_plot")
     "...PASSED\n"
+    
+This tests the inputs.
+
+.. doctest::
+
+    >> matlab("test_keys")
+    "...PASSED\n"
+    
 

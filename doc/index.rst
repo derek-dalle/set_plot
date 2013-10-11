@@ -26,6 +26,8 @@ Contents
    :maxdepth: 2
    :numbered:
    
+   functions
+   set_plot
    html2rgb
    test/index
    

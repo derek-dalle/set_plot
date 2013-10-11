@@ -4,6 +4,20 @@
 # It checks the documentation 
 #
 
-# Synchronize the folders.
-rsync -avuzd doc/_build/html/* /afs/umich.edu/user/d/a/dalle/Public/html/codes/set_plot/doc
+# AFS path
+afs="/afs/umich.edu/user/d/a/dalle/Public/html/codes/set_plot"
 
+# Synchronize the folders.
+rsync -avuzd doc/_build/html/* "$afs/doc"
+
+# Find the test functions
+tfiles=`find doc/test/ -name "test*.m"`
+
+# List them...
+for f in $tfiles
+do
+    # List the file.
+    echo $f
+    # Copy it (because the above will have deleted it).
+    cp $f "$afs/$f"
+done

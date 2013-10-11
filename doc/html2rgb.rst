@@ -7,7 +7,7 @@ MATLAB comes with very few named colors.  Although any color that you can figure
 out the RGB (red-green-blue) color values for can be used, it's not always
 convenient to figure these out.  For example, 
 
-    .. code-block:: matlab
+    .. code-block:: matlabsession
     
         >> x = linspace(0, 5, 101);
         >> plot(x, sin(x), 'Color', [1,0.65,0])
@@ -15,7 +15,7 @@ convenient to figure these out.  For example,
 plots a sine curve with an orange color.  An alternative using the function
 :func:`html2rgb` is to use the following command.
 
-    .. code-block:: matlab
+    .. code-block:: matlabsession
     
         >> plot(x, sin(s), 'Color', html2rgb('Orange'))
     
@@ -25,61 +25,20 @@ easier to read.  In addition, wherever colors can be specified in
 example, the ``colormap`` can be changed to an indigo-themed monochrome map
 using the following command.
 
-    .. code-block:: matlab
+    .. code-block:: matlabsession
     
         >> contourf(peaks(50))
         >> set_colormap({'w', 'Indigo', 'k'})
     
 See :func:`set_colormap` for more information about that command.
 
-Functions
-=========
-
-.. function:: html2rgb(cname)
-
-    Convert a named color *cname* (``char``) to an RGB code.
-    
-        .. code-block:: matlab
-            
-            rgb = html2rgb(cname)
-            rgb = html2rgb(crgb)
-    
-    +---------+-------------------+------------------+
-    | Input   | Purpose           | Type             |
-    +=========+===================+==================+
-    | *cname* | name of color     | ``char``         |
-    +---------+-------------------+------------------+
-    | *cgrb*  | RGB code          | ``[1x3 double]`` |
-    +---------+-------------------+------------------+
-    
-    +----------+--------------------+------------------+
-    | Output   | Purpose            | Type             |
-    +==========+====================+==================+
-    | *rgb*    | RGB color code     | ``[1x3 double]`` |
-    +----------+--------------------+------------------+
-    
-    .. note::
-        
-        If a numeric input is given, it is simply returned.  This is the case to
-        that the function does not produces errors when a valid RGB color is
-        given as input.  Thus it always save to put :func:`html2rgb` around a
-        color reference.
-        
-    .. note::
-        
-        Most of the colors available to this function are tabulated
-        `here <http://www.w3schools.com/html/html_colornames.asp>`_.  In 
-        addition, the standard MATLAB single-character colors (:code:`'w'`, 
-        white; :code:`'k'`, black; :code:`'r'`, red; :code:`'y'`, yellow;
-        :code:`'g'`, green; :code:`'c'`, cyan; :code:`'b'`, blue; and
-        :code:`'m'`, magenta) are also recognized.
     
 Examples
 ========
 
 This example demonstrates the usual output of :func:`html2rgb`.
     
-    .. code-block:: matlab
+    .. code-block:: matlabsession
     
         >> html2rgb('DodgerBlue')
         ans =
@@ -87,7 +46,7 @@ This example demonstrates the usual output of :func:`html2rgb`.
             
 Shorter names are also available.
 
-    .. code-block:: matlab
+    .. code-block:: matlabsession
     
         >> html2rgb('y')
         ans =
@@ -104,3 +63,13 @@ be nested.
         >> html2rgb(html2rgb('Coral'))
         ans =
             1.0000    0.4980    0.3137
+            
+A single number as input is taken as grayscale.
+
+    .. code-block:: matlabsession
+    
+        >> html2rgb(0.3)
+        ans =
+            0.3000    0.3000    0.3000
+            
+
