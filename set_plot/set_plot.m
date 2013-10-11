@@ -1,19 +1,21 @@
 function h = set_plot(varargin)
+%SET_PLOT  figure formatting help and automation
 %
-% set_plot
-% set_plot(optionName, optionValue, ...)
-% set_plot(options)
-% set_plot(h_f, ...)
-% h = set_plot(...)
+% CALL:
+%    set_plot
+%    set_plot(keyName, keyValue, ...)
+%    set_plot(keys)
+%    set_plot(h_f, ...)
+%    h = set_plot(...)
 %
 % INPUTS:
-%    h_f         : figure handle
-%    optionName  : string, name of option
-%    optionValue : value of corresponding option
-%    options     : struct containing options
+%    h_f      : figure handle
+%    keyName  : string, name of option
+%    keyValue : value of corresponding option
+%    keys     : struct containing options
 %
 % OUTPUTS:
-%    h           : struct containing all handles used
+%    h        : struct containing all handles used
 %
 % This function is used to specify several options simultaneously to a
 % figure.  The most basic task performed by this function is to alter the
@@ -22,515 +24,48 @@ function h = set_plot(varargin)
 %
 % The simple command
 %
-%     set_plot(h_f)
+%     >> set_plot(h_f)
 %
-% will take a figure (with the handle h_f) and decrease its handles to zero
-% if possible.  The function does its other useful work using options.  The
-% following command will do nothing to the figure other than change the
-% paper size.
-%
-%     set_plot(h_f, 'MarginStyle', 'loose')
+% will take a figure (with the handle `h_f`) and alter its size so that it
+% can be properly saved to PDF without creating a full sheet of paper. The
+% function does its other useful work using options.  
 %
 % The following command is perhaps the most useful one.  It changes all
 % aspects of the figure to make it look fairly good without any extra work.
 %
-%     set_plot(h_f, 'FigureStyle', 'pretty')
+%     >> set_plot(h_f, 'FigureStyle', 'pretty')
 %
 % In addition to changing the formatting of the figure, the following
 % command also changes the size of the figure so that it will fit in a
 % two-column article.
 %
-%     set_plot(h_f, 'FigureStyle', 'twocol')
+%     >> set_plot(h_f, 'FigureStyle', 'twocol')
 %
 % The function utilizes a system of cascading options, meaning that the
 % values of some of the options affect the default values of some other
 % options.  It is possible to use these broad options like 'FigureStyle' or
 % much more detailed options like 'FontSize'.
 %
-%     set_plot(h_f, 'FigureStyle', 'fancy', 'FontSize', 9.5)
+%     >> set_plot(h_f, 'FigureStyle', 'fancy', 'FontSize', 9.5)
 %
 % Options can also be specified using a struct, which is useful if the same
 % options are going to be used for a series of figures.
 %
-%     opts = struct('FigureStyle', 'fancy', 'FontSize', 9.5);
-%     set_plot(h_f, opts)
+%     >> keys = struct('FigureStyle', 'fancy', 'FontSize', 9.5);
+%     >> set_plot(h_f, opts)
 %
 % A fill list of options and their possible values is shown below.  A chart
 % of the cascading options and their affects on the detailed options is
 % below that.
 %
 % OPTIONS:
-%    AspectRatio
-%          [ {auto} | positive scalar ]
-%       Aspect ratio to use for figure.  The 'auto' option tells the
-%       function to use the aspect ratio of the current figure window.
-%    AxesStyle
-%          [ {current} | pretty | fancy | simple | smart | plain ]
-%       Scheme to use for axes.  This is a cascading style.
-%    BarColorStyle
-%          [ {current} | contour | sequence ]
-%       Whether to use the colormap or the color sequence for the colors
-%       of bar graph objects.
-%    Box
-%          [ {current} | on | off ]
-%       Whether or not to draw a box around the plot.
-%    ColorBarStyle
-%          [ {current} | pretty | fancy | plain ]
-%       Style to use for colorbar.  This is a cascading style.
-%    ColorBarBox
-%          [ {current} | on | off ]
-%       Whether or not to draw a box around the colorbar.
-%    ColorBarMinorTick
-%          [ {current} | on | off ]
-%       Whether or not to use minor ticks on the colorbar.
-%    ColorBarTickDir
-%          [ {current} | in | out ]
-%       Direction to draw ticks on the colorbar
-%    ColorBarWidth
-%          [ {current} | positive scalar ]
-%       Width of colorbar, not including labels and ticks.
-%    ColorBarGrid
-%          [ {current} | on | off ]
-%       Whether or not to draw grid lines in the colorbar.
-%    ColorBarGridLineStyle
-%          [ {current} | : | - | -- | -. ]
-%       Style for grid lines in colorbar.
-%    ColorBarGap
-%          [ {0.1} | positive scalar ]
-%       Distance between box containing plot and box containing colorbar.
-%    ColorMap
-%          [ {current} | string | Nx3 double | Nx4 double | cell array ]
-%       The colormap can consist of either a label to a standard MATLAB
-%       colormap or use a matrix of colors.  An additional option is to use
-%       a cell array of colors.  Each color can be either a 1x3 RGB color or
-%       an HTML color string such as 'OliveGreen'.  See `set_colormap`.
-%    ColorSequence
-%          [ {current} | plain | default | gray | black | blue | dark
-%             | bright | Nx3 matrix | cell array ]
-%       Sequence of colors for plot lines.
-%    ColorStyle
-%          [ {current} | pretty | plain | gray | bright | dark ]
-%       Overall color theme.  This is a cascading style.
-%       Color to use for labels in contour plots
-%    ContourFill
-%          [ {current} | on | off ]
-%       Whether or not contours plots should be filled in.
-%    ContourFontColor
-%          [ {current} | auto | string | 1x3 double ]
-%       Color to use for contour text labels.  The 'auto' value chooses
-%       either black or white for each label in an attempt to pick a color
-%       that is readable against the background.
-%    ContourFontName
-%          [ {current} | auto | string]
-%       Font to use for contour text labels.  The 'auto' value
-%       inherits the overall font specified using FontName.
-%    ContourFontSize
-%          [ {current} | auto | positive scalar ]
-%       Size of font to use for contour text labels.  The 'auto' value
-%       corresponds to a size one point smaller than the overall font
-%       size specified using FontSize.
-%    ContourLineColor
-%          [ {current} | auto | string | 1x3 double ]
-%       Color to use for contour lines.  The 'auto' value tells the
-%       function to match the contour lines to the colormap values.
-%    ContourStyle
-%          [ {current} | pretty | fancy | black | fill | smooth
-%             | simple | plain ]
-%       Style to use for contour plots.  This is a cascading style.
-%    ContourText
-%          [ {current} | on | off ]
-%       Whether or not to use labels in contour plots.
-%    FigureStyle
-%          [ {current} | pretty | fancy | plain | journal | twocol
-%             | onecol | present | presentation | color | plot ]
-%       Overall figure style.  This is a cascading style.
-%    FontName
-%          [ {current} | font name (string) ]
-%       Name of font to use for most text
-%    FontSize
-%          [ {current} | positive scalar ]
-%       Size of fonts to use.
-%    FontStyle
-%          [ {current} | pretty | present | plain | serif | sans-serif ]
-%       Scheme for text fonts and sizes.  This is a cascading style.
-%    Grid
-%          [ {current} | major | all | on | off | none | smart
-%             | x | y | z | X | Y | Z ]
-%       Whether or not to draw grid lines.  The strings 'x', 'y', etc. and
-%       their combinations can be used to control the grid lines for each
-%       axis.  The capital versions turn on both major and minor grid lines.
-%       The 'smart' value turns on all major grid lines and minor grid lines
-%       for any axis with linear spacing.
-%    Interpreter
-%          [ {current} | auto | tex | latex | none ]
-%       Rules to use for text interpreters.  The 'auto' option turns most
-%       interpreters to 'tex', except those with multiple '$' characters,
-%       for which it uses the 'latex' interpreter.
-%    LegendBox
-%          [ {current} | on | off ]
-%       Whether or not to use a box around the legend.
-%    LegendGap
-%          [ {0.1} | positive scalar ]
-%       Gap between graph and legend.
-%    LegendStyle
-%          [ {current} | plain | pretty ]
-%       Style to use for the legend.  This is a cascading style.
-%    LineStyle
-%          [ {current} | pretty | fancy | simple | plain | cell array ]
-%       Sequence of plot styles.
-%    LineWidth
-%          [ {current} | pretty | fancy | simple | plain | cell array
-%             | double array ]
-%       Sequence of widths for plot lines.
-%    Margin
-%          [ 0.025 | scalar vector with up to four entries ]
-%       Extra margin to add for 'tight' MarginStyle.
-%    MarginBottom
-%          [ 0.025 | positive scalar ]
-%       Extra bottom margin to add for 'tight' MarginStyle.
-%    MarginLeft
-%          [ 0.025 | positive scalar ]
-%       Extra left margin to add for 'tight' MarginStyle.
-%    MarginRight
-%          [ 0.025 | positive scalar ]
-%       Extra right margin to add for 'tight' MarginStyle.
-%    MarginStyle
-%          [ {tight} | loose | image ]
-%       Style for the margins.  The 'tight' option cuts off all margins, and
-%       the 'loose' option restores the defaults.  Both options change the
-%       paper size so that the figure has the proper dimensions when the
-%       'saveas' command is used.
-%    MarginTop
-%            [ 0.025 | positive scalar ]
-%       Extra top margin to add for 'tight' MarginStyle.
-%    MinorTick
-%          [ {current} | all | none | on | off | smart
-%             | x | y | z | xy | xz | xy | xyz ]
-%       Whether or not to use minor ticks on the axes.  The 'smart'
-%       value turns on minor ticks for all non-logarithmic axes.
-%    PlotStyle
-%          [ {current} | pretty | fancy | plain ]
-%       Style to use for plot lines.  This is a cascading style.
-%    TickDir
-%          [ {current} | in | out ]
-%       Tick direction for main plot.
-%    TickLength
-%          [ {current} | short | long | 1x2 double ]
-%       Length of ticks for main axes.
-%    Width
-%          [ {auto} | positive scalar ]
-%       Width of figure.
+%    <strong>set_plot</strong> has many options.  for a full list, see <a href="matlab: help set_plot>help_options">options</a>.
 %
-%
-% CASCADING STYLE CHART:
-%    AxesStyle
-%       'current'
-%           Box        -> 'current'
-%           Grid       -> 'current'
-%           GridStyle  -> 'current'
-%           MinorTick  -> 'current'
-%           TickDir    -> 'current'
-%           TickLength -> 'current'
-%       'fancy'
-%           Box        -> 'off'
-%           Grid       -> 'major'
-%           GridStyle  -> ':'
-%           MinorTick  -> 'all'
-%           TickDir    -> 'out'
-%           TickLength -> [0.0050, 0.0125]
-%       'plain'
-%           Box        -> 'on'
-%           Grid       -> 'none'
-%           GridStyle  -> 'current'
-%           MinorTick  -> 'none'
-%           TickDir    -> 'in'
-%           TickLength -> [0.0100, 0.0250]
-%       'pretty'
-%           Box        -> 'off'
-%           Grid       -> 'none'
-%           GridStyle  -> 'current'
-%           MinorTick  -> 'all'
-%           TickDir    -> 'out'
-%           TickLength -> [0.0050, 0.0125]
-%       'simple'
-%           Box        -> 'off'
-%           Grid       -> 'none'
-%           GridStyle  -> 'current'
-%           MinorTick  -> 'none'
-%           TickDir    -> 'out'
-%           TickLength -> [0.0050, 0.0125]
-%       'smart'
-%           Box        -> 'off'
-%           Grid       -> 'none'
-%           GridStyle  -> 'current'
-%           MinorTick  -> 'smart'
-%           TickDir    -> 'out'
-%           TickLength -> [0.0050, 0.0125]
-%
-%   ColorBarStyle
-%       'current'
-%           ColorBarBox           -> 'current'
-%           ColorBarMinorTick     -> 'current'
-%           ColorBarTickDir       -> 'current'
-%           ColorBarWidth         -> 'current'
-%           ColorBarGrid          -> 'current'
-%           ColorBarGridLineStyle -> 'current'
-%           ColorBarGap           -> 0.1 [inches]
-%       'fancy'
-%           ColorBarBox           -> 'on'
-%           ColorBarMinorTick     -> 'on'
-%           ColorBarTickDir       -> 'out'
-%           ColorBarWidth         -> 0.15 [inches]
-%           ColorBarGrid          -> 'on'
-%           ColorBarGridLineStyle -> ':'
-%           ColorBarGap           -> 0.1 [inches]
-%       'plain'
-%           ColorBarBox           -> 'on'
-%           ColorBarMinorTick     -> 'off'
-%           ColorBarTickDir       -> 'in'
-%           ColorBarWidth         -> 0.2778 [inches]
-%           ColorBarGrid          -> 'off'
-%           ColorBarGridLineStyle -> 'current'
-%           ColorBarGap           -> 0.1 [inches]
-%       'pretty'
-%           ColorBarBox           -> 'off'
-%           ColorBarMinorTick     -> 'on'
-%           ColorBarTickDir       -> 'out'
-%           ColorBarWidth         -> 0.15 [inches]
-%           ColorBarGrid          -> 'off'
-%           ColorBarGridLineStyle -> 'current'
-%           ColorBarGap           -> 0.1 [inches]
-%
-%   ColorStyle
-%       'bright'
-%           ColorSequence -> 'bright'
-%           ColorMap      -> 'cyan'
-%           BarColorStyle -> 'sequence'
-%       'current'
-%           ColorSequence -> 'current'
-%           ColorMap      -> 'current'
-%           BarColorStyle -> 'current'
-%       'dark'
-%           ColorSequence -> 'dark'
-%           ColorMap      -> 'blue'
-%           BarColorStyle -> 'sequence'
-%       'gray' | 'grayscale'
-%           ColorSequence -> 'gray'
-%           ColorMap      -> 'gray'
-%           BarColorStyle -> 'contour'
-%       'plain'
-%           ColorSequence -> 'plain'
-%           ColorMap      -> 'jet'
-%           BarColorStyle -> 'contour'
-%       'pretty'
-%           ColorSequence -> 'blue'
-%           ColorMap      -> 'blue'
-%           BarColorStyle -> 'contour'
-%
-%   ContourStyle
-%       'black'
-%           ContourFill      -> 'off'
-%           ContourFontColor -> 'Black'
-%           ContourFontName  -> 'auto'
-%           ContourFontSize  -> 'auto'
-%           ContourLineColor -> 'Black'
-%           ContourText      -> 'on'
-%       'current'
-%           ContourFill      -> 'current'
-%           ContourFontColor -> 'current'
-%           ContourFontName  -> 'current'
-%           ContourFontSize  -> 'current'
-%           ContourLineColor -> 'current'
-%           ContourText      -> 'current'
-%       'fancy'
-%           ContourFill      -> 'on'
-%           ContourFontColor -> 'auto'
-%           ContourFontName  -> 'auto'
-%           ContourFontSize  -> 'auto'
-%           ContourLineColor -> 'Black'
-%           ContourText      -> 'on'
-%       'pretty'
-%           ContourFill      -> 'off'
-%           ContourFontColor -> 'Black'
-%           ContourFontName  -> 'auto'
-%           ContourFontSize  -> 'auto'
-%           ContourLineColor -> 'auto'
-%           ContourText      -> 'on'
-%       'simple' | 'plain'
-%           ContourFill      -> 'off'
-%           ContourFontColor -> 'current'
-%           ContourFontName  -> 'auto'
-%           ContourFontSize  -> 'auto'
-%           ContourLineColor -> 'auto'
-%           ContourText      -> 'off'
-%       'smooth'
-%           ContourFill      -> 'on'
-%           ContourFontColor -> 'current'
-%           ContourFontName  -> 'auto'
-%           ContourFontSize  -> 'auto'
-%           ContourLineColor -> 'auto'
-%           ContourText      -> 'off'
-%
-%   FigureStyle
-%       'color'
-%           AspectRatio      -> 0.75
-%           AxesStyle        -> 'pretty'
-%           ColorBarStyle    -> 'pretty'
-%           ColorStyle       -> 'dark'
-%           ContourStyle     -> 'pretty'
-%           FontStyle        -> 'pretty'
-%           Interpreter      -> 'auto'
-%           LegendStyle      -> 'pretty'
-%           PlotStyle        -> 'plain'
-%           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'tight'
-%           Width            -> 3.1 [inches]
-%       'current'
-%           AspectRatio      -> 'auto'
-%           AxesStyle        -> 'current'
-%           ColorBarStyle    -> 'current'
-%           ColorStyle       -> 'current'
-%           ContourStyle     -> 'current'
-%           FontStyle        -> 'current'
-%           Interpreter      -> 'current'
-%           LegendStyle      -> 'current'
-%           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'loose'
-%           Width            -> 'auto'
-%       'fancy'
-%           AspectRatio      -> 'auto'
-%           AxesStyle        -> 'pretty'
-%           ColorBarStyle    -> 'pretty'
-%           ColorStyle       -> 'pretty'
-%           ContourStyle     -> 'pretty'
-%           FontStyle        -> 'pretty'
-%           Interpreter      -> 'auto'
-%           LegendStyle      -> 'pretty'
-%           PlotLineStyle    -> 'pretty'
-%           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'tight'
-%           Width            -> 'auto'
-%       'onecol'
-%           AspectRatio      -> (sqrt(5) - 1) / 2
-%           AxesStyle        -> 'pretty'
-%           ColorBarStyle    -> 'fancy'
-%           ColorStyle       -> 'pretty'
-%           ContourStyle     -> 'fancy'
-%           FontStyle        -> 'pretty'
-%           Interpreter      -> 'auto'
-%           LegendStyle      -> 'pretty'
-%           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'tight'
-%           Width            -> 6 [inches]
-%       'plain'
-%           AspectRatio      -> 'auto'
-%           AxesStyle        -> 'plain'
-%           ColorBarStyle    -> 'plain'
-%           ColorStyle       -> 'plain'
-%           ContourStyle     -> 'plain'
-%           FontStyle        -> 'plain'
-%           Interpreter      -> 'current'
-%           LegendStyle      -> 'plain'
-%           PlotStyle        -> 'plain'
-%           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'loose'
-%           Width            -> 'auto'
-%       'plot'
-%           AspectRatio      -> 0.75
-%           AxesStyle        -> 'pretty'
-%           ColorBarStyle    -> 'pretty'
-%           ColorStyle       -> 'current'
-%           ContourStyle     -> 'pretty'
-%           FontStyle        -> 'pretty'
-%           Interpreter      -> 'auto'
-%           LegendStyle      -> 'pretty'
-%           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'tight'
-%           Width            -> 3.1 [inches]
-%       'present' | 'presentation'
-%           AspectRatio      -> 0.75
-%           AxesStyle        -> 'pretty'
-%           ColorBarStyle    -> 'pretty'
-%           ColorStyle       -> 'pretty'
-%           ContourStyle     -> 'pretty'
-%           FontStyle        -> 'present'
-%           Interpreter      -> 'auto'
-%           LegendStyle      -> 'pretty'
-%           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'tight'
-%           Width            -> 2.125 [inches]
-%       'pretty'
-%           AspectRatio      -> 'auto'
-%           AxesStyle        -> 'fancy'
-%           ColorBarStyle    -> 'fancy'
-%           ColorStyle       -> 'pretty'
-%           ContourStyle     -> 'fancy'
-%           FontStyle        -> 'pretty'
-%           Interpreter      -> 'auto'
-%           LegendStyle      -> 'pretty'
-%           PlotStyle        -> 'simple'
-%           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'tight'
-%           Width            -> 'auto'
-%       'twocol' | 'journal'
-%           AspectRatio      -> 0.75
-%           AxesStyle        -> 'pretty'
-%           ColorBarStyle    -> 'pretty'
-%           ColorStyle       -> 'gray'
-%           ContourStyle     -> 'pretty'
-%           FontStyle        -> 'pretty'
-%           Interpreter      -> 'auto'
-%           LegendStyle      -> 'pretty'
-%           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
-%           MarginStyle      -> 'tight'
-%           Width            -> 3.1 [inches]
-%
-%   FontStyle
-%       'current'
-%           FontName -> 'current'
-%           FontSize -> 'current'
-%       'plain'
-%           FontName -> 'Helvetica'
-%           FontSize -> 10
-%       'pretty' | 'fancy' | 'present' | 'presentation'
-%           FontName -> 'Times New Roman'
-%           FontSize -> 9
-%       'sans-serif'
-%           FontName -> 'Helvetica'
-%           FontSize -> 'current'
-%       'serif'
-%           FontName -> 'Times New Roman'
-%           FontSize -> 'current'
-%
-%   LegendStyle
-%       'current'
-%           LegendBox   -> 'current'
-%           LegendGap   -> 0.1 [inches]
-%       'plain'
-%           LegendBox   -> 'current'
-%           LegendGap   -> 0.1 [inches]
-%       'pretty'
-%           LegendBox   -> 'current'
-%           LegendGap   -> 0.1 [inches]
-%
-%   PlotStyle
-%       'current'
-%           LineStyle -> 'current'
-%           LineWidth -> 'current'
-%       'fancy'
-%           LineStyle -> 'fancy'
-%           LineWidth -> 'fancy'
-%       'plain'
-%           LineStyle -> 'plain'
-%           LineWidth -> 'plain'
-%       'pretty'
-%           LineStyle -> 'pretty'
-%           LineWidth -> 'pretty'
+% CASCADING STYLES:
+%    <strong>set_plot</strong> has a system of cascading styles such that
+%    some formatting options control other options unless more detailed
+%    options are given.  The <a href="matlab: help set_plot>help_cascading_styles">cascading style chart</a> gives a full
+%    list of the cascading styles.
 %
 
 %----------------------------------------------------------------------
@@ -554,6 +89,10 @@ function h = set_plot(varargin)
 
 
 %% --- Input processing ---
+
+% List of empty subfunctions.
+help_options;
+help_cascading_styles;
 
 % Number of varargs
 n_arg = length(varargin);
@@ -2913,3 +2452,488 @@ else
     % Return default value.
     val = default;
 end
+
+
+% --- SUBFUNCTION 2: Help for options ---
+function help_options
+% SET_PLOT OPTIONS:
+%    <strong>AspectRatio</strong>
+%          [ {auto} | positive scalar ]
+%       Aspect ratio to use for figure.  The 'auto' option tells the
+%       function to use the aspect ratio of the current figure window.
+%    <strong>AxesStyle</strong>
+%          [ {current} | pretty | fancy | simple | smart | plain ]
+%       Scheme to use for axes.  This is a cascading style.
+%    <strong>BarColorStyle</strong>
+%          [ {current} | contour | sequence ]
+%       Whether to use the colormap or the color sequence for the colors
+%       of bar graph objects.
+%    <strong>Box</strong>
+%          [ {current} | on | off ]
+%       Whether or not to draw a box around the plot.
+%    <strong>ColorBarStyle</strong>
+%          [ {current} | pretty | fancy | plain ]
+%       Style to use for colorbar.  This is a cascading style.
+%    <strong>ColorBarBox</strong>
+%          [ {current} | on | off ]
+%       Whether or not to draw a box around the colorbar.
+%    <strong>ColorBarMinorTick</strong>
+%          [ {current} | on | off ]
+%       Whether or not to use minor ticks on the colorbar.
+%    <strong>ColorBarTickDir</strong>
+%          [ {current} | in | out ]
+%       Direction to draw ticks on the colorbar
+%    <strong>ColorBarWidth</strong>
+%          [ {current} | positive scalar ]
+%       Width of colorbar, not including labels and ticks.
+%    <strong>ColorBarGrid</strong>
+%          [ {current} | on | off ]
+%       Whether or not to draw grid lines in the colorbar.
+%    <strong>ColorBarGridLineStyle</strong>
+%          [ {current} | : | - | -- | -. ]
+%       Style for grid lines in colorbar.
+%    <strong>ColorBarGap</strong>
+%          [ {0.1} | positive scalar ]
+%       Distance between box containing plot and box containing colorbar.
+%    <strong>ColorMap</strong>
+%          [ {current} | string | Nx3 double | Nx4 double | cell array ]
+%       The colormap can consist of either a label to a standard MATLAB
+%       colormap or use a matrix of colors.  An additional option is to use
+%       a cell array of colors.  Each color can be either a 1x3 RGB color or
+%       an HTML color string such as 'OliveGreen'.  See <a href="matlab: help set_colormap">set_colormap</a>.
+%    <strong>ColorSequence</strong>
+%          [ {current} | plain | default | gray | black | blue | dark
+%             | bright | Nx3 matrix | cell array ]
+%       Sequence of colors for plot lines.
+%    <strong>ColorStyle</strong>
+%          [ {current} | pretty | plain | gray | bright | dark ]
+%       Overall color theme.  This is a cascading style.
+%       Color to use for labels in contour plots
+%    <strong>ContourFill</strong>
+%          [ {current} | on | off ]
+%       Whether or not contours plots should be filled in.
+%    <strong>ContourFontColor</strong>
+%          [ {current} | auto | string | 1x3 double ]
+%       Color to use for contour text labels.  The 'auto' value chooses
+%       either black or white for each label in an attempt to pick a color
+%       that is readable against the background.
+%    <strong>ContourFontName</strong>
+%          [ {current} | auto | string]
+%       Font to use for contour text labels.  The 'auto' value
+%       inherits the overall font specified using FontName.
+%    <strong>ContourFontSize</strong>
+%          [ {current} | auto | positive scalar ]
+%       Size of font to use for contour text labels.  The 'auto' value
+%       corresponds to a size one point smaller than the overall font
+%       size specified using FontSize.
+%    <strong>ContourLineColor</strong>
+%          [ {current} | auto | string | 1x3 double ]
+%       Color to use for contour lines.  The 'auto' value tells the
+%       function to match the contour lines to the colormap values.
+%    <strong>ContourStyle</strong>
+%          [ {current} | pretty | fancy | black | fill | smooth
+%             | simple | plain ]
+%       Style to use for contour plots.  This is a cascading style.
+%    <strong>ContourText</strong>
+%          [ {current} | on | off ]
+%       Whether or not to use labels in contour plots.
+%    <strong>FigureStyle</strong>
+%          [ {current} | pretty | fancy | plain | journal | twocol
+%             | onecol | present | presentation | color | plot ]
+%       Overall figure style.  This is a cascading style.
+%    <strong>FontName</strong>
+%          [ {current} | font name (string) ]
+%       Name of font to use for most text
+%    <strong>FontSize</strong>
+%          [ {current} | positive scalar ]
+%       Size of fonts to use.
+%    <strong>FontStyle</strong>
+%          [ {current} | pretty | present | plain | serif | sans-serif ]
+%       Scheme for text fonts and sizes.  This is a cascading style.
+%    <strong>Grid</strong>
+%          [ {current} | major | all | on | off | none | smart
+%             | x | y | z | X | Y | Z ]
+%       Whether or not to draw grid lines.  The strings 'x', 'y', etc. and
+%       their combinations can be used to control the grid lines for each
+%       axis.  The capital versions turn on both major and minor grid lines.
+%       The 'smart' value turns on all major grid lines and minor grid lines
+%       for any axis with linear spacing.
+%    <strong>Interpreter</strong>
+%          [ {current} | auto | tex | latex | none ]
+%       Rules to use for text interpreters.  The 'auto' option turns most
+%       interpreters to 'tex', except those with multiple '$' characters,
+%       for which it uses the 'latex' interpreter.
+%    <strong>LegendBox</strong>
+%          [ {current} | on | off ]
+%       Whether or not to use a box around the legend.
+%    <strong>LegendGap</strong>
+%          [ {0.1} | positive scalar ]
+%       Gap between graph and legend.
+%    <strong>LegendStyle</strong>
+%          [ {current} | plain | pretty ]
+%       Style to use for the legend.  This is a cascading style.
+%    <strong>LineStyle</strong>
+%          [ {current} | pretty | fancy | simple | plain | cell array ]
+%       Sequence of plot styles.
+%    <strong>LineWidth</strong>
+%          [ {current} | pretty | fancy | simple | plain | cell array
+%             | double array ]
+%       Sequence of widths for plot lines.
+%    <strong>Margin</strong>
+%          [ 0.025 | scalar vector with up to four entries ]
+%       Extra margin to add for 'tight' MarginStyle.
+%    <strong>MarginBottom</strong>
+%          [ 0.025 | positive scalar ]
+%       Extra bottom margin to add for 'tight' MarginStyle.
+%    <strong>MarginLeft</strong>
+%          [ 0.025 | positive scalar ]
+%       Extra left margin to add for 'tight' MarginStyle.
+%    <strong>MarginRight</strong>
+%          [ 0.025 | positive scalar ]
+%       Extra right margin to add for 'tight' MarginStyle.
+%    <strong>MarginStyle</strong>
+%          [ {tight} | loose | image ]
+%       Style for the margins.  The 'tight' option cuts off all margins, and
+%       the 'loose' option restores the defaults.  Both options change the
+%       paper size so that the figure has the proper dimensions when the
+%       'saveas' command is used.
+%    <strong>MarginTop</strong>
+%            [ 0.025 | positive scalar ]
+%       Extra top margin to add for 'tight' MarginStyle.
+%    <strong>MinorTick</strong>
+%          [ {current} | all | none | on | off | smart
+%             | x | y | z | xy | xz | xy | xyz ]
+%       Whether or not to use minor ticks on the axes.  The 'smart'
+%       value turns on minor ticks for all non-logarithmic axes.
+%    <strong>PlotStyle</strong>
+%          [ {current} | pretty | fancy | plain ]
+%       Style to use for plot lines.  This is a cascading style.
+%    <strong>TickDir</strong>
+%          [ {current} | in | out ]
+%       Tick direction for main plot.
+%    <strong>TickLength</strong>
+%          [ {current} | short | long | 1x2 double ]
+%       Length of ticks for main axes.
+%    <strong>Width</strong>
+%          [ {auto} | positive scalar ]
+%       Width of figure.
+%
+
+return
+
+
+% --- SUBFUNCTION 3: Display cascading style chart ---
+function help_cascading_styles
+% SET_PLOT CASCADING STYLE CHART:
+%
+%   <strong>FigureStyle</strong>
+%       'color'
+%           AspectRatio      -> 0.75
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'dark'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'pretty'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotStyle        -> 'plain'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 3.1 [inches]
+%       'current'
+%           AspectRatio      -> 'auto'
+%           AxesStyle        -> 'current'
+%           ColorBarStyle    -> 'current'
+%           ColorStyle       -> 'current'
+%           ContourStyle     -> 'current'
+%           FontStyle        -> 'current'
+%           Interpreter      -> 'current'
+%           LegendStyle      -> 'current'
+%           PlotStyle        -> 'current'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'loose'
+%           Width            -> 'auto'
+%       'fancy'
+%           AspectRatio      -> 'auto'
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'pretty'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'pretty'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotLineStyle    -> 'pretty'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 'auto'
+%       'onecol'
+%           AspectRatio      -> (sqrt(5) - 1) / 2
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'fancy'
+%           ColorStyle       -> 'pretty'
+%           ContourStyle     -> 'fancy'
+%           FontStyle        -> 'pretty'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotStyle        -> 'current'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 6 [inches]
+%       'plain'
+%           AspectRatio      -> 'auto'
+%           AxesStyle        -> 'plain'
+%           ColorBarStyle    -> 'plain'
+%           ColorStyle       -> 'plain'
+%           ContourStyle     -> 'plain'
+%           FontStyle        -> 'plain'
+%           Interpreter      -> 'current'
+%           LegendStyle      -> 'plain'
+%           PlotStyle        -> 'plain'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'loose'
+%           Width            -> 'auto'
+%       'plot'
+%           AspectRatio      -> 0.75
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'current'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'pretty'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotStyle        -> 'current'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 3.1 [inches]
+%       'present' | 'presentation'
+%           AspectRatio      -> 0.75
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'pretty'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'present'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotStyle        -> 'current'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 2.125 [inches]
+%       'pretty'
+%           AspectRatio      -> 'auto'
+%           AxesStyle        -> 'fancy'
+%           ColorBarStyle    -> 'fancy'
+%           ColorStyle       -> 'pretty'
+%           ContourStyle     -> 'fancy'
+%           FontStyle        -> 'pretty'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotStyle        -> 'simple'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 'auto'
+%       'twocol' | 'journal'
+%           AspectRatio      -> 0.75
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'gray'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'pretty'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotStyle        -> 'current'
+%           Margin           -> 0.025 * ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 3.1 [inches]
+%
+%    <strong>AxesStyle</strong>
+%       'current'
+%           Box        -> 'current'
+%           Grid       -> 'current'
+%           GridStyle  -> 'current'
+%           MinorTick  -> 'current'
+%           TickDir    -> 'current'
+%           TickLength -> 'current'
+%       'fancy'
+%           Box        -> 'off'
+%           Grid       -> 'major'
+%           GridStyle  -> ':'
+%           MinorTick  -> 'all'
+%           TickDir    -> 'out'
+%           TickLength -> [0.0050, 0.0125]
+%       'plain'
+%           Box        -> 'on'
+%           Grid       -> 'none'
+%           GridStyle  -> 'current'
+%           MinorTick  -> 'none'
+%           TickDir    -> 'in'
+%           TickLength -> [0.0100, 0.0250]
+%       'pretty'
+%           Box        -> 'off'
+%           Grid       -> 'none'
+%           GridStyle  -> 'current'
+%           MinorTick  -> 'all'
+%           TickDir    -> 'out'
+%           TickLength -> [0.0050, 0.0125]
+%       'simple'
+%           Box        -> 'off'
+%           Grid       -> 'none'
+%           GridStyle  -> 'current'
+%           MinorTick  -> 'none'
+%           TickDir    -> 'out'
+%           TickLength -> [0.0050, 0.0125]
+%       'smart'
+%           Box        -> 'off'
+%           Grid       -> 'none'
+%           GridStyle  -> 'current'
+%           MinorTick  -> 'smart'
+%           TickDir    -> 'out'
+%           TickLength -> [0.0050, 0.0125]
+%
+%   <strong>ColorBarStyle</strong>
+%       'current'
+%           ColorBarBox           -> 'current'
+%           ColorBarMinorTick     -> 'current'
+%           ColorBarTickDir       -> 'current'
+%           ColorBarWidth         -> 'current'
+%           ColorBarGrid          -> 'current'
+%           ColorBarGridLineStyle -> 'current'
+%           ColorBarGap           -> 0.1 [inches]
+%       'fancy'
+%           ColorBarBox           -> 'on'
+%           ColorBarMinorTick     -> 'on'
+%           ColorBarTickDir       -> 'out'
+%           ColorBarWidth         -> 0.15 [inches]
+%           ColorBarGrid          -> 'on'
+%           ColorBarGridLineStyle -> ':'
+%           ColorBarGap           -> 0.1 [inches]
+%       'plain'
+%           ColorBarBox           -> 'on'
+%           ColorBarMinorTick     -> 'off'
+%           ColorBarTickDir       -> 'in'
+%           ColorBarWidth         -> 0.2778 [inches]
+%           ColorBarGrid          -> 'off'
+%           ColorBarGridLineStyle -> 'current'
+%           ColorBarGap           -> 0.1 [inches]
+%       'pretty'
+%           ColorBarBox           -> 'off'
+%           ColorBarMinorTick     -> 'on'
+%           ColorBarTickDir       -> 'out'
+%           ColorBarWidth         -> 0.15 [inches]
+%           ColorBarGrid          -> 'off'
+%           ColorBarGridLineStyle -> 'current'
+%           ColorBarGap           -> 0.1 [inches]
+%
+%   <strong>ColorStyle</strong>
+%       'bright'
+%           ColorSequence -> 'bright'
+%           ColorMap      -> 'cyan'
+%           BarColorStyle -> 'sequence'
+%       'current'
+%           ColorSequence -> 'current'
+%           ColorMap      -> 'current'
+%           BarColorStyle -> 'current'
+%       'dark'
+%           ColorSequence -> 'dark'
+%           ColorMap      -> 'blue'
+%           BarColorStyle -> 'sequence'
+%       'gray' | 'grayscale'
+%           ColorSequence -> 'gray'
+%           ColorMap      -> 'gray'
+%           BarColorStyle -> 'contour'
+%       'plain'
+%           ColorSequence -> 'plain'
+%           ColorMap      -> 'jet'
+%           BarColorStyle -> 'contour'
+%       'pretty'
+%           ColorSequence -> 'blue'
+%           ColorMap      -> 'blue'
+%           BarColorStyle -> 'contour'
+%
+%   <strong>ContourStyle</strong>
+%       'black'
+%           ContourFill      -> 'off'
+%           ContourFontColor -> 'Black'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'Black'
+%           ContourText      -> 'on'
+%       'current'
+%           ContourFill      -> 'current'
+%           ContourFontColor -> 'current'
+%           ContourFontName  -> 'current'
+%           ContourFontSize  -> 'current'
+%           ContourLineColor -> 'current'
+%           ContourText      -> 'current'
+%       'fancy'
+%           ContourFill      -> 'on'
+%           ContourFontColor -> 'auto'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'Black'
+%           ContourText      -> 'on'
+%       'pretty'
+%           ContourFill      -> 'off'
+%           ContourFontColor -> 'Black'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'auto'
+%           ContourText      -> 'on'
+%       'simple' | 'plain'
+%           ContourFill      -> 'off'
+%           ContourFontColor -> 'current'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'auto'
+%           ContourText      -> 'off'
+%       'smooth'
+%           ContourFill      -> 'on'
+%           ContourFontColor -> 'current'
+%           ContourFontName  -> 'auto'
+%           ContourFontSize  -> 'auto'
+%           ContourLineColor -> 'auto'
+%           ContourText      -> 'off'
+%
+%   <strong>FontStyle</strong>
+%       'current'
+%           FontName -> 'current'
+%           FontSize -> 'current'
+%       'plain'
+%           FontName -> 'Helvetica'
+%           FontSize -> 10
+%       'pretty' | 'fancy' | 'present' | 'presentation'
+%           FontName -> 'Times New Roman'
+%           FontSize -> 9
+%       'sans-serif'
+%           FontName -> 'Helvetica'
+%           FontSize -> 'current'
+%       'serif'
+%           FontName -> 'Times New Roman'
+%           FontSize -> 'current'
+%
+%   <strong>LegendStyle</strong>
+%       'current'
+%           LegendBox   -> 'current'
+%           LegendGap   -> 0.1 [inches]
+%       'plain'
+%           LegendBox   -> 'current'
+%           LegendGap   -> 0.1 [inches]
+%       'pretty'
+%           LegendBox   -> 'current'
+%           LegendGap   -> 0.1 [inches]
+%
+%   <strong>PlotStyle</strong>
+%       'current'
+%           LineStyle -> 'current'
+%           LineWidth -> 'current'
+%       'fancy'
+%           LineStyle -> 'fancy'
+%           LineWidth -> 'fancy'
+%       'plain'
+%           LineStyle -> 'plain'
+%           LineWidth -> 'plain'
+%       'pretty'
+%           LineStyle -> 'pretty'
+%           LineWidth -> 'pretty'
+%
+
+return
