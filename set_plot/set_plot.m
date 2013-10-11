@@ -2175,7 +2175,7 @@ if q_legend
     % Type of each child
     t_l_child = get(h_l_child, 'Type');
     % Label handles
-    h_l_text = h_l_child(cell_position_string(t_l_child, 'text'));
+    h_l_text = h_l_child(strcmp(t_l_child, 'text'));
     % Interpreter for each label
     i_l_text = get(h_l_text, 'Interpreter');
     % Set the interpreter to none for sizing.
@@ -2625,9 +2625,9 @@ for h_c = h_contour(:)'
         i_c_child = {i_c_child};
     end
     % Find those that are labels.
-    h_c_text  = h_c_child(cell_position_string(i_c_child, 'text'));
+    h_c_text  = h_c_child(strcmp(i_c_child, 'text'));
     % Find those that are lines.
-    h_c_line  = h_c_child(cell_position_string(i_c_child, 'line'));
+    h_c_line  = h_c_child(strcmp(i_c_child, 'line'));
     % Move all labels so that they don't cross the contour lines by default.
     set(h_c_text, 'VerticalAlignment', 'bottom');
     
@@ -2913,41 +2913,3 @@ else
     % Return default value.
     val = default;
 end
-
-
-% --- SUBFUNCTION 2: Find the location of the matching string ---
-function i=cell_position_string(S,str)
-%
-% i=position(S,x,tol)
-%
-% INPUTS:
-%         S   : cell array of strings
-%         str : targeted string
-%
-% OUTPUTS:
-%         i   : indices of locations of str in S
-%
-% This function finds the location of entries in S that match the string
-% str.  The function assumes S is a cell array of strings.
-%
-
-
-% Initialize output.
-n_cell = numel(S);                              % number of strings in S
-i      = zeros(1,n_cell);                       % maximum size of i
-n_find = 0;                                     % number of matches
-
-% Loop through S.
-for j=1:n_cell
-    % Check for match of jth cell with str
-    if strcmpi(S{j},str)
-        % Increase number of finds.
-        n_find    = n_find + 1;
-        % Save index.
-        i(n_find) = j;
-    end
-end
-
-% Delete extra entries of i.
-i = i(1:n_find);
-

@@ -1,25 +1,27 @@
-function set_colormap(varargin)
-% 
-% set_colormap(colorString)
-% set_colormap(colorCell)
-% set_colormap(colorMap)
-% set_colormap(colorName1, colorName2, ...)
-% set_colormap(colorVal1, colorName1, ...)
-% set_colormap(colorVals, colorName1, ...)
-% set_colormap(h_f, ...)
-% cmap = set_colormap(...)
+function cmap = set_colormap(varargin)
+%SET_COLORMAP Customize color mapping
+%
+% CALL:
+%    set_colormap(cmapName)
+%    set_colormap(cmapCell)
+%    set_colormap(cmapMat)
+%    set_colormap(colName1, colName2, ...)
+%    set_colormap(colVal1, colName1, ...)
+%    set_colormap(colVals, colName1, ...)
+%    set_colormap(h_f, ...)
+%    cmap = set_colormap(...)
 %
 % INPUTS:
-%         h_f         : figure handle (default is gcf)
-%         colorString : name of custom or built-in colormap (notes 1-3)
-%         colorCell   : cell array of colors or colors and values (note 7)
-%         colorMap    : Nx3 or Nx4 matrix (note 4)
-%         colorName1  : RGB color or HTML color (note 5)
-%         colorVal1   : scalar for interpolation (note 6)
-%         colorVals   : list of scalars for interpolation (note 6)
+%    h_f      : figure handle (default is gcf)
+%    cmapName : name of custom or built-in colormap (notes 1-3)
+%    cmapCell : cell array of colors or colors and values (note 7)
+%    cmapMat  : Nx3 or Nx4 matrix (note 4)
+%    colName1 : RGB color or HTML color (note 5)
+%    colVal1  : scalar for interpolation (note 6)
+%    colVals  : list of scalars for interpolation (note 6)
 % 
 % OUTPUTS:
-%         cmap : the Nx3 colormap used
+%    cmap : the Nx3 colormap used
 %
 % This function edits a colormap with dramatically more options than the
 % built-in colormap function.  In addition to the built-in colormaps, this
@@ -27,64 +29,65 @@ function set_colormap(varargin)
 % secondary colors and black and white.  Thus the following example will
 % produce a colormap going from White to Blue to DarkBlue.
 %
-%     set_colormap blue
+%     >> set_colormap blue
 %
 % There is also the option to reverse any colormap by using a prefix.
 %
-%     set_colormap reverse-blue
-%     set_colormap reverse-jet
+%     >> set_colormap reverse-blue
+%     >> set_colormap reverse-jet
 %
 % The user can also use a pre-defined colormap using the following command.
 %
-%     set_colormap(cmap)
+%     >> set_colormap(cmap)
 %
 % Here cmap is an Nx3 or Nx4 matrix of RGB colors.  Finally, this function
 % provides several ways to construct a colormap manually.  The following
 % example shows how to construct a map that goes through a certain range of
 % colors based on common names.
 %
-%     set_colormap('Navy', 'Blue', 'White')
+%     >> set_colormap('Navy', 'Blue', 'White')
 %
 % The user may also change the values to which each color corresponds.
 %
-%     set_colormap({0, 'Navy', 0.2, 'Blue', 1, 'White'})
+%     >> set_colormap({0, 'Navy', 0.2, 'Blue', 1, 'White'})
 %
 % The function will recognize any of the typical web browser color names.
 %
 % NOTES:
-%       (1) The built-in colormaps can be viewed by looking at "colormap"
-%           the Matlab help browser.  They are autumn, bone, colorcube,
-%           cool, copper, flag, gray, hot, hsv, jet, lines, pink, prism,
-%           spring, summer, white, and winter.
+%    (1) The built-in color maps can are described by <a href="matlab: doc colormap">colormap</a>
+%        in the Matlab help browser.  They are 'autumn', 'bone', 'colorcube',
+%        'cool', 'copper', 'flag', 'gray', 'hot', 'hsv', 'jet', 'lines', 
+%        'pink', 'prism', 'spring', 'summer', 'white', and 'winter'.
 %
-%       (2) The custom colormaps defined here are black, blue, cyan, green,
-%           magenta, red, white, and yellow.  They can also be aliased
-%           using the single-character abbreviations k, b, c, g, m, r, w,
-%           and y, respectively.
+%    (2) The custom colormaps defined here are black, blue, cyan, green,
+%        magenta, red, white, and yellow.  They can also be aliased
+%        using the single-character abbreviations 'k', 'b', 'c', 'g', 'm',
+%        'r', 'w', and 'y', respectively.
 %
-%       (3) Any of the string colormaps can be reversed by prepending the
-%           string with 'reverse-', for example, reverse-jet and reverse-b.
+%    (3) Any of the string colormaps can be reversed by prepending the
+%        string with 'reverse-', for example, 'reverse-jet' and 'reverse-b'.
 %
-%       (4) The colormap can also be described using a matrix.  This matrix
-%           can be an Nx3 matrix, which is the typical format for Matlab
-%           colormaps.  In this case each row refers to a red,green,blue
-%           color.  The matrix can also be an Nx4 matrix, in which case the
-%           first column gives a value to associate with each color.
+%    (4) The colormap can also be described using a matrix.  This matrix
+%        can be an Nx3 matrix, which is the typical format for Matlab
+%        colormaps.  In this case each row refers to a red,green,blue
+%        color.  The matrix can also be an Nx4 matrix, in which case the
+%        first column gives a value to associate with each color.
 %
-%       (5) Colors listed individually can be either an RGB color, which is
-%           a 1x3 double, or an HTML color, which is a string containing
-%           the name of a common color.  A full list can be found at
-%           <http://www.w3schools.com/html/html_colornames.asp>.
+%    (5) Colors listed individually can be either an RGB color, which is
+%        a 1x3 double, or an HTML color, which is a string containing
+%        the name of a common color.  A full list can be found at
+%        http://www.w3schools.com/html/html_colornames.asp. See
+%        <a href="matlab: help html2rgb">html2rgb</a> for more information.
 %
-%       (6) The colormap associates a color for each number in the range of
-%           0 to 1.  By default, the colors are spaced out equally, but
-%           this may not always be what the user wants.  The values can be
-%           given alternating with the colors or a list of interpolation
-%           values followed by a list of colors.
+%    (6) The colormap associates a color for each number in the range of
+%        0 to 1.  By default, the colors are spaced out equally, but
+%        this may not always be what the user wants.  The values can be
+%        given alternating with the colors or a list of interpolation
+%        values followed by a list of colors.
 %
-%       (7) A cell array can also be used.  The cell array consists of
-%           either a list of colors or a column of values and a column of
-%           colors or a row of values and a row of colors.
+%    (7) A cell array can also be used.  The cell array consists of
+%        either a list of colors or a column of values and a column of
+%        colors or a row of values and a row of colors.
 %
 
 %----------------------------------------------------------------------
@@ -99,10 +102,8 @@ function set_colormap(varargin)
 %----------------------------------------------------------------------
 
 % Versions:
-%  2010/11/04 @Derek Dalle    : Branched from set_plot
-%  2010/11/05 @Derek Dalle    : First version
-%
-% Public domain
+%  2010-11-04 @dalle   : Branched from set_plot
+%  2010-11-05 @dalle   : First version
 
 % Number of varargs
 n_arg = length(varargin);
@@ -134,10 +135,17 @@ end
 % Don't reverse the colormap by default.
 q_cmap_reverse = false;
 
+% List of built-in colormaps.
+cmap_builtin = {
+    'autumn', 'bone', 'colorcube', 'cool', ...
+    'copper', 'flag', 'gray',      'hot', ...
+    'hsv',    'jet',  'lines'};
+
+
 % Check for a simple string input.
 if ischar(s_cmap)
 	% Check if string begins with 'reverse-'.
-	if numel(s_cmap) > 7 && strcmpi(s_cmap(1:8), 'reverse-')
+	if strncmpi(s_cmap, 'reverse-', 8)
 		% Drop the first few characters.
 		s_cmap = s_cmap(9:end);
 		% Store parameter to reverse the colormap.
@@ -171,13 +179,16 @@ if ischar(s_cmap)
 	elseif strcmpi(s_cmap, 'k') || strcmpi(s_cmap, 'black')
 		% LightGrey - DarkGray - Black map
 		s_cmap = {'LightGray', 'DarkGray', 'Black'};
-	else
+    elseif any(strcmpi(s_cmap, cmap_builtin))
 		% No custom map found.
 		q_cmap_custom = false;
 		% Find the current axes
 		h_a = get(h_f, 'CurrentAxes');
 		% Try to apply the built-in colormap.
 		colormap(h_a, s_cmap);
+    else
+        % Make a simple map based on the available.
+        s_cmap = {'White', s_cmap};
 	end
 end
 
@@ -383,4 +394,9 @@ if q_cmap_reverse
 	v_cmap = get(h_f, 'ColorMap');
 	% Apply the reversed version.
 	set(h_f, 'ColorMap', flipud(v_cmap));
+end
+
+% Check for outputs.
+if nargout > 0
+    cmap = v_cmap;
 end
