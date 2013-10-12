@@ -2637,9 +2637,9 @@ function help_cascading_styles
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotStyle        -> 'plain'
-%           Margin           -> 0.025 * ones(1,4)
+%           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
-%           Width            -> 3.1 [inches]
+%           Width            -> 3.1
 %       'current'
 %           AspectRatio      -> 'auto'
 %           AxesStyle        -> 'current'
@@ -2650,7 +2650,7 @@ function help_cascading_styles
 %           Interpreter      -> 'current'
 %           LegendStyle      -> 'current'
 %           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
+%           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'loose'
 %           Width            -> 'auto'
 %       'fancy'
@@ -2663,11 +2663,11 @@ function help_cascading_styles
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotLineStyle    -> 'pretty'
-%           Margin           -> 0.025 * ones(1,4)
+%           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 'auto'
 %       'onecol'
-%           AspectRatio      -> (sqrt(5) - 1) / 2
+%           AspectRatio      -> (sqrt(5)-1)/2
 %           AxesStyle        -> 'pretty'
 %           ColorBarStyle    -> 'fancy'
 %           ColorStyle       -> 'pretty'
@@ -2676,9 +2676,9 @@ function help_cascading_styles
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
+%           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
-%           Width            -> 6 [inches]
+%           Width            -> 6
 %       'plain'
 %           AspectRatio      -> 'auto'
 %           AxesStyle        -> 'plain'
@@ -2689,7 +2689,7 @@ function help_cascading_styles
 %           Interpreter      -> 'current'
 %           LegendStyle      -> 'plain'
 %           PlotStyle        -> 'plain'
-%           Margin           -> 0.025 * ones(1,4)
+%           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'loose'
 %           Width            -> 'auto'
 %       'plot'
@@ -2702,9 +2702,9 @@ function help_cascading_styles
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
+%           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
-%           Width            -> 3.1 [inches]
+%           Width            -> 3.1
 %       'present' | 'presentation'
 %           AspectRatio      -> 0.75
 %           AxesStyle        -> 'pretty'
@@ -2715,9 +2715,9 @@ function help_cascading_styles
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
+%           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
-%           Width            -> 2.125 [inches]
+%           Width            -> 2.125
 %       'pretty'
 %           AspectRatio      -> 'auto'
 %           AxesStyle        -> 'fancy'
@@ -2728,7 +2728,7 @@ function help_cascading_styles
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotStyle        -> 'simple'
-%           Margin           -> 0.025 * ones(1,4)
+%           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 'auto'
 %       'twocol' | 'journal'
@@ -2741,9 +2741,9 @@ function help_cascading_styles
 %           Interpreter      -> 'auto'
 %           LegendStyle      -> 'pretty'
 %           PlotStyle        -> 'current'
-%           Margin           -> 0.025 * ones(1,4)
+%           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
-%           Width            -> 3.1 [inches]
+%           Width            -> 3.1
 %
 %    <strong>AxesStyle</strong>
 %       'current'
@@ -2797,31 +2797,31 @@ function help_cascading_styles
 %           ColorBarWidth         -> 'current'
 %           ColorBarGrid          -> 'current'
 %           ColorBarGridLineStyle -> 'current'
-%           ColorBarGap           -> 0.1 [inches]
+%           ColorBarGap           -> 0.1
 %       'fancy'
 %           ColorBarBox           -> 'on'
 %           ColorBarMinorTick     -> 'on'
 %           ColorBarTickDir       -> 'out'
-%           ColorBarWidth         -> 0.15 [inches]
+%           ColorBarWidth         -> 0.15
 %           ColorBarGrid          -> 'on'
 %           ColorBarGridLineStyle -> ':'
-%           ColorBarGap           -> 0.1 [inches]
+%           ColorBarGap           -> 0.1
 %       'plain'
 %           ColorBarBox           -> 'on'
 %           ColorBarMinorTick     -> 'off'
 %           ColorBarTickDir       -> 'in'
-%           ColorBarWidth         -> 0.2778 [inches]
+%           ColorBarWidth         -> 0.2778
 %           ColorBarGrid          -> 'off'
 %           ColorBarGridLineStyle -> 'current'
-%           ColorBarGap           -> 0.1 [inches]
+%           ColorBarGap           -> 0.1
 %       'pretty'
 %           ColorBarBox           -> 'off'
 %           ColorBarMinorTick     -> 'on'
 %           ColorBarTickDir       -> 'out'
-%           ColorBarWidth         -> 0.15 [inches]
+%           ColorBarWidth         -> 0.15
 %           ColorBarGrid          -> 'off'
 %           ColorBarGridLineStyle -> 'current'
-%           ColorBarGap           -> 0.1 [inches]
+%           ColorBarGap           -> 0.1
 %
 %   <strong>ColorStyle</strong>
 %       'bright'
@@ -2913,13 +2913,13 @@ function help_cascading_styles
 %   <strong>LegendStyle</strong>
 %       'current'
 %           LegendBox   -> 'current'
-%           LegendGap   -> 0.1 [inches]
+%           LegendGap   -> 0.1
 %       'plain'
 %           LegendBox   -> 'current'
-%           LegendGap   -> 0.1 [inches]
+%           LegendGap   -> 0.1
 %       'pretty'
 %           LegendBox   -> 'current'
-%           LegendGap   -> 0.1 [inches]
+%           LegendGap   -> 0.1
 %
 %   <strong>PlotStyle</strong>
 %       'current'
