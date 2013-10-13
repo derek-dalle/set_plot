@@ -58,8 +58,8 @@ function h = set_plot(varargin)
 % of the cascading options and their affects on the detailed options is
 % below that.
 %
-% OPTIONS:
-%    <strong>set_plot</strong> has many options.  for a full list, see <a href="matlab: help set_plot>help_options">options</a>.
+% FORMAT KEYS:
+%    <strong>set_plot</strong> has many format keys.  For a full list, see <a href="matlab: help set_plot>help_keys">keys</a>.
 %
 % CASCADING STYLES:
 %    <strong>set_plot</strong> has a system of cascading styles such that
@@ -91,7 +91,7 @@ function h = set_plot(varargin)
 %% --- Input processing ---
 
 % List of empty subfunctions.
-help_options;
+help_keys;
 help_cascading_styles;
 
 % Number of varargs
@@ -110,7 +110,7 @@ else
 end
 
 % Initial options
-options = struct();
+keys = struct();
 
 % Process the optional inputs.
 % Process each argument.
@@ -130,7 +130,7 @@ while n_arg > i_arg
         % Value of the next argument.
         v_next = varargin{i_arg+1};
         % Assign option name/value pairs to a struct.
-        options.(v_arg) = v_next;
+        keys.(v_arg) = v_next;
         % Move to the next argument.
         i_arg = i_arg + 1;
         
@@ -145,7 +145,7 @@ while n_arg > i_arg
             % Current field
             c_field = v_fields{i_field};
             % Assignment
-            options.(c_field) = v_arg.(c_field);
+            keys.(c_field) = v_arg.(c_field);
         end
     else
         % Bad input
@@ -158,7 +158,7 @@ end
 
 %% --- Units and handles ---
 % Current units
-[units, options] = cut_option(options, 'Units', 'inches');
+[units, keys] = cut_key(keys, 'Units', 'inches');
 % Unit conversion from inches to (units).
 if strcmpi(units, 'inches')
     r_units = 1;
@@ -205,7 +205,7 @@ pos_axes = get(h_a, 'Position');
 %% --- Overall style ---
 
 % Determine overall style of figure.
-[s_cur, options] = cut_option(options, 'FigureStyle', 'current');
+[s_cur, keys] = cut_key(keys, 'FigureStyle', 'current');
 % Process value
 % This format is for a two-column journal.
 q_journal = strcmpi(s_cur, 'journal');
@@ -475,7 +475,7 @@ end
 
 %% --- Font style ---
 % Get font style options.
-[f_style, options] = cut_option(options, 'FontStyle', f_style);
+[f_style, keys] = cut_key(keys, 'FontStyle', f_style);
 
 % Set defaults related to font style.
 if strcmpi(f_style, 'pretty') || strcmpi(f_style, 'fancy')
@@ -532,7 +532,7 @@ end
 %% --- Axes style ---
 
 % Get the axes style options.
-[a_style, options] = cut_option(options, 'AxesStyle', a_style);
+[a_style, keys] = cut_key(keys, 'AxesStyle', a_style);
 
 % Set defaults related to axes style.
 if strcmpi(a_style, 'pretty')
@@ -648,8 +648,8 @@ end
 % Stats on the color bar
 if q_cbar
     % Get ColorBarStyle option.
-    [cbar_style, options] = cut_option(...
-        options, 'ColorBarStyle', cbar_style);
+    [cbar_style, keys] = cut_key(...
+        keys, 'ColorBarStyle', cbar_style);
     % Process ColorBarStyle option.
     if strcmpi(cbar_style, 'pretty')
         % Whether or not to have a box
@@ -742,8 +742,8 @@ end
 % Stats on the legend
 if q_legend
     % Get ColorBarStyle option.
-    [lgnd_style, options] = cut_option(...
-        options, 'ColorBarStyle', lgnd_style);
+    [lgnd_style, keys] = cut_key(...
+        keys, 'ColorBarStyle', lgnd_style);
     % Process ColorBarStyle option.
     if strcmpi(lgnd_style, 'pretty')
         % Whether or not to have a box
@@ -774,7 +774,7 @@ end
 %% --- Color scheme ---
 
 % Get the approach for the color schemes.
-[c_style, options] = cut_option(options, 'ColorStyle', c_style);
+[c_style, keys] = cut_key(keys, 'ColorStyle', c_style);
 
 % Process the minor options.
 if strcmpi(c_style, 'pretty')
@@ -837,7 +837,7 @@ end
 %% --- Plot style scheme ---
 
 % Get the approach for the plot style scheme.
-[l_style, options] = cut_option(options, 'PlotStyle', l_style);
+[l_style, keys] = cut_key(keys, 'PlotStyle', l_style);
 
 % Process the minor options.
 if strcmpi(l_style, 'pretty')
@@ -874,7 +874,7 @@ end
 %% --- Contour style ---
 
 % Get the contour style option.
-[ctr_style, options] = cut_option(options, 'ContourStyle', ctr_style);
+[ctr_style, keys] = cut_key(keys, 'ContourStyle', ctr_style);
 
 % Check value of string
 if strcmpi(ctr_style, 'pretty')
@@ -1068,7 +1068,7 @@ h_bar = h_hggroup(q_h_bar);
 %% --- Color map ---
 
 % Get the colormap option
-[s_cmap, options] = cut_option(options, 'ColorMap', s_cmap);
+[s_cmap, keys] = cut_key(keys, 'ColorMap', s_cmap);
 
 % Check for 'current'.
 if ~strcmpi(s_cmap, 'current')
@@ -1079,8 +1079,8 @@ end
 %% --- Line style sequence ---
 
 % Get the LineStyle option.
-[l_pseq, options] = cut_option(options, 'PlotLineStyle', l_pseq);
-[l_pseq, options] = cut_option(options, 'LineStyle', l_pseq);
+[l_pseq, keys] = cut_key(keys, 'PlotLineStyle', l_pseq);
+[l_pseq, keys] = cut_key(keys, 'LineStyle', l_pseq);
 
 % Test for a recognized string.
 if ischar(l_pseq) && ~strcmpi(l_pseq, 'current')
@@ -1115,8 +1115,14 @@ end
 if ~all(strcmpi(l_pseq, 'current')) && iscell(v_pseq)
     % Number of styles.
     n_pseq = numel(v_pseq);
-    % Get the lines that are actually plotted (LineStyle ~= none).
-    h_pseq = h_line(~strcmp(get(h_line, 'LineStyle'), 'none'));
+    % Find the lines.
+    if isempty(h_line)
+        % No lines.
+        h_pseq = [];
+    else
+        % Get the lines that are actually plotted (LineStyle ~= none).
+        h_pseq = h_line(~strcmp(get(h_line, 'LineStyle'), 'none'));
+    end
     % Number of handles
     n_line = numel(h_pseq);
     % Index of style to use.
@@ -1138,9 +1144,9 @@ end
 %% --- Thickness sequence ---
 
 % Get the PlotLineStyle option.
-[t_pseq, options] = cut_option(options, 'PlotLineWidth', t_pseq);
-[t_pseq, options] = cut_option(options, 'lw', t_pseq);
-[t_pseq, options] = cut_option(options, 'LineWidth', t_pseq);
+[t_pseq, keys] = cut_key(keys, 'PlotLineWidth', t_pseq);
+[t_pseq, keys] = cut_key(keys, 'lw', t_pseq);
+[t_pseq, keys] = cut_key(keys, 'LineWidth', t_pseq);
 
 % Test for a recognized string.
 if ischar(t_pseq) && ~strcmpi(t_pseq, 'current')
@@ -1200,7 +1206,7 @@ end
 %% --- Color sequence ---
 
 % Get the ColorSequence option.
-[c_pseq, options] = cut_option(options, 'ColorSequence', c_pseq);
+[c_pseq, keys] = cut_key(keys, 'ColorSequence', c_pseq);
 
 % Check the type of the sequence, and convert it to an Nx3 matrix.
 if isnumeric(c_pseq)
@@ -1325,7 +1331,7 @@ end
 h_font = [h_a; h_x; h_y; h_z; h_title; h_text];
 
 % Get font size.
-[f_size, options] = cut_option(options, 'FontSize', f_size);
+[f_size, keys] = cut_key(keys, 'FontSize', f_size);
 % Check for 'current'.
 if ~strcmpi(f_size, 'current')
     % Apply changes.
@@ -1341,7 +1347,7 @@ set(h_font, 'FontName', 'Helvetica')
 %% --- Bargraph formatting ---
 
 % Get the option for bar colors.
-[c_bar, options] = cut_option(options, 'BarColorStyle', c_bar);
+[c_bar, keys] = cut_key(keys, 'BarColorStyle', c_bar);
 
 % Only bother if there are contours
 for i = 1:numel(h_bar)
@@ -1361,7 +1367,7 @@ end
 %% --- Axes application ---
 
 % Get the tick length.
-[l_cur, options] = cut_option(options, 'TickLength', l_tick);
+[l_cur, keys] = cut_key(keys, 'TickLength', l_tick);
 % Check if input is a string or numeric
 if ischar(l_cur)
     % Check for 'current'.
@@ -1395,7 +1401,7 @@ end
 set(h_a, 'TickLength', l_tick);
 
 % Get the tick direction.
-[d_tick, options] = cut_option(options, 'TickDir', d_tick);
+[d_tick, keys] = cut_key(keys, 'TickDir', d_tick);
 % Check for 'current'.
 if ~strcmpi(d_tick, 'current')
     % Apply.
@@ -1403,7 +1409,7 @@ if ~strcmpi(d_tick, 'current')
 end
 
 % Get the box option.
-[s_box, options] = cut_option(options, 'Box', s_box);
+[s_box, keys] = cut_key(keys, 'Box', s_box);
 % Check for 'current'.
 if ~strcmpi(s_box, 'current')
     % Apply.
@@ -1411,7 +1417,7 @@ if ~strcmpi(s_box, 'current')
 end
 
 % Get the minor tick option.
-[s_tick, options] = cut_option(options, 'MinorTick', s_tick);
+[s_tick, keys] = cut_key(keys, 'MinorTick', s_tick);
 % Check for values that need processing.
 if strcmpi(s_tick, 'current')
     % Do nothing.
@@ -1476,7 +1482,7 @@ else
 end
 
 % Get the grid option.
-[r_grid, options] = cut_option(options, 'Grid', r_grid);
+[r_grid, keys] = cut_key(keys, 'Grid', r_grid);
 % Process contents of option.
 if strcmpi(r_grid, 'current')
     % Do nothing
@@ -1570,7 +1576,7 @@ else
 end
 
 % Get the grid style.
-[s_grid, options] = cut_option(options, 'GridStyle', s_grid);
+[s_grid, keys] = cut_key(keys, 'GridStyle', s_grid);
 % Check for 'current'.
 if ~strcmpi(s_grid, 'current')
     % Apply.
@@ -1584,7 +1590,7 @@ end
 if q_cbar
     
     % Get the box option.
-    [cbar_box, options] = cut_option(options, 'ColorBarBox', cbar_box);
+    [cbar_box, keys] = cut_key(keys, 'ColorBarBox', cbar_box);
     % Check for 'current'.
     if ~strcmpi(cbar_box, 'current')
         % Apply.
@@ -1592,7 +1598,7 @@ if q_cbar
     end
     
     % Get the tick direction option.
-    [cbar_d_tick, options] = cut_option(options, ...
+    [cbar_d_tick, keys] = cut_key(keys, ...
         'ColorBarTickDir', cbar_d_tick);
     % Check for 'current'.
     if ~strcmpi(cbar_d_tick, 'current')
@@ -1601,7 +1607,7 @@ if q_cbar
     end
     
     % Get the minor tick option.
-    [cbar_m_tick, options] = cut_option(options, ...
+    [cbar_m_tick, keys] = cut_key(keys, ...
         'ColorBarMinorTick', cbar_m_tick);
     % Check for 'current'.
     if ~strcmpi(cbar_m_tick, 'current')
@@ -1616,7 +1622,7 @@ if q_cbar
     end
     
     % Get the colorbar grid option.
-    [q_g_cbar, options] = cut_option(options, ...
+    [q_g_cbar, keys] = cut_key(keys, ...
         'ColorBarGrid', q_g_cbar);
     % Check for 'current'.
     if ~strcmpi(q_g_cbar, 'current')
@@ -1631,7 +1637,7 @@ if q_cbar
     end
     
     % Get the gridline style option.
-    [s_g_cbar, options] = cut_option(options, ...
+    [s_g_cbar, keys] = cut_key(keys, ...
         'ColorBarGridLineStyle', s_g_cbar);
     % Check for 'current'.
     if ~strcmpi(s_g_cbar, 'current')
@@ -1688,7 +1694,7 @@ if q_cbar
     end
     
     % Get the option for the width of the colorbar.
-    [w_cbar, options] = cut_option(options, 'ColorBarWidth', w_cbar);
+    [w_cbar, keys] = cut_key(keys, 'ColorBarWidth', w_cbar);
     % Check for 'current'.
     if ~strcmpi(w_cbar, 'current')
         % Check if a width or height is needed.
@@ -1703,7 +1709,7 @@ if q_cbar
     end
     
     % Set the size of the gap between the axes and the colorbar.
-    [m_gap, options] = cut_option(options, 'ColorBarGap', m_gap);
+    [m_gap, keys] = cut_key(keys, 'ColorBarGap', m_gap);
     
 end
 
@@ -1718,7 +1724,7 @@ i_l_text = {};
 if q_legend
     
     % Get the box option.
-    [lgnd_box, options] = cut_option(options, 'LegendBox', lgnd_box);
+    [lgnd_box, keys] = cut_key(keys, 'LegendBox', lgnd_box);
     % Check for 'current'.
     if ~strcmpi(lgnd_box, 'current')
         % Apply.
@@ -1780,7 +1786,7 @@ if q_legend
     end
     
     % Set the size of the gap between the axes and the colorbar.
-    [m_l_gap, options] = cut_option(options, 'LegendGap', m_l_gap);
+    [m_l_gap, keys] = cut_key(keys, 'LegendGap', m_l_gap);
     
 end
 
@@ -1788,14 +1794,14 @@ end
 %% --- Margin alteration ---
 
 % Determine the margin style.
-[m_style, options] = cut_option(options, 'MarginStyle', m_style);
+[m_style, keys] = cut_key(keys, 'MarginStyle', m_style);
 % Process style choice.
 q_tight = strcmpi(m_style, 'tight');
 q_loose = strcmpi(m_style, 'loose');
 q_image = strcmpi(m_style, 'image');
 
 % Get aspect ratio.
-[ar_fig, options] = cut_option(options, 'AspectRatio', ar_fig);
+[ar_fig, keys] = cut_key(keys, 'AspectRatio', ar_fig);
 % Convert 'auto' option.
 if strcmpi(ar_fig, 'auto') || strcmpi(ar_fig, 'automatic') || ...
         strcmpi(ar_fig, 'current')
@@ -1804,7 +1810,7 @@ if strcmpi(ar_fig, 'auto') || strcmpi(ar_fig, 'automatic') || ...
 end
 
 % Width of figure
-[w_fig, options] = cut_option(options, 'Width', w_fig);
+[w_fig, keys] = cut_key(keys, 'Width', w_fig);
 % Convert 'auto' option.
 if strcmpi(w_fig, 'auto') || strcmpi(w_fig, 'automatic') || ...
         strcmpi(w_fig, 'current')
@@ -1812,7 +1818,7 @@ if strcmpi(w_fig, 'auto') || strcmpi(w_fig, 'automatic') || ...
 end
 
 % Manual extra margins
-[m_cur, options] = cut_option(options, 'Margin', m_opts);
+[m_cur, keys] = cut_key(keys, 'Margin', m_opts);
 % Check for a vector.
 if ~isnumeric(m_cur)
     error('set_plot:BadMargin', 'Margin must be a numeric vector.');
@@ -1833,10 +1839,10 @@ switch numel(m_cur)
 end
 
 % Check for specific margins.
-[m_opts(1), options] = cut_option(options, 'MarginLeft'  , m_opts(1));
-[m_opts(2), options] = cut_option(options, 'MarginBottom', m_opts(2));
-[m_opts(3), options] = cut_option(options, 'MarginRight' , m_opts(3));
-[m_opts(4), options] = cut_option(options, 'MarginTop'   , m_opts(4));
+[m_opts(1), keys] = cut_key(keys, 'MarginLeft'  , m_opts(1));
+[m_opts(2), keys] = cut_key(keys, 'MarginBottom', m_opts(2));
+[m_opts(3), keys] = cut_key(keys, 'MarginRight' , m_opts(3));
+[m_opts(4), keys] = cut_key(keys, 'MarginTop'   , m_opts(4));
 
 
 % Height of figure
@@ -2147,7 +2153,7 @@ h_text = findall(h_a, 'Type', 'text');
 h_font = [h_a; h_x; h_y; h_z; h_l_text; h_title; h_text];
 
 % Get font name.
-[f_name, options] = cut_option(options, 'FontName', f_name);
+[f_name, keys] = cut_key(keys, 'FontName', f_name);
 % Check for 'current'.
 if strcmpi(f_name, 'current')
     % Apply old fonts to the existing handles.
@@ -2167,14 +2173,14 @@ end
 % Only bother if there are contours
 for h_c = h_contour(:)'
     % Get the fill option.
-    [q_fill, options] = cut_option(options, 'ContourFill', q_fill);
+    [q_fill, keys] = cut_key(keys, 'ContourFill', q_fill);
     % Apply it.
     if ~strcmpi(q_fill, 'current')
         set(h_c, 'Fill', q_fill);
     end
     
     % Get the label option.
-    [q_label, options] = cut_option(options, 'ContourText', q_label);
+    [q_label, keys] = cut_key(keys, 'ContourText', q_label);
     % Apply it.
     if ~strcmpi(q_label, 'current')
         set(h_c, 'ShowText', q_label);
@@ -2196,7 +2202,7 @@ for h_c = h_contour(:)'
     set(h_c_text, 'VerticalAlignment', 'bottom');
     
     % Get the font size option.
-    [s_c_lbl, options] = cut_option(options, 'ContourFontSize', s_c_lbl);
+    [s_c_lbl, keys] = cut_key(keys, 'ContourFontSize', s_c_lbl);
     % Evaluate 'auto'.
     if strcmpi(s_c_lbl, 'auto')
         % Test the current font size.
@@ -2215,7 +2221,7 @@ for h_c = h_contour(:)'
     end
     
     % Get the line coloring option.
-    [c_c_line, options] = cut_option(options, 'ContourLineColor', c_c_line);
+    [c_c_line, keys] = cut_key(keys, 'ContourLineColor', c_c_line);
     % Apply it.
     if ischar(c_c_line)
         % Check for recognized values.
@@ -2252,7 +2258,7 @@ for h_c = h_contour(:)'
     end
     
     % Get the line style option
-    [c_s_line, options] = cut_option(options, 'ContourLineStyle', c_s_line);
+    [c_s_line, keys] = cut_key(keys, 'ContourLineStyle', c_s_line);
     % Apply it.
     if ischar(c_s_line)
         % Check for recognized values.
@@ -2268,7 +2274,7 @@ for h_c = h_contour(:)'
     end
     
     % Get the font name option.
-    [f_c_lbl, options] = cut_option(options, 'ContourFontName', f_c_lbl);
+    [f_c_lbl, keys] = cut_key(keys, 'ContourFontName', f_c_lbl);
     % Apply it.
     if strcmpi(f_c_lbl, 'auto')
         % Use the overall font.
@@ -2285,7 +2291,7 @@ for h_c = h_contour(:)'
     end
     
     % Get the font color option.
-    [c_c_lbl, options] = cut_option(options, 'ContourFontColor', c_c_lbl);
+    [c_c_lbl, keys] = cut_key(keys, 'ContourFontColor', c_c_lbl);
     % Apply it.
     if strcmpi(c_c_lbl, 'auto')
         % Pick a color that doesn't clash (hopefully) for each label.
@@ -2347,7 +2353,7 @@ h_interpreter = [h_x; h_y; h_z; h_l_text];
 i_interpreter = [{i_x}; {i_y}; {i_z}; i_l_text];
 
 % Get interpreter option.
-[i_style, options] = cut_option(options, 'Interpreter', i_style);
+[i_style, keys] = cut_key(keys, 'Interpreter', i_style);
 
 % Loop through the handles with an interpreter.
 for i = 1:numel(h_interpreter)
@@ -2387,13 +2393,13 @@ end
 %% --- Output ---
 
 % Check for leftover options
-if ~isempty(fieldnames(options))
+if ~isempty(fieldnames(keys))
     % Something was not used.
     warning('set_plot:ExtraOptions', ...
         'Some of the input options were not used.');
     % Output the remaining options.
     fprintf('\nRemaining options:\n');
-    disp(options)
+    disp(keys)
 end
 
 % Check for an output.
@@ -2429,9 +2435,9 @@ end
 
 
 % --- SUBFUNCTION 1: Get option and delete it ---
-function [val, options] = cut_option(options, name, default)
+function [val, options] = cut_key(options, name, default)
 %
-% [val, options] = cut_option(options, name, default)
+% [val, options] = cut_key(options, name, default)
 %
 % INPUTS:
 %         options : struct of options
@@ -2496,7 +2502,7 @@ end
 
 
 % --- SUBFUNCTION 2: Help for options ---
-function help_options
+function help_keys
 % SET_PLOT OPTIONS:
 %    <strong>AspectRatio</strong>
 %          [ {auto} | positive scalar ]
