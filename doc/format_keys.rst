@@ -74,6 +74,9 @@ List of Format Keys
         Color to use for contour lines.  The ``'auto'`` value tells the
         function to match the contour lines to the colormap values.
         
+    **ContourLineStyle**: [ {``'current'``} | ``'-'`` | ``'none'`` | ``'--'`` | ``'-.'`` | ``':'`` ]
+        Style to use for contour lines.
+        
     **ContourStyle**: [ {``'current'``} | ``'pretty'`` | ``'fancy'`` | ``'black'`` | ``'fill'`` | ``'smooth'`` | ``'simple'`` | ``'plain'`` ]
         Style to use for contour plots.  This is a cascading style.
         

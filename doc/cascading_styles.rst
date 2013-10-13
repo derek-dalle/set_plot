@@ -2,7 +2,7 @@
     This is an automatically generated file. Do not edit it.
     To change its contents, see 'doc_cascading_stiles.m'.
 
-    Written on 2013-10-12
+    Written on 2013-10-13
 
 
 Cascading Style Chart
@@ -426,6 +426,8 @@ that the parent and child format keys take.
         |                 +-----------------------+-----------------------+
         |                 | ContourLineColor      | ``'Black'``           |
         |                 +-----------------------+-----------------------+
+        |                 | ContourLineStyle      | ``'-'``               |
+        |                 +-----------------------+-----------------------+
         |                 | ContourText           | ``'on'``              |
         +-----------------+-----------------------+-----------------------+
         | ``'current'``   | ContourFill           | ``'current'``         |
@@ -437,6 +439,8 @@ that the parent and child format keys take.
         |                 | ContourFontSize       | ``'current'``         |
         |                 +-----------------------+-----------------------+
         |                 | ContourLineColor      | ``'current'``         |
+        |                 +-----------------------+-----------------------+
+        |                 | ContourLineStyle      | ``'-'``               |
         |                 +-----------------------+-----------------------+
         |                 | ContourText           | ``'current'``         |
         +-----------------+-----------------------+-----------------------+
@@ -450,6 +454,8 @@ that the parent and child format keys take.
         |                 +-----------------------+-----------------------+
         |                 | ContourLineColor      | ``'Black'``           |
         |                 +-----------------------+-----------------------+
+        |                 | ContourLineStyle      | ``'-'``               |
+        |                 +-----------------------+-----------------------+
         |                 | ContourText           | ``'on'``              |
         +-----------------+-----------------------+-----------------------+
         | ``'pretty'``    | ContourFill           | ``'off'``             |
@@ -461,6 +467,8 @@ that the parent and child format keys take.
         |                 | ContourFontSize       | ``'auto'``            |
         |                 +-----------------------+-----------------------+
         |                 | ContourLineColor      | ``'auto'``            |
+        |                 +-----------------------+-----------------------+
+        |                 | ContourLineStyle      | ``'-'``               |
         |                 +-----------------------+-----------------------+
         |                 | ContourText           | ``'on'``              |
         +-----------------+-----------------------+-----------------------+
@@ -474,6 +482,8 @@ that the parent and child format keys take.
         |                 +-----------------------+-----------------------+
         |                 | ContourLineColor      | ``'auto'``            |
         |                 +-----------------------+-----------------------+
+        |                 | ContourLineStyle      | ``'-'``               |
+        |                 +-----------------------+-----------------------+
         |                 | ContourText           | ``'off'``             |
         +-----------------+-----------------------+-----------------------+
         | ``'smooth'``    | ContourFill           | ``'on'``              |
@@ -485,6 +495,8 @@ that the parent and child format keys take.
         |                 | ContourFontSize       | ``'auto'``            |
         |                 +-----------------------+-----------------------+
         |                 | ContourLineColor      | ``'auto'``            |
+        |                 +-----------------------+-----------------------+
+        |                 | ContourLineStyle      | ``'none'``            |
         |                 +-----------------------+-----------------------+
         |                 | ContourText           | ``'off'``             |
         +-----------------+-----------------------+-----------------------+

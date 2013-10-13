@@ -884,6 +884,8 @@ if strcmpi(ctr_style, 'pretty')
     q_label = 'on';
     % Line color
     c_c_line = 'auto';
+    % Line style
+    c_s_line = '-';
     % Label font color
     c_c_lbl = 'Black';
     % Label font name
@@ -898,6 +900,8 @@ elseif strcmpi(ctr_style, 'fancy')
     q_label = 'on';
     % Line color
     c_c_line = 'Black';
+    % Line style
+    c_s_line = '-';
     % Label font color
     c_c_lbl = 'auto';
     % Label font name
@@ -912,6 +916,8 @@ elseif strcmpi(ctr_style, 'black')
     q_label = 'on';
     % Line color
     c_c_line = 'Black';
+    % Line style
+    c_s_line = '-';
     % Label font color
     c_c_lbl = 'Black';
     % Label font name
@@ -926,6 +932,8 @@ elseif strcmpi(ctr_style, 'fill')
     q_label = 'off';
     % Line color
     c_c_line = 'Black';
+    % Line style
+    c_s_line = '-';
     % Label font color
     c_c_lbl = 'current';
     % Label font name
@@ -939,7 +947,9 @@ elseif strcmpi(ctr_style, 'smooth')
     % Labels or not
     q_label = 'off';
     % Line color
-    c_c_line = 'auto';
+    c_c_line = 'Black';
+    % Line style
+    c_s_line = 'none';
     % Label font color
     c_c_lbl = 'current';
     % Label font name
@@ -954,6 +964,8 @@ elseif strcmpi(ctr_style, 'simple') || strcmpi(ctr_style, 'plain')
     q_label = 'off';
     % Line color
     c_c_line = 'auto';
+    % Line style
+    c_s_line = '-';
     % Label font color
     c_c_lbl = 'current';
     % Label font name
@@ -968,6 +980,8 @@ elseif strcmpi(ctr_style, 'current')
     q_label = 'current';
     % Line color
     c_c_line = 'current';
+    % Line style
+    c_s_line = 'current';
     % Label font color
     c_c_lbl = 'current';
     % Label font name
@@ -2234,6 +2248,22 @@ for h_c = h_contour(:)'
             'string or 1x3 double.']);
     end
     
+    % Get the line style option
+    [c_s_line, options] = cut_option(options, 'ContourLineStyle', c_s_line);
+    % Apply it.
+    if ischar(c_s_line)
+        % Check for recognized values.
+        if strcmpi(c_s_line, 'current')
+            % Do nothing.
+        else
+            % Try to apply it.
+            set(h_c, 'LineStyle', c_s_line);
+        end
+    else
+        % Bad input type
+        error('set_plot:ContourStyle', 'ContourLineStyle must be a char.');
+    end
+    
     % Get the font name option.
     [f_c_lbl, options] = cut_option(options, 'ContourFontName', f_c_lbl);
     % Apply it.
@@ -2538,6 +2568,9 @@ function help_options
 %          [ {current} | auto | char | 1x3 double ]
 %       Color to use for contour lines.  The 'auto' value tells the
 %       function to match the contour lines to the colormap values.
+%    <strong>ContourLineStyle</strong>
+%          [ {'current'} | '-' | 'none' | '--' | '-.' | ':' ]
+%       Style to use for contour lines
 %    <strong>ContourStyle</strong>
 %          [ {current} | pretty | fancy | black | fill | smooth
 %             | simple | plain ]
@@ -2864,6 +2897,7 @@ function help_cascading_styles
 %           ContourFontName  -> 'auto'
 %           ContourFontSize  -> 'auto'
 %           ContourLineColor -> 'Black'
+%           ContourLineStyle -> '-'
 %           ContourText      -> 'on'
 %       'current'
 %           ContourFill      -> 'current'
@@ -2871,6 +2905,7 @@ function help_cascading_styles
 %           ContourFontName  -> 'current'
 %           ContourFontSize  -> 'current'
 %           ContourLineColor -> 'current'
+%           ContourLineStyle -> '-'
 %           ContourText      -> 'current'
 %       'fancy'
 %           ContourFill      -> 'on'
@@ -2878,6 +2913,7 @@ function help_cascading_styles
 %           ContourFontName  -> 'auto'
 %           ContourFontSize  -> 'auto'
 %           ContourLineColor -> 'Black'
+%           ContourLineStyle -> '-'
 %           ContourText      -> 'on'
 %       'pretty'
 %           ContourFill      -> 'off'
@@ -2885,6 +2921,7 @@ function help_cascading_styles
 %           ContourFontName  -> 'auto'
 %           ContourFontSize  -> 'auto'
 %           ContourLineColor -> 'auto'
+%           ContourLineStyle -> '-'
 %           ContourText      -> 'on'
 %       'plain'
 %           ContourFill      -> 'off'
@@ -2892,6 +2929,7 @@ function help_cascading_styles
 %           ContourFontName  -> 'auto'
 %           ContourFontSize  -> 'auto'
 %           ContourLineColor -> 'auto'
+%           ContourLineStyle -> '-'
 %           ContourText      -> 'off'
 %       'smooth'
 %           ContourFill      -> 'on'
@@ -2899,6 +2937,7 @@ function help_cascading_styles
 %           ContourFontName  -> 'auto'
 %           ContourFontSize  -> 'auto'
 %           ContourLineColor -> 'auto'
+%           ContourLineStyle -> 'none'
 %           ContourText      -> 'off'
 %
 %   <strong>FontStyle</strong>

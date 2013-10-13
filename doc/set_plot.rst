@@ -197,12 +197,58 @@ lines, and you would still like to utilize the other features of
         changes to your code.
 
 
+Text and Legends
+----------------
+
+Whenever :func:`set_plot` finds a text object that contains text delimited in
+``'$'`` characters, it automatically interprets those text portions using the
+``'latex'`` interpreter.  Consider the example from above with three data series
+and add some text to it.
+
+    .. code-block:: matlabsession
+    
+        >> xlabel('Length, $x$')
+        >> ylabel('Amplitude, $\hat{A}_i$')
+        >> legend('Theory, 'Lower bound, $A_L$', 'Experiment')
+        >> h = set_plot(h_f, 'FigureStyle','journal', 'PlotStyle','fancy');
+        
+    .. image:: ./test/set_plot/legend-bad.*
+        :width: 300pt
+     
+Although the text in this example looks quite nice, the legend position is
+clearly non-ideal.  Unfortunately, :func:`set_plot` has no capability to
+automatically place the legend, but it can help with moving it.
+
+    .. code-block:: matlabsession
+    
+        >> p = get(h.legend, 'Position');
+        >> p(1) = 0.7;
+        >> p(2) = 0.6;
+        >> set(h.legend, 'Position', p)
+        
+    .. image:: ./test/set_plot/legend-fixed.*
+        :width: 300pt
+        
+Of course, moving the legend manually is also acceptable.  The final example
+shows how to change the basic text to a sans serif theme, although text pieces
+that are interpreted using ``'latex'`` are not affected.
+
+    .. code-block:: matlabsession
+    
+        >> set_plot('FontStyle', 'sans-serif')
+        
+    .. image:: ./test/set_plot/legend-sans.*
+        :width: 300pt
+        
+This example shows why it is advisable to have all of the legend entries use the
+same interpreter.
+
+        
 Working with Color Bars
 -----------------------
 
 The :mod:`set_plot` package is set up to work with the MATLAB ``colorbar``
-object.  The following example shows some typical formatting that is applied to
-color bars.
+object.  The following example shows some typical formatting.
 
     .. code-block:: matlabsession
     
@@ -220,6 +266,14 @@ color bars.
         
     .. image:: ./test/set_plot/cbar-fancy.*
         :width: 300pt
+        
+        
+Outputs
+-------
+
+
+
+
    
 Detailed Documentation
 ======================
