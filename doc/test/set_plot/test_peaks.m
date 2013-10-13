@@ -1,6 +1,6 @@
-function test_peaks
+function ierr = test_peaks
 %
-% test_peaks
+% ierr = test_peaks
 %
 % This function creates a basic contour plot, saves it, and then modifies
 % it and saves it again.
@@ -55,9 +55,11 @@ try
 	
 	% Success message.
 	fprintf('PASSED\n');
+    ierr = 0;
 	
 catch msg
 	% Failure.
 	disp(msg.message);
-	
+	ierr = 1;
+    
 end

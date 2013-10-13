@@ -110,41 +110,58 @@ uses a ``'ContourStyle'`` of ``'fancy'``, not the default ``'FigureStyle',
 Examples
 ========
 
-This example demonstrates the usual output of :func:`html2rgb`.
-    
+Plotting Lines
+--------------
+
+In an attempt to make lines in a plot more distinguishable, many
+:func:`set_plot` commands change the appearance of lines automatically.  For
+example the ``'journal'`` **FigureStyle** changes lines to alternate among solid
+lines, dashed lines, and dot-dashed lines.  The ``'color'`` **FigureStyle**
+makes all of the lines solid and instead varies the colors.
+
+However, this behavior is not always desirable, especially if there is a data
+set that is represented by data points and not a continuous curve.  Consider the
+following example.
+
     .. code-block:: matlabsession
+        
+        >> x1 = linspace(0, 1, 101);
+        >> x2 = linspace(0, 1, 8);
+        >> hold('on')
+        >> plot(x1, sinc(x1))
+        >> plot(x1, 5*x1*(0.75-x1)
+        >> plot(x2, sinc(x2) - (x2-0.5).^2, '^')
+        
+    .. image:: ./test/set_plot/lines-plain.*
+        :width: 300pt
     
-        >> html2rgb('DodgerBlue')
-        ans =
-            0.1176    0.5647    1.0000
-            
-Shorter names are also available.
+Applying a style to this gives a less-than
+
+
+
+Working with Color Bars
+-----------------------
+
+The :mod:`set_plot` package is set up to work with the MATLAB ``colorbar``
+object.  The following example shows some typical formatting that is applied to
+color bars.
 
     .. code-block:: matlabsession
     
-        >> html2rgb('y')
-        ans =
-             1     1     0
-        >> html2rgb('yellow')
-        ans =
-             1     1     0
-             
-Because valid RGB color codes are returned when input, the function can safely
-be nested.
-
-    .. code-block:: matlab
-    
-        >> html2rgb(html2rgb('Coral'))
-        ans =
-            1.0000    0.4980    0.3137
-            
-A single number as input is taken as grayscale.
-
+        >> [x, y] = meshgrid(linspace(-1, 1, 101));
+        >> contourf(x, y, sin(2*pi*x) + sin(2*pi*y));
+        >> colorbar
+        >> set_plot('FigureStyle','journal', 'ContourStyle','fill');
+        
+    .. image:: ./test/set_plot/cbar-journal.*
+        :width: 300pt
+        
     .. code-block:: matlabsession
     
-        >> html2rgb(0.3)
-        ans =
-            0.3000    0.3000    0.3000
+        >> set_plot('FigureStyle','fancy', 'ContourStyle','fill')
+        
+    .. image:: ./test/set_plot/cbar-fancy.*
+        :width: 300pt
    
 Detailed Documentation
 ======================

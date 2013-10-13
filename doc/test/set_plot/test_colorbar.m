@@ -1,9 +1,8 @@
-function ierr = test_keys
+function ierr = test_colorbar
 %
-% ierr = test_keys
+% test_keys
 %
-% This function creates a fancy contour plot in two formats to test the
-% input processing.
+% This function tests the formatting of a colorbar.
 %
 
 %----------------------------------------------------------------------
@@ -27,38 +26,34 @@ try
 	h_f = figure();
 	
 	% Make a contour plot.
-    contourf(peaks(50))
+    [x, y] = meshgrid(linspace(-1,1,101));
+    contourf(x, y, sin(2*pi*x) + sin(2*pi*y));
+    % Turn the colorbar on.
+    colorbar;
 	
 	% Do the basic set_plot on it to get the margins fixed up.
-	set_plot('FigureStyle', 'journal', 'ContourStyle', 'fancy')
+	set_plot(h_f, 'FigureStyle','journal', 'ContourStyle','fill');
 	
 	% Save it as a PDF again.
-	saveas(h_f, './peaks-fancy.pdf')
-	system('convert -density 300 peaks-fancy.pdf peaks-fancy.png');
+	saveas(h_f, './cbar-journal.pdf')
+	system('convert -density 300 cbar-journal.pdf cbar-journal.png');
 	
-	% Make a keyValue struct.
-    keys = struct( ...
-        'FigureStyle',  'journal', ...
-        'FontStyle',    'presentation', ...
-        'ContourStyle', 'fancy', ...
-        'ColorMap',     'reverse-jet');
-    
-    % Apply it.
-    set_plot(h_f, keys);
+	% Try a fancy colorbar.
+    set_plot(h_f, 'FigureStyle', 'fancy', 'ContourStyle', 'fill');
     % Save it.
-    saveas(h_f, './peaks-keys.pdf')
-	system('convert -density 300 peaks-keys.pdf peaks-keys.png');
+    saveas(h_f, './cbar-fancy.pdf')
+	system('convert -density 300 cbar-fancy.pdf cbar-fancy.png');
 	
 	% Close the figure.
 	close(h_f)
 	
 	% Success message.
 	fprintf('PASSED\n');
-    ierr = 0;
 	
+    ierr = 0;
+    
 catch msg
 	% Failure.
 	disp(msg.message);
 	ierr = 1;
-    
 end

@@ -1,6 +1,6 @@
-function test_plot
+function ierr = test_plot
 %
-% test_plot
+% ierr = test_plot
 %
 % This function creates a basic plot and saves it.  It creates a basic
 % (unformatted) image and a configured one.
@@ -50,9 +50,11 @@ try
 	
 	% Success message.
 	fprintf('PASSED\n');
+    ierr = 0;
 	
 catch msg
 	% Failure.
 	disp(msg.message);
-	
+	ierr = 1;
+    
 end

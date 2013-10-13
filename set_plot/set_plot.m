@@ -439,7 +439,7 @@ elseif q_plain
 elseif q_current
     % Plain style
     % Default margin style
-    m_style = 'loose';
+    m_style = 'current';
     % Manual margins
     m_opts  = 0.025 * ones(1,4);
     % Use current interpreters.
@@ -1101,14 +1101,16 @@ end
 if ~all(strcmpi(l_pseq, 'current')) && iscell(v_pseq)
     % Number of styles.
     n_pseq = numel(v_pseq);
+    % Get the lines that are actually plotted (LineStyle ~= none).
+    h_pseq = h_line(~strcmp(get(h_line, 'LineStyle'), 'none'));
     % Number of handles
-    n_line = numel(h_line);
+    n_line = numel(h_pseq);
     % Index of style to use.
     i_pseq = 1;
     % Loop backwards through lines.
     for i = n_line:-1:1
         % Set the color.
-        set(h_line(i), 'LineStyle', v_pseq{i_pseq});
+        set(h_pseq(i), 'LineStyle', v_pseq{i_pseq});
         % Move to the next style.
         i_pseq = i_pseq + 1;
         % Check if the colors should start over.
@@ -2111,6 +2113,12 @@ elseif q_loose
     % Set the size of the margins.
     set(h_a, 'OuterPosition', [0, 0, w_fig, h_fig]);
     
+else
+    % Set the paper size.
+    set(h_f, 'PaperSize', [w_fig, h_fig]);
+    % This should have no effect.
+    set(h_f, 'PaperPosition', [0, 0, w_fig, h_fig]);
+    
 end
 
 
@@ -2651,7 +2659,7 @@ function help_cascading_styles
 %           LegendStyle      -> 'current'
 %           PlotStyle        -> 'current'
 %           Margin           -> 0.025*ones(1,4)
-%           MarginStyle      -> 'loose'
+%           MarginStyle      -> 'current'
 %           Width            -> 'auto'
 %       'fancy'
 %           AspectRatio      -> 'auto'
@@ -2666,6 +2674,19 @@ function help_cascading_styles
 %           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 'auto'
+%       'journal'
+%           AspectRatio      -> 0.75
+%           AxesStyle        -> 'pretty'
+%           ColorBarStyle    -> 'pretty'
+%           ColorStyle       -> 'gray'
+%           ContourStyle     -> 'pretty'
+%           FontStyle        -> 'pretty'
+%           Interpreter      -> 'auto'
+%           LegendStyle      -> 'pretty'
+%           PlotStyle        -> 'current'
+%           Margin           -> 0.025*ones(1,4)
+%           MarginStyle      -> 'tight'
+%           Width            -> 3.1
 %       'onecol'
 %           AspectRatio      -> (sqrt(5)-1)/2
 %           AxesStyle        -> 'pretty'
@@ -2705,7 +2726,7 @@ function help_cascading_styles
 %           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 3.1
-%       'present' | 'presentation'
+%       'present'
 %           AspectRatio      -> 0.75
 %           AxesStyle        -> 'pretty'
 %           ColorBarStyle    -> 'pretty'
@@ -2731,19 +2752,6 @@ function help_cascading_styles
 %           Margin           -> 0.025*ones(1,4)
 %           MarginStyle      -> 'tight'
 %           Width            -> 'auto'
-%       'twocol' | 'journal'
-%           AspectRatio      -> 0.75
-%           AxesStyle        -> 'pretty'
-%           ColorBarStyle    -> 'pretty'
-%           ColorStyle       -> 'gray'
-%           ContourStyle     -> 'pretty'
-%           FontStyle        -> 'pretty'
-%           Interpreter      -> 'auto'
-%           LegendStyle      -> 'pretty'
-%           PlotStyle        -> 'current'
-%           Margin           -> 0.025*ones(1,4)
-%           MarginStyle      -> 'tight'
-%           Width            -> 3.1
 %
 %    <strong>AxesStyle</strong>
 %       'current'
@@ -2836,7 +2844,7 @@ function help_cascading_styles
 %           ColorSequence -> 'dark'
 %           ColorMap      -> 'blue'
 %           BarColorStyle -> 'sequence'
-%       'gray' | 'grayscale'
+%       'gray'
 %           ColorSequence -> 'gray'
 %           ColorMap      -> 'gray'
 %           BarColorStyle -> 'contour'
@@ -2878,7 +2886,7 @@ function help_cascading_styles
 %           ContourFontSize  -> 'auto'
 %           ContourLineColor -> 'auto'
 %           ContourText      -> 'on'
-%       'simple' | 'plain'
+%       'plain'
 %           ContourFill      -> 'off'
 %           ContourFontColor -> 'current'
 %           ContourFontName  -> 'auto'
@@ -2900,7 +2908,7 @@ function help_cascading_styles
 %       'plain'
 %           FontName -> 'Helvetica'
 %           FontSize -> 10
-%       'pretty' | 'fancy' | 'present' | 'presentation'
+%       'pretty'
 %           FontName -> 'Times New Roman'
 %           FontSize -> 9
 %       'sans-serif'
