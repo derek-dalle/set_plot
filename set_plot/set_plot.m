@@ -2135,6 +2135,9 @@ else
     
 end
 
+% Set the axes units to 'normalized' so that it scales with the window.
+set(h_a, 'Units', 'normalized')
+
 
 %% --- Font type application ---
 
