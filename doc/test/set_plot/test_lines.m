@@ -57,7 +57,7 @@ try
 	system('convert -density 300 lines-fancy.pdf lines-fancy.png');
     
     % Now run set-plot again.
-    set_plot(h_f, 'LineWidth', 2, 'MarginStyle', 'current')
+    set_plot(h_f, 'LineWidth', 2)
     
     % Save it.
     saveas(h_f, './lines-clean.pdf')

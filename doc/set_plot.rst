@@ -135,7 +135,23 @@ following example.
     .. image:: ./test/set_plot/lines-plain.*
         :width: 300pt
     
-Applying a style to this gives a less-than
+Note that since the three were plotted independently, they all default to the
+default style (``'b-'``) except where explicitly overridden.  An application of
+:func:`set_plot` to this gives the following.
+
+    .. code-block:: matlabsession
+    
+        >> set_plot('FigureStyle', 'fancy', 'Width', 3.1)
+        
+    .. image:: ./test/set_plot/lines-fancy.*
+        :width: 300pt
+        
+    .. code-block:: matlabsession
+    
+        >> set_plot('LineWidth', 2)
+        
+    .. image:: ./test/set_plot/lines-clean.*
+        :width: 300pt
 
 
 
