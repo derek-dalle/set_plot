@@ -1,7 +1,9 @@
 function ierr = sp_Install
+%SP_INSTALL Install set_plot package
 %
-% sp_Install
-% ierr = sp_Install
+% CALL:
+%    sp_Install
+%    ierr = sp_Install
 %
 % INPUTS:
 %    (None)
@@ -119,6 +121,10 @@ try
 	
 	% Close the file.
 	fclose(fid);
+    
+    % Actually add the paths so that it can be used now.
+    addpath(sppath)
+    addpath(utilpath)
 	
 	% Set success flag.
 	if nargout > 0, ierr = 0; end

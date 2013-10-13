@@ -1,7 +1,9 @@
 function ierr = sp_Uninstall
+%SP_UNINSTALL Uninstall set_plot from path.
 %
-% sp_Uninstall
-% ierr = sp_Uninstall
+% CALL:
+%    sp_Uninstall
+%    ierr = sp_Uninstall
 %
 % INPUTS:
 %    (None)

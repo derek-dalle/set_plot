@@ -33,6 +33,31 @@ Contents
    test/index
    
 
+Installation
+============
+
+To install the :mod:`set_plot` package, simply unzip the file to a good folder
+(within the ``'Documents/MATLAB'`` folder is a pretty good suggestion) and run
+the :func:`sp_Install` function.
+
+    .. code-block:: matlabsession
+    
+        >> ierr = sp_Install
+        ans =
+             0
+             
+If the output of this command is zero, the installation was successful.
+Afterwards, you may delete the ``.zip`` file, but do not delete the unzipped
+folder.  To uninstall from MATLAB's memory, run the following command.
+
+    .. code-block:: matlabsession
+    
+        >> sp_Uninstall
+        
+This does not delete the :mod:`set_plot` source from your computer, so you will
+have to do that manually if desired.
+        
+
 Basic Examples
 ==============
 
