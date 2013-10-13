@@ -23,11 +23,12 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :numbered:
    
    functions
    set_plot
+   set_colormap
    html2rgb
    test/index
    
@@ -113,6 +114,13 @@ automatic formatting that is done.
     .. image:: ./test/set_plot/peaks-journal.*
         :width: 300pt
 
+.. note:: 
+    As of version 0.9.0, resizing the MATLAB figure window does cause the figure
+    to be resized, whereas in previous versions it would remain the same size,
+    often occupying just the lower left-hand corner of the window.  However,
+    this automatic resizing does not transfer to the ``'PaperSize'`` property,
+    meaning that saving to a PDF will not work as expected if you have resized a
+    window.
 
 
 Indices and tables

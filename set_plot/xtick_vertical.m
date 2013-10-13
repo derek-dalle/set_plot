@@ -1,14 +1,17 @@
 function h_t = xtick_vertical(s_x, h_a)
+%XTICK_VERTICAL Produce vertical tick labels on the x-axis
 %
-% xtick_vertical(s, h_a)
-% h_t = xtick_vertical(s, h_a)
+% CALL:
+%    xtick_vertical(s_x)
+%    xtick_vertical(s_x, h_a)
+%    h_t = xtick_vertical(s_x, h_a)
 %
 % INPUTS:
-%         s_x : cell array of strings for x-axis tick labels
-%         h_a : (optional) axis handle; GCA used if only one input
+%    s_x : cell array of strings for x-axis tick labels
+%    h_a : (optional) axis handle; GCA used if only one input
 %
 % OUTPUTS:
-%         h_t : handle to tick label object
+%    h_t : handle to tick label object
 %
 % This function facilitates vertical labels for the x-axis.  To use it,
 % simply specify the list of strings to use for the labels.  However, the
@@ -30,10 +33,7 @@ function h_t = xtick_vertical(s_x, h_a)
 %----------------------------------------------------------------------
 
 % Versions:
-%  2012/04/20 @Derek Dalle    : First version
-%
-% Copyright (c) 2012 by Derek Dalle
-% BSD License
+%  2012-04-20 @dalle   : First version
 
 % Check for enough inputs.
 if nargin < 1

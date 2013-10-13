@@ -39,12 +39,15 @@ try
     fprintf(fid, '\n    Written on %s\n', datestr(date, 29));
     fprintf(fid, '\n\n');
     
+    % Make a label.
+    fprintf(fid, '.. _cascading-styles:\n\n');
+    
     % Write the headings.
     fprintf(fid, 'Cascading Style Chart\n');
     fprintf(fid, '---------------------\n');
     
     % Introductory text.
-    fprintf(fid, '\nThe following list all cascading styles and the values\n');
+    fprintf(fid, '\nThe following lists all cascading styles and the values\n');
     fprintf(fid, 'that the parent and child format keys take.\n\n');
     
     % Number of parent keys found.

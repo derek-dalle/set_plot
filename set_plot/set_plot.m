@@ -10,8 +10,8 @@ function h = set_plot(varargin)
 %
 % INPUTS:
 %    h_f      : figure handle
-%    keyName  : char, name of option
-%    keyValue : value of corresponding option
+%    keyName  : char, name of format key
+%    keyValue : value of preceding key
 %    keys     : struct containing options
 %
 % OUTPUTS:

@@ -123,7 +123,7 @@ s_colors = {
     'DarkKhaki',             [189, 183, 107];
     'DarkMagenta',           [139,   0, 139];
     'DarkOliveGreen',        [ 85, 107,  47];
-    'DarkOrange',            [  0, 100,   0];
+    'DarkOrange',            [248, 128,  23];
     'DarkOrchid',            [153,  50, 204];
     'DarkRed',               [139,   0,   0];
     'DarkSalmon',            [233, 150, 122];

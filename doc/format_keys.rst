@@ -1,3 +1,5 @@
+.. _format_keys:
+
 List of Format Keys
 ===================
 

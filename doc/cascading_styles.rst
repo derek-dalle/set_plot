@@ -5,10 +5,12 @@
     Written on 2013-10-13
 
 
+.. _cascading-styles:
+
 Cascading Style Chart
 ---------------------
 
-The following list all cascading styles and the values
+The following lists all cascading styles and the values
 that the parent and child format keys take.
 
 
