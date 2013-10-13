@@ -271,8 +271,51 @@ object.  The following example shows some typical formatting.
 Outputs
 -------
 
+As demonstrated in the legend example above, it is possible to call
+:func:`set_plot` with outputs (although no output will be produced when
+:func:`set_plot` is called with no output; i.e., it won't change the variable of
+``ans``).  The output collects all of the figure, line, text, and any other
+handles that it can find.  This can be convenient for changing the graphics
+after :func:`set_plot` has been called---especially when writing a script to
+create graphics.  The following example demonstrates this output on a fairly
+busy example.
 
+    .. code-block:: matlabsession
+    
+        >> x = linspace(0, 1, 51)
+        >> contour(x, x, peaks(51))
+        >> hold('on')
+        >> plot(x, 0.1 + x.*(2-x)/2)
+        >> colorbar
+        >> keys.FigureStyle  = 'journal';
+        >> keys.ContourStyle = 'smooth';
+        >> keys.LineWidth    = 2;
+        >> keys.ColorStyle   = 'current';
+        >> keys.ColorMap     = 'g';
+        >> h = set_plot(keys)
+        h = 
+              figure: 1
+                axes: 173.0149
+               label: [1x1 struct]
+               title: 216.0088
+                text: [7x1 double]
+                line: 190.0125
+             contour: [1x1 struct]
+            colorbar: 191.0125
+            
+    .. image:: ./test/set_plot/output-contour.*
+        :width: 300pt
 
+As one demonstration of how this can be useful, suppose you realize after
+creating the graphic that you used the wrong data for the plot's
+*y*-coordinates.  No problem!
+
+    .. code-block:: matlabsession
+    
+        >> set(h.line, 'YData', x.^2)
+        
+    .. image:: ./test/set_plot/output-altered.*
+        :width: 300pt
 
    
 Detailed Documentation
