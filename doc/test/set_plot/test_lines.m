@@ -65,6 +65,25 @@ try
 	
 	% Close the figure.
 	close(h_f)
+    
+    % New figure.
+    h_f = figure();
+    
+    % Make two plots.
+    hold('on')
+    plot(x1, x1, 'Color', [0.4,0,0.8], 'LineWidth', 2)
+    plot(x1, 4*x1.*(1-x1), 'Color', [0.8,0.6,0.1], 'LineWidth', 2)
+    
+    % Format it.
+    set_plot(h_f, 'FigureStyle','journal', 'PlotStyle','current', ...
+        'ColorStyle','current')
+    
+    % Save it.
+    saveas(h_f, './polys-clean.pdf')
+    system('convert -density 300 polys-clean.pdf polys-clean.png')
+    
+    % Close it.
+    close(h_f)
 	
 	% Success message.
 	fprintf('PASSED\n');

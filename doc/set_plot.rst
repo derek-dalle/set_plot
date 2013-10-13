@@ -146,13 +146,55 @@ default style (``'b-'``) except where explicitly overridden.  An application of
     .. image:: ./test/set_plot/lines-fancy.*
         :width: 300pt
         
+All of the MATLAB ``line`` objects are found, but only lines that have a
+``'LineStyle'`` (that is, other than ``'none'``) are affected.  As a result, any
+data series that are plotted without connecting lines are ignored.  In addition,
+the lines are given alternating colors according to the value of the
+:mod:`set_plot` parameter **ColorSequence**.
+
+    .. note::
+    
+        Prior to ``set_plot`` version 0.9.0, all data series were affected, such
+        that the blue triangles would have been joined using the code from the
+        preceding example.
+        
+Furthermore, since :func:`set_plot` defaults to leaving things unchanged, it is
+possible to change a low-level plot format setting with a single command.
+
     .. code-block:: matlabsession
     
         >> set_plot('LineWidth', 2)
         
     .. image:: ./test/set_plot/lines-clean.*
         :width: 300pt
+        
+    .. note::
+        
+        Prior to ``set_plot`` version 0.9.0, this format key was called
+        ``'PlotLineWidth'``.  For compatibility, newer versions still recognize
+        this longer key name.  The parameter ``'PlotLineStyle'`` is recognized
+        for similar reasons.
+        
+However, if you have put hard work into manually picking the style for your
+lines, and you would still like to utilize the other features of
+:func:`set_plot`, there is a solution for that as well.
+        
+    .. code-block:: matlabsession
+    
+        >> plot(x1, x1, 'Color', [0.4,0,0.8], 'LineWidth', 2)
+        >> plot(x1, 4*x1.*(1-x1), 'Color', [0.8,0.6,0.1], 'LineWidth', 2)
+        >> set_plot('FigureStyle','journal', 'PlotStyle','current', 'ColorStyle','current')
+    
+    .. image:: ./test/set_plot/polys-clean.*
+        :width: 300pt
 
+    .. note::
+        
+        The **PlotStyle** must be set to ``'current'`` to keep the current line
+        styles and widths, and the **ColorStyle** controls the colors of the
+        lines.  In some previous versions of ``set_plot``, the **ColorStyle**
+        portion of the command may not be necessary, and this may require
+        changes to your code.
 
 
 Working with Color Bars
